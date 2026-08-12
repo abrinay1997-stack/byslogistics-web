@@ -62,13 +62,15 @@ const activeSocials = socialIcons.filter(
         </h3>
 
         <form
+          name={FORMS.newsletter}
+          method="POST"
+          data-netlify="true"
+          data-netlify-honeypot="botcheck"
           data-contact-form
-          data-form-endpoint={FORMS.endpoint}
-          data-form-key={FORMS.accessKey}
-          data-form-subject="Nueva suscripción desde el sitio web"
           data-form-success="¡Listo! Quedaste suscrito a nuestras novedades."
-          data-form-fallback={`Escríbenos a ${CONTACT.email} y te agregamos a la lista.`}
+          data-form-fallback={`No pudimos completar la suscripción. Escríbenos a ${CONTACT.email} y te agregamos a la lista.`}
         >
+          <input type="hidden" name="form-name" value={FORMS.newsletter} />
           {/* Trampa antispam */}
           <input
             type="checkbox"
@@ -81,7 +83,12 @@ const activeSocials = socialIcons.filter(
           />
           <EmailFooterInput />
           <p class="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
-            {sectionThreeContent}
+            {sectionThreeContent} Al suscribirte aceptas nuestra{' '}
+            <a
+              href="/politica-de-datos"
+              class="underline underline-offset-2 hover:text-neutral-800 dark:hover:text-neutral-200"
+              >Política de Tratamiento de Datos</a
+            >.
           </p>
         </form>
       </div>

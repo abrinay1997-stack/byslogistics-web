@@ -37,6 +37,7 @@ const footerLinks = [
       { name: 'Usos y sectores', url: '/usos' },
       { name: 'Preguntas frecuentes', url: '/faq' },
       { name: 'Contacto', url: '/contacto' },
+      { name: 'Tratamiento de datos', url: '/politica-de-datos' },
     ],
   },
 ];

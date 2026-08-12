@@ -1,0 +1,199 @@
+---
+import MainLayout from '@/layouts/MainLayout.astro';
+import { CONTACT, SITE } from '@data/constants';
+
+/**
+ * Política de Tratamiento de Datos Personales (Ley 1581 de 2012 y
+ * Decreto 1377 de 2013).
+ *
+ * IMPORTANTE: este es un borrador redactado a partir de los requisitos de la
+ * ley y de los datos de la empresa. NO reemplaza la revisión de un abogado.
+ * Antes de publicar hay que completar los datos marcados como pendientes
+ * (dirección física y fecha de entrada en vigencia) y verificar si la empresa
+ * debe inscribir sus bases de datos en el Registro Nacional de Bases de Datos
+ * de la Superintendencia de Industria y Comercio.
+ */
+
+const pageTitle = `Política de Tratamiento de Datos Personales | ${SITE.title}`;
+const metaDescription =
+  'Política de Tratamiento de Datos Personales de Business & Supplies Logistics, conforme a la Ley 1581 de 2012 y el Decreto 1377 de 2013.';
+
+// TODO(pendiente): reemplazar por la fecha real de aprobación de la política.
+const vigenciaDesde = 'por definir';
+---
+
+<MainLayout
+  title={pageTitle}
+  customDescription={metaDescription}
+  customOgTitle={pageTitle}
+  structuredData={{
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': `${SITE.url}/politica-de-datos`,
+    url: `${SITE.url}/politica-de-datos`,
+    name: pageTitle,
+    description: metaDescription,
+    inLanguage: 'es-CO',
+  }}
+>
+  <section class="mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+    <div class="mx-auto max-w-prose">
+      <h1
+        class="text-3xl font-extrabold tracking-tight text-balance text-neutral-800 md:text-4xl dark:text-neutral-200"
+      >
+        Política de Tratamiento de Datos Personales
+      </h1>
+      <p class="mt-3 text-sm text-neutral-500">
+        Vigente desde: {vigenciaDesde}
+      </p>
+
+      <div
+        class="prose prose-neutral dark:prose-invert prose-headings:font-bold prose-a:text-brand-700 dark:prose-a:text-brand-400 mt-8 max-w-none"
+      >
+        <p>
+          En cumplimiento de la Ley 1581 de 2012, el Decreto 1377 de 2013 y
+          demás normas que los modifiquen o reglamenten, <strong
+            >{SITE.legalName}</strong
+          > adopta la presente política para el tratamiento de los datos personales
+          que recolecta a través de este sitio web y de sus canales de atención.
+        </p>
+
+        <h2>1. Responsable del tratamiento</h2>
+        <ul>
+          <li><strong>Razón social:</strong> {SITE.legalName}</li>
+          <li>
+            <strong>Correo electrónico:</strong>
+            <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>
+          </li>
+          <li>
+            <strong>Teléfonos:</strong>
+            {CONTACT.pbx.map(line => line.label).join(' — ')}
+          </li>
+          <li><strong>Ciudad:</strong> {CONTACT.city}</li>
+        </ul>
+
+        <h2>2. Datos que recolectamos</h2>
+        <p>
+          A través del formulario de contacto, del formulario de suscripción y
+          del cotizador recolectamos únicamente los datos que usted nos
+          suministra de forma voluntaria:
+        </p>
+        <ul>
+          <li>Nombre</li>
+          <li>Correo electrónico</li>
+          <li>Número de teléfono</li>
+          <li>Nombre de la empresa</li>
+          <li>El contenido del mensaje o de la solicitud de cotización</li>
+        </ul>
+        <p>
+          No recolectamos datos sensibles en los términos del artículo 5 de la
+          Ley 1581 de 2012, ni datos de menores de edad. Tampoco solicitamos
+          información financiera ni datos de tarjetas de pago a través de este
+          sitio.
+        </p>
+
+        <h2>3. Finalidades del tratamiento</h2>
+        <p>Los datos recolectados se utilizan para:</p>
+        <ul>
+          <li>Responder sus consultas y solicitudes de información.</li>
+          <li>Elaborar y enviar cotizaciones de nuestros productos.</li>
+          <li>
+            Gestionar la relación comercial: pedidos, despachos, facturación y
+            servicio posventa.
+          </li>
+          <li>
+            Enviar información sobre nuestros productos y novedades, cuando
+            usted se haya suscrito voluntariamente. Puede darse de baja en
+            cualquier momento.
+          </li>
+          <li>
+            Cumplir las obligaciones legales y contables que nos apliquen.
+          </li>
+        </ul>
+        <p>
+          No vendemos, arrendamos ni cedemos sus datos personales a terceros con
+          fines comerciales.
+        </p>
+
+        <h2>4. Derechos del titular</h2>
+        <p>
+          De acuerdo con el artículo 8 de la Ley 1581 de 2012, como titular de
+          sus datos personales usted tiene derecho a:
+        </p>
+        <ul>
+          <li>
+            Conocer, actualizar y rectificar sus datos personales frente a
+            nosotros.
+          </li>
+          <li>
+            Solicitar prueba de la autorización que otorgó para su tratamiento.
+          </li>
+          <li>Ser informado sobre el uso que se ha dado a sus datos.</li>
+          <li>
+            Presentar quejas ante la Superintendencia de Industria y Comercio
+            por infracciones a la ley.
+          </li>
+          <li>
+            Revocar la autorización o solicitar la supresión de sus datos,
+            cuando no exista un deber legal o contractual que lo impida.
+          </li>
+          <li>Acceder de forma gratuita a sus datos personales.</li>
+        </ul>
+
+        <h2>5. Cómo ejercer sus derechos</h2>
+        <p>
+          Escríbanos a <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a> indicando
+          su nombre, los datos de contacto donde desea recibir respuesta y una descripción
+          clara de su solicitud. Los plazos de respuesta son los que fija la ley:
+        </p>
+        <ul>
+          <li>
+            <strong>Consultas:</strong> se atienden en un máximo de diez (10) días
+            hábiles. Si no es posible atenderlas en ese plazo, se lo informaremos
+            y podremos prorrogarlo hasta por cinco (5) días hábiles más.
+          </li>
+          <li>
+            <strong>Reclamos:</strong> se atienden en un máximo de quince (15) días
+            hábiles. Si no es posible atenderlos en ese plazo, se lo informaremos
+            y podremos prorrogarlo hasta por ocho (8) días hábiles más.
+          </li>
+        </ul>
+        <p>
+          Si el reclamo está incompleto, le pediremos que lo corrija dentro de
+          los cinco (5) días siguientes al recibo. Si transcurridos dos (2)
+          meses no ha aportado la información solicitada, se entenderá que ha
+          desistido del reclamo.
+        </p>
+
+        <h2>6. Autorización</h2>
+        <p>
+          Al enviar cualquiera de los formularios de este sitio usted declara
+          que ha leído esta política y autoriza de manera previa, expresa e
+          informada el tratamiento de sus datos personales para las finalidades
+          aquí descritas. La autorización queda registrada junto con el envío.
+        </p>
+
+        <h2>7. Seguridad de la información</h2>
+        <p>
+          Adoptamos medidas razonables de orden técnico y administrativo para
+          proteger los datos que nos confía y evitar su adulteración, pérdida,
+          consulta o uso no autorizado. El sitio se sirve por conexión cifrada
+          (HTTPS).
+        </p>
+
+        <h2>8. Vigencia</h2>
+        <p>
+          Esta política rige desde su publicación. Los datos personales se
+          conservarán mientras se mantenga la relación comercial y, después,
+          durante el término necesario para cumplir las obligaciones legales
+          aplicables, salvo que usted solicite antes su supresión y no exista un
+          deber que lo impida.
+        </p>
+        <p>
+          Cualquier cambio sustancial en esta política será comunicado a través
+          de este mismo sitio.
+        </p>
+      </div>
+    </div>
+  </section>
+</MainLayout>

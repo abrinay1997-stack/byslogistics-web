@@ -1,15 +1,18 @@
 /**
  * Envío de los formularios del sitio (contacto y suscripción).
  *
- * El sitio es estático, así que hay dos caminos según la configuración:
+ * El sitio es estático y se despliega en Netlify, así que la entrega la hace
+ * Netlify Forms: el robot de Netlify detecta en el HTML publicado los
+ * formularios marcados con `data-netlify="true"` y les habilita un endpoint.
  *
- *   1. Con llave de Web3Forms (PUBLIC_WEB3FORMS_KEY): el formulario se envía
- *      por fetch y el mensaje llega al correo de la empresa.
- *   2. Sin llave: el formulario arma el mensaje y lo abre en WhatsApp, para
- *      que nunca quede en un callejón sin salida.
+ * Se envía por fetch en lugar de dejar que el navegador haga el POST nativo,
+ * para no recargar la página y poder mostrar el estado en la misma pantalla.
+ * Netlify acepta ese POST contra la ruta de la propia página, codificado como
+ * formulario y con el campo `form-name`.
  *
- * La configuración llega por atributos data-* desde el marcado, de modo que
- * este archivo no necesita importar nada del servidor.
+ * En desarrollo local no hay endpoint de Netlify, así que el envío falla; para
+ * que el formulario nunca quede en un callejón sin salida, el mensaje de error
+ * dirige al WhatsApp y al correo de la empresa.
  */
 
 const SENDING = 'Enviando…';
@@ -29,7 +32,7 @@ function submitButton(form) {
   return form.querySelector('button[type="submit"], [type="submit"]');
 }
 
-/** Texto del pedido para WhatsApp, a partir de los campos del formulario. */
+/** Texto de la consulta para WhatsApp, a partir de los campos del formulario. */
 function buildWhatsappMessage(form, data) {
   const intro = form.dataset.waIntro ?? 'Hola, quisiera hacer una consulta:';
   const lines = [intro, ''];
@@ -47,26 +50,21 @@ function buildWhatsappMessage(form, data) {
   return lines.join('\n');
 }
 
-async function sendToEndpoint(form, data, endpoint, accessKey) {
-  data.set('access_key', accessKey);
-  data.set('subject', form.dataset.formSubject ?? 'Mensaje desde el sitio web');
-  data.set('from_name', 'Sitio web B&S Logistics');
+async function sendToNetlify(form, data) {
+  // Netlify espera el POST codificado como formulario, con form-name incluido.
+  const body = new URLSearchParams();
+  for (const [key, value] of data.entries()) {
+    if (typeof value === 'string') body.append(key, value);
+  }
+  body.set('form-name', form.getAttribute('name') ?? '');
 
-  const response = await fetch(endpoint, {
+  const response = await fetch(form.getAttribute('action') || '/', {
     method: 'POST',
-    headers: { Accept: 'application/json' },
-    body: data,
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: body.toString(),
   });
 
-  let payload = {};
-  try {
-    payload = await response.json();
-  } catch {
-    /* respuesta sin JSON: se decide por el código HTTP */
-  }
-  if (!response.ok || payload.success === false) {
-    throw new Error(payload.message || `HTTP ${response.status}`);
-  }
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
 }
 
 function initForms() {
@@ -86,34 +84,6 @@ function initForms() {
 
       // Trampa antispam: los robots rellenan el campo oculto, las personas no.
       if ((data.get('botcheck') ?? '').toString().trim() !== '') return;
-      data.delete('botcheck');
-
-      const endpoint = form.dataset.formEndpoint ?? '';
-      const accessKey = form.dataset.formKey ?? '';
-      const whatsapp = form.dataset.formWhatsapp ?? '';
-
-      // Sin llave configurada: se entrega por WhatsApp.
-      if (!accessKey) {
-        if (whatsapp) {
-          const url = `${whatsapp}?text=${encodeURIComponent(
-            buildWhatsappMessage(form, data)
-          )}`;
-          window.open(url, '_blank', 'noopener');
-          setStatus(
-            form,
-            'Abrimos WhatsApp con tu mensaje listo para enviar.',
-            'ok'
-          );
-          return;
-        }
-        setStatus(
-          form,
-          form.dataset.formFallback ??
-            'Escríbenos a ventas@precintosdeseguridad.co y te respondemos.',
-          'error'
-        );
-        return;
-      }
 
       const button = submitButton(form);
       const originalLabel = button?.textContent;
@@ -124,7 +94,7 @@ function initForms() {
       setStatus(form, SENDING, 'pending');
 
       try {
-        await sendToEndpoint(form, data, endpoint, accessKey);
+        await sendToNetlify(form, data);
         setStatus(
           form,
           form.dataset.formSuccess ??
@@ -134,11 +104,28 @@ function initForms() {
         form.reset();
       } catch (error) {
         console.error('Error al enviar el formulario:', error);
-        setStatus(
-          form,
-          'No pudimos enviar el mensaje. Escríbenos a ventas@precintosdeseguridad.co o por WhatsApp.',
-          'error'
-        );
+
+        // Si el envío falla, se ofrece WhatsApp con el mensaje ya compuesto
+        // en lugar de dejar al visitante sin salida.
+        const whatsapp = form.dataset.formWhatsapp ?? '';
+        if (whatsapp) {
+          const url = `${whatsapp}?text=${encodeURIComponent(
+            buildWhatsappMessage(form, data)
+          )}`;
+          window.open(url, '_blank', 'noopener');
+          setStatus(
+            form,
+            'No pudimos enviar el formulario, así que abrimos WhatsApp con tu mensaje listo.',
+            'error'
+          );
+        } else {
+          setStatus(
+            form,
+            form.dataset.formFallback ??
+              'No pudimos enviar el mensaje. Escríbenos por WhatsApp o al correo de la empresa.',
+            'error'
+          );
+        }
       } finally {
         if (button) {
           button.disabled = false;

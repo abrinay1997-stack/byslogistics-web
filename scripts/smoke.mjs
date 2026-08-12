@@ -13,6 +13,8 @@ const ROUTES = [
   '/nosotros/',
   '/faq/',
   '/contacto/',
+  '/catalogo/',
+  '/politica-de-datos/',
   '/404',
 ];
 

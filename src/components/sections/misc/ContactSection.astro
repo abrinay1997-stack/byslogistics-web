@@ -49,14 +49,18 @@ const copy = {
           {copy.formTitle}
         </h2>
         <form
+          name={FORMS.contact}
+          method="POST"
+          data-netlify="true"
+          data-netlify-honeypot="botcheck"
           data-contact-form
-          data-form-endpoint={FORMS.endpoint}
-          data-form-key={FORMS.accessKey}
           data-form-whatsapp={CONTACT.whatsapp}
-          data-form-subject="Nueva consulta desde el sitio web"
           data-wa-intro="Hola, quisiera hacer una consulta:"
           data-form-success="¡Gracias! Recibimos tu mensaje y te respondemos en 1 o 2 días hábiles."
         >
+          {/* Netlify identifica el formulario por este campo */}
+          <input type="hidden" name="form-name" value={FORMS.contact} />
+
           <div class="grid gap-4">
             <TextInput id="hs-name-contacts" label={copy.name} name="name" />
             <EmailContactInput id="hs-email-contacts" />
@@ -80,6 +84,25 @@ const copy = {
             autocomplete="off"
             aria-hidden="true"
           />
+
+          {/* Autorización de tratamiento de datos (Ley 1581 de 2012) */}
+          <label class="mt-4 flex items-start gap-x-3 text-sm">
+            <input
+              type="checkbox"
+              name="autorizacion"
+              value="Sí"
+              required
+              class="text-brand-600 focus:ring-brand-500 mt-1 shrink-0 rounded-sm border-neutral-300 dark:border-neutral-600"
+            />
+            <span class="text-neutral-600 dark:text-neutral-400">
+              Autorizo el tratamiento de mis datos personales conforme a la
+              <a
+                href="/politica-de-datos"
+                class="text-brand-700 dark:text-brand-400 underline underline-offset-2"
+                >Política de Tratamiento de Datos Personales</a
+              >.
+            </span>
+          </label>
 
           <div class="mt-4 grid">
             <AuthBtn title={copy.send} />

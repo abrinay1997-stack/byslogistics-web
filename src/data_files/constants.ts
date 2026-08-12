@@ -36,26 +36,19 @@ export const CONTACT = {
 };
 
 /**
- * Envío de formularios.
+ * Nombres de los formularios en Netlify Forms.
  *
- * El sitio es estático (no hay servidor propio), así que los formularios se
- * entregan a través de Web3Forms: https://web3forms.com
+ * El robot de Netlify detecta al desplegar los formularios marcados con
+ * `data-netlify="true"` y los agrupa por este nombre. Los envíos se ven en
+ * el panel de Netlify → Forms, y desde ahí se configuran las notificaciones
+ * por correo a ventas@precintosdeseguridad.co.
  *
- * Cómo activarlo:
- *   1. Entra a web3forms.com, escribe ventas@precintosdeseguridad.co y te
- *      llega una llave de acceso por correo. No hay que crear cuenta.
- *   2. Define la variable de entorno PUBLIC_WEB3FORMS_KEY con esa llave
- *      (en Vercel: Settings → Environment Variables) y vuelve a desplegar.
- *
- * La llave es pública por diseño: viaja en el formulario. Aun así se lee de
- * una variable de entorno para no dejarla escrita en el repositorio.
- *
- * Mientras no haya llave, el formulario NO se queda muerto: arma el mensaje
- * y lo abre en WhatsApp, igual que el cotizador.
+ * Si se cambia un nombre, Netlify lo trata como un formulario nuevo y los
+ * envíos anteriores quedan en el anterior.
  */
 export const FORMS = {
-  accessKey: import.meta.env.PUBLIC_WEB3FORMS_KEY ?? '',
-  endpoint: 'https://api.web3forms.com/submit',
+  contact: 'contacto',
+  newsletter: 'suscripcion',
 };
 
 export const SEO = {
