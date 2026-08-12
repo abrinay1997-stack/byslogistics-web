@@ -1,38 +1,37 @@
 // An array of links for navigation bar
 const navBarLinks = [
-  { name: 'Home', url: '/' },
-  { name: 'Products', url: '/products' },
-  { name: 'Services', url: '/services' },
+  { name: 'Inicio', url: '/' },
+  { name: 'Servicios', url: '/services' },
+  { name: 'Soluciones', url: '/products' },
   { name: 'Blog', url: '/blog' },
-  { name: 'Contact', url: '/contact' },
+  { name: 'Contacto', url: '/contact' },
 ];
 // An array of links for footer
 const footerLinks = [
   {
-    section: 'Ecosystem',
+    section: 'Servicios',
     links: [
-      { name: 'Documentation', url: '/welcome-to-docs/' },
-      { name: 'Tools & Equipment', url: '/products' },
-      { name: 'Construction Services', url: '/services' },
+      { name: 'Nuestros servicios', url: '/services' },
+      { name: 'Soluciones logísticas', url: '/products' },
+      { name: 'Documentación', url: '/welcome-to-docs/' },
     ],
   },
   {
-    section: 'Company',
+    section: 'Empresa',
     links: [
-      { name: 'About us', url: '#' },
+      { name: 'Quiénes somos', url: '/services' },
       { name: 'Blog', url: '/blog' },
-      { name: 'Careers', url: '#' },
-      { name: 'Customers', url: '#' },
+      { name: 'Contacto', url: '/contact' },
     ],
   },
 ];
-// An object of links for social icons
-const socialLinks = {
-  facebook: 'https://www.facebook.com/',
-  x: 'https://twitter.com/',
-  github: 'https://github.com/mearashadowfax/ScrewFast',
-  google: 'https://www.google.com/',
-  slack: 'https://slack.com/',
+// An object of links for social icons. Deja vacío lo que no aplique:
+// el footer solo renderiza los iconos que tienen URL configurada.
+const socialLinks: Record<string, string> = {
+  facebook: '',
+  instagram: '',
+  linkedin: '',
+  x: '',
 };
 
 export default {

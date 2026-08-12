@@ -2,28 +2,29 @@
 // Import the necessary dependencies
 import FooterSocialLink from '@components/ui/links/FooterSocialLink.astro';
 import EmailFooterInput from '@components/ui/forms/input/EmailFooterInput.astro';
-import enStrings from '@utils/navigation.ts';
-import frStrings from '@utils/fr/navigation.ts';
+import strings from '@utils/navigation.ts';
 import Icon from '@components/ui/icons/Icon.astro';
 import BrandLogo from '@components/BrandLogo.astro';
 import { SITE } from '@data/constants';
-import { getMarketingLocale } from '@utils/locale';
 
-const locale = getMarketingLocale(Astro.url.pathname, Astro.currentLocale);
-const strings = locale === 'fr' ? frStrings : enStrings;
-
-const sectionThreeTitle: string =
-  locale === 'fr' ? 'Rester à jour' : 'Stay up to date';
+const sectionThreeTitle: string = 'Mantente al día';
 const sectionThreeContent: string =
-  locale === 'fr'
-    ? 'Restez informé des derniers outils et des offres exclusives.'
-    : 'Stay updated with the latest tools and exclusive deals.';
-const crafted: string = locale === 'fr' ? 'Fabriqué par' : 'Crafted by';
-const hiringBadge: string = locale === 'fr' ? 'On recrute !' : "We're hiring!";
+  'Recibe novedades sobre nuestros servicios y operaciones de comercio exterior.';
 const newsletterDemoMessage =
-  locale === 'fr'
-    ? 'Merci ! (démo — branchez un service e-mail pour collecter de vrais abonnés.)'
-    : 'Thanks! (Demo only — wire an email service to collect real subscribers.)';
+  '¡Gracias! (Demo — conecta un servicio de correo para recibir suscriptores reales.)';
+
+// Only render the social icons that actually have a URL configured, so the
+// footer never links out to a placeholder profile.
+const socialIcons = [
+  { key: 'facebook', label: 'Facebook', icon: 'facebookFooter' },
+  { key: 'instagram', label: 'Instagram', icon: 'instagramFooter' },
+  { key: 'linkedin', label: 'LinkedIn', icon: 'linkedinFooter' },
+  { key: 'x', label: 'X', icon: 'xFooter' },
+] as const;
+
+const activeSocials = socialIcons.filter(
+  ({ key }) => (strings.socialLinks as Record<string, string>)[key]
+);
 ---
 
 <footer class="w-full bg-neutral-300 dark:bg-neutral-900">
@@ -43,7 +44,7 @@ const newsletterDemoMessage =
               {section.section}
             </h3>
             <ul class="mt-3 grid space-y-3">
-              {section.links.map((link, index) => (
+              {section.links.map(link => (
                 <li>
                   <a
                     href={link.url}
@@ -51,11 +52,6 @@ const newsletterDemoMessage =
                   >
                     {link.name}
                   </a>
-                  {section.section === 'Company' && index === 2 ? (
-                    <span class="ms-1 inline rounded-lg bg-orange-500 px-2 py-1 text-xs font-bold text-neutral-50">
-                      {hiringBadge}
-                    </span>
-                  ) : null}
                 </li>
               ))}
             </ul>
@@ -83,38 +79,22 @@ const newsletterDemoMessage =
       <div class="flex items-center justify-between">
         <p class="text-sm text-neutral-600 dark:text-neutral-400">
           © <span id="current-year"></span>{` `}
-          {SITE.title}. {crafted}
-          {` `}
-          <a
-            class="rounded-lg font-medium underline underline-offset-2 ring-zinc-500 outline-hidden transition duration-300 hover:text-neutral-700 hover:decoration-dashed focus:outline-hidden focus-visible:ring-3 dark:ring-zinc-200 dark:hover:text-neutral-300"
-            href="https://www.gulamoff.dev/"
-            target="_blank"
-            rel="noopener noreferrer">gulamoff</a
-          >.
+          {SITE.legalName}. Todos los derechos reservados.
         </p>
       </div>
 
       {/* Social Brands */}
       <div>
-        <FooterSocialLink url={strings.socialLinks.facebook} label="Facebook"
-          ><Icon name="facebookFooter" />
-        </FooterSocialLink>
-
-        <FooterSocialLink url={strings.socialLinks.x} label="X"
-          ><Icon name="xFooter" /></FooterSocialLink
-        >
-
-        <FooterSocialLink url={strings.socialLinks.github} label="GitHub"
-          ><Icon name="githubFooter" />
-        </FooterSocialLink>
-
-        <FooterSocialLink url={strings.socialLinks.google} label="Google"
-          ><Icon name="googleFooter" />
-        </FooterSocialLink>
-
-        <FooterSocialLink url={strings.socialLinks.slack} label="Slack"
-          ><Icon name="slackFooter" />
-        </FooterSocialLink>
+        {
+          activeSocials.map(social => (
+            <FooterSocialLink
+              url={(strings.socialLinks as Record<string, string>)[social.key]}
+              label={social.label}
+            >
+              <Icon name={social.icon} />
+            </FooterSocialLink>
+          ))
+        }
       </div>
     </div>
 
