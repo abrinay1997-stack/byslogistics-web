@@ -4,16 +4,28 @@ import { Image } from 'astro:assets';
 /**
  * Fondo lateral de sección.
  *
- * La imagen no se pone "tal cual" detrás del texto ni rebajada a una opacidad
- * mínima: ocupa el lado contrario al del contenido, a plena intensidad, y se
- * desvanece con una máscara hacia el lado donde está el texto. Así se ve la
- * fotografía de verdad —no un aguado— y el texto conserva su fondo limpio.
+ * La imagen ocupa el lado contrario al del contenido y se desvanece con una
+ * máscara hacia el lado donde está el texto, que así conserva su fondo limpio.
+ *
+ * Dos tratamientos:
+ *
+ * - `ambient` (el de por defecto): la imagen va desenfocada y con un velo del
+ *   color de la sección encima. Deja de leerse como una foto pegada y pasa a
+ *   ser un campo de color; es lo que corresponde cuando la foto es literal —un
+ *   producto recortado— y competiría con el texto.
+ * - `photo`: la imagen se ve nítida. Reservado para ilustraciones y planos
+ *   generales, que no distraen.
+ *
+ * En ninguno de los dos la imagen queda rebajada a una opacidad mínima: el
+ * color se mantiene vivo, lo que cambia es cuánto se reconoce el motivo.
  *
  * La sección que lo use debe ser `relative overflow-hidden`, y su contenido ir
  * en un contenedor `relative` para quedar por encima.
  *
- * Es decorativo: se oculta por debajo de `lg`, donde el texto ocupa todo el
- * ancho y cualquier imagen detrás estorbaría la lectura.
+ * Por debajo de `lg` el texto ocupa todo el ancho: el tratamiento `photo` se
+ * oculta ahí —una foto nítida detrás del texto estorbaría la lectura— y el
+ * `ambient`, que a esa altura ya es solo un campo de color, se queda cubriendo
+ * la sección entera con el velo más cargado.
  */
 interface Props {
   src: ImageMetadata;
@@ -21,13 +33,23 @@ interface Props {
   side?: 'left' | 'right';
   /** Ancho de la franja, en porcentaje del ancho de la sección. */
   width?: string;
+  treatment?: 'ambient' | 'photo';
 }
 
-const { src, side = 'right', width = '56%' } = Astro.props;
+const {
+  src,
+  side = 'right',
+  width = '56%',
+  treatment = 'ambient',
+} = Astro.props;
 ---
 
 <div
-  class:list={['backdrop', side === 'right' ? 'to-right' : 'to-left']}
+  class:list={[
+    'backdrop',
+    side === 'right' ? 'to-right' : 'to-left',
+    treatment === 'ambient' && 'ambient',
+  ]}
   style={`--backdrop-width:${width}`}
   aria-hidden="true"
 >
@@ -41,6 +63,7 @@ const { src, side = 'right', width = '56%' } = Astro.props;
     decoding="async"
     draggable={false}
   />
+  {treatment === 'ambient' && <div class="veil" />}
 </div>
 
 <style>
@@ -52,11 +75,31 @@ const { src, side = 'right', width = '56%' } = Astro.props;
     width: var(--backdrop-width);
     pointer-events: none;
     user-select: none;
+    overflow: hidden;
+  }
+
+  /* En móvil el ambiental cubre la sección completa: no hay "lado contrario"
+     al que mandarlo cuando el texto ocupa todo el ancho. */
+  .ambient {
+    display: block;
+    right: 0;
+    left: 0;
+    width: auto;
   }
 
   @media (min-width: 1024px) {
     .backdrop {
       display: block;
+    }
+
+    .ambient.to-right {
+      left: auto;
+      width: var(--backdrop-width);
+    }
+
+    .ambient.to-left {
+      right: auto;
+      width: var(--backdrop-width);
     }
   }
 
@@ -68,45 +111,80 @@ const { src, side = 'right', width = '56%' } = Astro.props;
     left: 0;
   }
 
-  /* Dos degradados combinados: el horizontal apaga la imagen del lado del
-     texto, el vertical le quita el corte seco contra la sección vecina. */
-  .to-right :global(img) {
-    mask-image:
-      linear-gradient(
-        to right,
-        transparent 0%,
-        rgba(0, 0, 0, 0.25) 26%,
-        rgba(0, 0, 0, 0.85) 48%,
-        #000 62%
-      ),
-      linear-gradient(
-        to bottom,
-        transparent 0%,
-        #000 14%,
-        #000 86%,
-        transparent 100%
-      );
-    mask-composite: intersect;
-    -webkit-mask-composite: source-in;
+  /* El desenfoque deja los bordes translúcidos, así que la imagen se agranda
+     para que el borde difuso caiga fuera del recuadro. */
+  .ambient :global(img) {
+    transform: scale(1.25);
+    filter: blur(26px);
   }
 
-  .to-left :global(img) {
-    mask-image:
-      linear-gradient(
-        to left,
-        transparent 0%,
-        rgba(0, 0, 0, 0.25) 26%,
-        rgba(0, 0, 0, 0.85) 48%,
-        #000 62%
-      ),
-      linear-gradient(
-        to bottom,
-        transparent 0%,
-        #000 14%,
-        #000 86%,
-        transparent 100%
-      );
-    mask-composite: intersect;
-    -webkit-mask-composite: source-in;
+  /* Velo del color de la sección: es lo que asienta la imagen como fondo en
+     lugar de dejarla flotando encima. */
+  .veil {
+    position: absolute;
+    inset: 0;
+    /* Más cargado en móvil, donde el texto va encima de la imagen. */
+    background: rgb(229 229 229 / 0.72);
+  }
+
+  :global(.dark) .veil {
+    background: rgb(38 38 38 / 0.76);
+  }
+
+  @media (min-width: 1024px) {
+    .veil {
+      background: rgb(229 229 229 / 0.42);
+    }
+
+    :global(.dark) .veil {
+      background: rgb(38 38 38 / 0.48);
+    }
+  }
+
+  /* Dos degradados combinados: el horizontal apaga la imagen del lado del
+     texto, el vertical le quita el corte seco contra la sección vecina. Van en
+     el contenedor y no en la imagen, porque sobre la imagen se aplicarían
+     antes del `transform: scale` del ambiental y el degradado quedaría fuera
+     del recuadro visible, dejando un canto duro. */
+  @media (min-width: 1024px) {
+    .to-right {
+      mask-image:
+        linear-gradient(
+          to right,
+          transparent 0%,
+          rgba(0, 0, 0, 0.25) 26%,
+          rgba(0, 0, 0, 0.85) 48%,
+          #000 62%
+        ),
+        linear-gradient(
+          to bottom,
+          transparent 0%,
+          #000 14%,
+          #000 86%,
+          transparent 100%
+        );
+      mask-composite: intersect;
+      -webkit-mask-composite: source-in;
+    }
+
+    .to-left {
+      mask-image:
+        linear-gradient(
+          to left,
+          transparent 0%,
+          rgba(0, 0, 0, 0.25) 26%,
+          rgba(0, 0, 0, 0.85) 48%,
+          #000 62%
+        ),
+        linear-gradient(
+          to bottom,
+          transparent 0%,
+          #000 14%,
+          #000 86%,
+          transparent 100%
+        );
+      mask-composite: intersect;
+      -webkit-mask-composite: source-in;
+    }
   }
 </style>
