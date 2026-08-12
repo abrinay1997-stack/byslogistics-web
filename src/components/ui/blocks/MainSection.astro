@@ -11,7 +11,7 @@ const {
   btnTitle,
   btnURL,
   backdrop,
-  backdropTreatment = 'ambient',
+  backdropTreatment = 'mate',
 } = Astro.props;
 // Define TypeScript interface for props
 interface Props {
@@ -23,7 +23,7 @@ interface Props {
   /** Imagen de fondo, a la derecha del encabezado. */
   backdrop?: ImageMetadata;
   /** `photo` deja la imagen nítida; solo para ilustraciones. */
-  backdropTreatment?: 'ambient' | 'photo';
+  backdropTreatment?: 'mate' | 'photo';
 }
 ---
 
