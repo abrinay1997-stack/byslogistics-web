@@ -1,8 +1,10 @@
 name: CI
 
 on:
+  # Sin filtro de ramas: la rama por defecto de este repositorio no se llama
+  # main ni master, así que filtrar por esos nombres dejaba los push sin
+  # verificar. Solo corría en los pull request.
   push:
-    branches: [main, master]
   pull_request:
 
 permissions:

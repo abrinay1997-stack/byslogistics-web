@@ -1,8 +1,9 @@
 name: Dependabot format
 
 on:
+  # Igual que en ci.yml: sin filtro de ramas, porque la rama por defecto de
+  # este repositorio no se llama main ni master.
   pull_request:
-    branches: [main, master]
 
 # Dependabot-triggered workflows get a read-only token by default;
 # elevate so we can push formatting fixes back to the PR branch.
