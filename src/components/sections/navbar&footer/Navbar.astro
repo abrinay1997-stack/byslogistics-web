@@ -7,9 +7,12 @@ import BrandLogo from '@components/BrandLogo.astro';
 import { SITE } from '@/data_files/constants';
 ---
 
-{/* Main header component */}
+{
+  /* Main header component. La píldora queda contenida y separada de los bordes;
+     el resto de la página va a sangre (ver MainLayout). */
+}
 <header
-  class="sticky inset-x-0 top-4 z-50 flex w-full flex-wrap text-sm md:flex-nowrap md:justify-start"
+  class="sticky inset-x-0 top-4 z-50 mx-auto flex w-full max-w-(--breakpoint-2xl) flex-wrap px-4 text-sm sm:px-6 md:flex-nowrap md:justify-start lg:px-8"
 >
   {/* Navigation container */}
   <nav

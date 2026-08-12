@@ -73,18 +73,21 @@ interface Props {
     </a>
     {
       /*
-    Setting up the main structure of the page.
-    The Navbar is placed at the top, with a slot for the main content and FooterSection at the bottom.
-    */
+      Estructura de la página: navbar arriba, el contenido en el slot y el
+      footer al final.
+
+      El contenido va a sangre: no hay caja que lo limite, así que las fotos y
+      los fondos de sección llegan hasta el borde de la pantalla en vez de
+      cortarse contra un ancho máximo. La lectura no se mueve por eso — cada
+      sección sigue centrando su texto con `mx-auto max-w-[85rem]`. La barra
+      de navegación sí va contenida, porque es una píldora flotante que debe
+      quedar separada de los bordes (ver Navbar.astro).
+      */
     }
-    <div
-      class="mx-auto w-full max-w-(--breakpoint-2xl) grow px-4 sm:px-6 lg:px-8"
-    >
-      <Navbar />
-      <main id="main-content">
-        <slot />
-      </main>
-    </div>
+    <Navbar />
+    <main id="main-content" class="w-full grow">
+      <slot />
+    </main>
     {!hideFooter && <FooterSection />}
     <QuoteCart />
     <script>
