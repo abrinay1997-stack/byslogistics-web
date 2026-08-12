@@ -35,6 +35,29 @@ export const CONTACT = {
   city: 'Bogotá, Colombia',
 };
 
+/**
+ * Envío de formularios.
+ *
+ * El sitio es estático (no hay servidor propio), así que los formularios se
+ * entregan a través de Web3Forms: https://web3forms.com
+ *
+ * Cómo activarlo:
+ *   1. Entra a web3forms.com, escribe ventas@precintosdeseguridad.co y te
+ *      llega una llave de acceso por correo. No hay que crear cuenta.
+ *   2. Define la variable de entorno PUBLIC_WEB3FORMS_KEY con esa llave
+ *      (en Vercel: Settings → Environment Variables) y vuelve a desplegar.
+ *
+ * La llave es pública por diseño: viaja en el formulario. Aun así se lee de
+ * una variable de entorno para no dejarla escrita en el repositorio.
+ *
+ * Mientras no haya llave, el formulario NO se queda muerto: arma el mensaje
+ * y lo abre en WhatsApp, igual que el cotizador.
+ */
+export const FORMS = {
+  accessKey: import.meta.env.PUBLIC_WEB3FORMS_KEY ?? '',
+  endpoint: 'https://api.web3forms.com/submit',
+};
+
 export const SEO = {
   title: SITE.title,
   description: SITE.description,

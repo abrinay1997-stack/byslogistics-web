@@ -12,8 +12,6 @@ interface Props {
 }
 
 const placeholder = 'Escribe tu correo';
-const successMessage =
-  '¡Gracias! (Demo — conecta un servicio de correo para recibir suscriptores reales.)';
 ---
 
 <div
@@ -39,9 +37,9 @@ const successMessage =
   </button>
 </div>
 <p
-  class="mt-2 hidden text-sm text-neutral-600 dark:text-neutral-400"
-  data-demo-status
+  class="mt-2 text-sm text-neutral-600 data-[kind=error]:text-red-600 data-[kind=ok]:text-green-700 dark:text-neutral-400 dark:data-[kind=error]:text-red-400 dark:data-[kind=ok]:text-green-400"
+  data-form-status
+  hidden
   aria-live="polite"
-  data-success-message={successMessage}
 >
 </p>

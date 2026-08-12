@@ -6,7 +6,7 @@ import EmailContactInput from '@components/ui/forms/input/EmailContactInput.astr
 import PhoneInput from '@components/ui/forms/input/PhoneInput.astro';
 import TextAreaInput from '@components/ui/forms/input/TextAreaInput.astro';
 import Icon from '@components/ui/icons/Icon.astro';
-import { CONTACT } from '@data/constants';
+import { CONTACT, FORMS } from '@data/constants';
 
 const copy = {
   title: 'Estamos aquí para ayudarte',
@@ -17,8 +17,6 @@ const copy = {
   name: 'Nombre',
   details: 'Mensaje adicional',
   send: 'Enviar mensaje',
-  demoMessage:
-    '¡Gracias! (Demo — conecta un endpoint de formulario para recibir mensajes reales.)',
   pbxHeading: 'P.B.X. en Bogotá',
   pbxContent: 'Comunícate con nuestras líneas fijas.',
   mobileHeading: 'Celulares',
@@ -50,21 +48,38 @@ const copy = {
         >
           {copy.formTitle}
         </h2>
-        <form data-demo-form data-demo-message={copy.demoMessage}>
+        <form
+          data-contact-form
+          data-form-endpoint={FORMS.endpoint}
+          data-form-key={FORMS.accessKey}
+          data-form-whatsapp={CONTACT.whatsapp}
+          data-form-subject="Nueva consulta desde el sitio web"
+          data-wa-intro="Hola, quisiera hacer una consulta:"
+          data-form-success="¡Gracias! Recibimos tu mensaje y te respondemos en 1 o 2 días hábiles."
+        >
           <div class="grid gap-4">
-            <TextInput
-              id="hs-name-contacts"
-              label={copy.name}
-              name="hs-name-contacts"
-            />
+            <TextInput id="hs-name-contacts" label={copy.name} name="name" />
             <EmailContactInput id="hs-email-contacts" />
             <PhoneInput id="hs-phone-number" />
             <TextAreaInput
               id="hs-about-contacts"
               label={copy.details}
-              name="hs-about-contacts"
+              name="message"
             />
           </div>
+
+          {
+            /* Trampa antispam: oculta para las personas, visible para los robots */
+          }
+          <input
+            type="checkbox"
+            name="botcheck"
+            class="hidden"
+            style="display:none"
+            tabindex="-1"
+            autocomplete="off"
+            aria-hidden="true"
+          />
 
           <div class="mt-4 grid">
             <AuthBtn title={copy.send} />
@@ -75,8 +90,9 @@ const copy = {
               {copy.formSubTitle}
             </p>
             <p
-              class="text-brand-500 dark:text-brand-400 mt-2 hidden text-sm"
-              data-demo-status
+              class="mt-2 text-sm data-[kind=error]:text-red-600 data-[kind=ok]:text-green-700 dark:data-[kind=error]:text-red-400 dark:data-[kind=ok]:text-green-400"
+              data-form-status
+              hidden
               aria-live="polite"
             >
             </p>
