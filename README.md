@@ -156,15 +156,19 @@ correr con un listado nuevo sin pisar nada.
 ### Poner una imagen de fondo en una sección
 
 `SectionBackdrop.astro` pone la imagen a un lado de la sección y la desvanece
-hacia el lado donde está el texto. Tiene dos tratamientos:
+hacia el lado donde está el texto. Tiene dos tratamientos, los dos con la
+imagen nítida:
 
-- `ambient` (el de por defecto): desenfocada y con un velo del color de la
-  sección encima. Deja de leerse como una foto pegada y pasa a ser un campo de
-  color. Es el que corresponde cuando la foto es literal —un producto
-  recortado—, y es el único que se muestra también en móvil, con el velo más
-  cargado porque el texto va encima.
-- `photo`: nítida. Solo para ilustraciones y planos generales, que no
-  distraen; en móvil se oculta.
+- `mate` (el de por defecto): desaturada y con un velo del color de la sección
+  encima. Se sigue viendo con todo su detalle, pero apagada, de modo que se
+  asienta como fondo en lugar de competir con el texto. Es el que corresponde
+  cuando la foto es literal, un producto recortado.
+- `photo`: tal cual. Solo para ilustraciones y planos generales, que ya de por
+  sí no distraen.
+
+No lleva desenfoque: emborronar la imagen se veía peor que dejarla como
+estaba. Y por debajo de `lg` el fondo se oculta, porque ahí el texto ocupa
+todo el ancho y cualquier imagen detrás estorbaría la lectura.
 
 La usan el hero, los encabezados de página (`MainSection`, props `backdrop` y
 `backdropTreatment`), los testimonios y el cierre de página (`HeroSectionAlt`).

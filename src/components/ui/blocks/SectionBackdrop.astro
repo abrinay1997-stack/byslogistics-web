@@ -7,25 +7,20 @@ import { Image } from 'astro:assets';
  * La imagen ocupa el lado contrario al del contenido y se desvanece con una
  * máscara hacia el lado donde está el texto, que así conserva su fondo limpio.
  *
- * Dos tratamientos:
+ * Dos tratamientos, los dos con la imagen nítida:
  *
- * - `ambient` (el de por defecto): la imagen va desenfocada y con un velo del
- *   color de la sección encima. Deja de leerse como una foto pegada y pasa a
- *   ser un campo de color; es lo que corresponde cuando la foto es literal —un
- *   producto recortado— y competiría con el texto.
- * - `photo`: la imagen se ve nítida. Reservado para ilustraciones y planos
- *   generales, que no distraen.
- *
- * En ninguno de los dos la imagen queda rebajada a una opacidad mínima: el
- * color se mantiene vivo, lo que cambia es cuánto se reconoce el motivo.
+ * - `mate` (el de por defecto): la imagen va desaturada y con un velo del
+ *   color de la sección encima. Se sigue viendo con todo su detalle, pero
+ *   apagada, de modo que se asienta como fondo en lugar de competir con el
+ *   texto. Sin desenfoque: emborronarla se veía peor que la foto original.
+ * - `photo`: la imagen va tal cual. Reservado para ilustraciones y planos
+ *   generales, que ya de por sí no distraen.
  *
  * La sección que lo use debe ser `relative overflow-hidden`, y su contenido ir
  * en un contenedor `relative` para quedar por encima.
  *
- * Por debajo de `lg` el texto ocupa todo el ancho: el tratamiento `photo` se
- * oculta ahí —una foto nítida detrás del texto estorbaría la lectura— y el
- * `ambient`, que a esa altura ya es solo un campo de color, se queda cubriendo
- * la sección entera con el velo más cargado.
+ * Por debajo de `lg` el texto ocupa todo el ancho, así que el fondo se oculta:
+ * cualquier imagen detrás del texto estorbaría la lectura.
  */
 interface Props {
   src: ImageMetadata;
@@ -33,22 +28,17 @@ interface Props {
   side?: 'left' | 'right';
   /** Ancho de la franja, en porcentaje del ancho de la sección. */
   width?: string;
-  treatment?: 'ambient' | 'photo';
+  treatment?: 'mate' | 'photo';
 }
 
-const {
-  src,
-  side = 'right',
-  width = '56%',
-  treatment = 'ambient',
-} = Astro.props;
+const { src, side = 'right', width = '56%', treatment = 'mate' } = Astro.props;
 ---
 
 <div
   class:list={[
     'backdrop',
     side === 'right' ? 'to-right' : 'to-left',
-    treatment === 'ambient' && 'ambient',
+    treatment === 'mate' && 'mate',
   ]}
   style={`--backdrop-width:${width}`}
   aria-hidden="true"
@@ -63,7 +53,7 @@ const {
     decoding="async"
     draggable={false}
   />
-  {treatment === 'ambient' && <div class="veil" />}
+  {treatment === 'mate' && <div class="veil" />}
 </div>
 
 <style>
@@ -78,28 +68,9 @@ const {
     overflow: hidden;
   }
 
-  /* En móvil el ambiental cubre la sección completa: no hay "lado contrario"
-     al que mandarlo cuando el texto ocupa todo el ancho. */
-  .ambient {
-    display: block;
-    right: 0;
-    left: 0;
-    width: auto;
-  }
-
   @media (min-width: 1024px) {
     .backdrop {
       display: block;
-    }
-
-    .ambient.to-right {
-      left: auto;
-      width: var(--backdrop-width);
-    }
-
-    .ambient.to-left {
-      right: auto;
-      width: var(--backdrop-width);
     }
   }
 
@@ -111,11 +82,10 @@ const {
     left: 0;
   }
 
-  /* El desenfoque deja los bordes translúcidos, así que la imagen se agranda
-     para que el borde difuso caiga fuera del recuadro. */
-  .ambient :global(img) {
-    transform: scale(1.25);
-    filter: blur(26px);
+  /* Bajar la saturación es lo que apaga la imagen: el motivo se sigue viendo
+     con todo su detalle, pero deja de gritar al lado del texto. */
+  .mate :global(img) {
+    filter: saturate(0.32) contrast(0.92);
   }
 
   /* Velo del color de la sección: es lo que asienta la imagen como fondo en
@@ -123,29 +93,16 @@ const {
   .veil {
     position: absolute;
     inset: 0;
-    /* Más cargado en móvil, donde el texto va encima de la imagen. */
-    background: rgb(229 229 229 / 0.72);
+    background: rgb(229 229 229 / 0.45);
   }
 
   :global(.dark) .veil {
-    background: rgb(38 38 38 / 0.76);
-  }
-
-  @media (min-width: 1024px) {
-    .veil {
-      background: rgb(229 229 229 / 0.42);
-    }
-
-    :global(.dark) .veil {
-      background: rgb(38 38 38 / 0.48);
-    }
+    background: rgb(38 38 38 / 0.5);
   }
 
   /* Dos degradados combinados: el horizontal apaga la imagen del lado del
      texto, el vertical le quita el corte seco contra la sección vecina. Van en
-     el contenedor y no en la imagen, porque sobre la imagen se aplicarían
-     antes del `transform: scale` del ambiental y el degradado quedaría fuera
-     del recuadro visible, dejando un canto duro. */
+     el contenedor, para que la máscara cubra imagen y velo de una sola vez. */
   @media (min-width: 1024px) {
     .to-right {
       mask-image:
