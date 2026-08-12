@@ -42,10 +42,13 @@ interface Props {
     {/* Define the title of the page */}
     <title>{title}</title>
     <script is:inline>
-      // Script to handle dark mode. It will check if the theme is stored in localStorage or if dark theme is preferred by system settings
+      // Script to handle dark mode. El tema claro es el predeterminado: solo se
+      // aplica el modo oscuro si el visitante lo eligió explícitamente, o si
+      // guardó 'auto' y su sistema prefiere el esquema oscuro.
+      const storedTheme = localStorage.getItem('hs_theme');
       if (
-        localStorage.getItem('hs_theme') === 'dark' ||
-        (!('hs_theme' in localStorage) &&
+        storedTheme === 'dark' ||
+        (storedTheme === 'auto' &&
           window.matchMedia('(prefers-color-scheme: dark)').matches)
       ) {
         document.documentElement.classList.add('dark');
