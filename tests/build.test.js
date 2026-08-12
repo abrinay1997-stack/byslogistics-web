@@ -184,6 +184,21 @@ describe('enlaces', () => {
       }
     }
   });
+
+  // Astro se come el salto de línea que separa una frase del enlace que sigue,
+  // y el texto queda pegado: «conforme a laPolítica de Tratamiento…». Se
+  // arregla escribiendo {' '} antes del <a>. Este test vigila que no vuelva.
+  test('ninguna frase queda pegada al enlace que la sigue', () => {
+    const pegados = [];
+    for (const p of pages()) {
+      for (const [, antes, texto] of p.html.matchAll(
+        /([a-záéíóúüñ,;:)])<a\s[^>]*>([^<]{0,40})/gi
+      )) {
+        pegados.push(`${p.route}: «…${antes}${texto}…»`);
+      }
+    }
+    assert.deepEqual(pegados, [], "falta un {' '} antes del enlace");
+  });
 });
 
 describe('formularios', () => {
