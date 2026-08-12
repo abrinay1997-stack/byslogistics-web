@@ -1,0 +1,292 @@
+---
+import MainLayout from '@/layouts/MainLayout.astro';
+import MainSection from '@components/ui/blocks/MainSection.astro';
+import AddToQuoteBtn from '@components/ui/buttons/AddToQuoteBtn.astro';
+import { getCatalog, getFacets } from '@utils/catalog';
+import { SITE } from '@data/constants';
+
+/**
+ * Catálogo completo con filtros. Todas las referencias se imprimen en el HTML
+ * y el filtrado ocurre en el navegador: son ~115 tarjetas, así que no hace
+ * falta paginar ni pedir nada al servidor, y el catálogo sigue siendo
+ * indexable por los buscadores.
+ */
+const items = await getCatalog();
+const { families, groups } = getFacets(items);
+
+const pageTitle = `Catálogo | ${SITE.title}`;
+const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} referencias en precintos de seguridad, etiquetas, cintas, bolsas, cajas, embalaje protector y rastreo satelital.`;
+---
+
+<MainLayout
+  title={pageTitle}
+  customDescription={metaDescription}
+  customOgTitle={pageTitle}
+  structuredData={{
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    '@id': `${SITE.url}/catalogo`,
+    url: `${SITE.url}/catalogo`,
+    name: pageTitle,
+    description: metaDescription,
+    inLanguage: 'es-CO',
+  }}
+>
+  <MainSection
+    title="Catálogo"
+    subTitle="Filtra por línea o busca por nombre, arma tu cotización y envíala por WhatsApp. Los precios se entregan por cotización según la cantidad."
+  />
+
+  <section class="mx-auto max-w-[85rem] px-4 pb-14 sm:px-6 lg:px-8">
+    <div class="lg:grid lg:grid-cols-4 lg:gap-10">
+      {/* Filtros */}
+      <aside class="lg:col-span-1">
+        <div class="lg:sticky lg:top-28">
+          <label class="grid gap-1">
+            <span
+              class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
+              >Buscar referencia</span
+            >
+            <input
+              type="search"
+              id="catalog-search"
+              placeholder="precinto, guaya, holograma…"
+              class="focus:border-brand-500 focus:ring-brand-500 rounded-lg border border-neutral-300 bg-neutral-50 px-3 py-2 text-sm text-neutral-800 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-200"
+            />
+          </label>
+
+          <fieldset class="mt-6">
+            <legend
+              class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
+              >Línea de producto</legend
+            >
+            <div class="mt-3 grid gap-2">
+              <label class="flex items-center gap-x-2 text-sm">
+                <input
+                  type="radio"
+                  name="family"
+                  value=""
+                  checked
+                  class="text-brand-600 focus:ring-brand-500 border-neutral-300"
+                />
+                <span class="text-neutral-700 dark:text-neutral-300"
+                  >Todas <span class="text-neutral-500">({items.length})</span
+                  ></span
+                >
+              </label>
+              {
+                families.map(family => (
+                  <label class="flex items-center gap-x-2 text-sm">
+                    <input
+                      type="radio"
+                      name="family"
+                      value={family.id}
+                      class="text-brand-600 focus:ring-brand-500 border-neutral-300"
+                    />
+                    <span class="text-neutral-700 dark:text-neutral-300">
+                      {family.name}{' '}
+                      <span class="text-neutral-500">({family.count})</span>
+                    </span>
+                  </label>
+                ))
+              }
+            </div>
+          </fieldset>
+
+          {/* Las categorías se muestran filtradas por la línea elegida */}
+          <fieldset class="mt-6" id="group-filter">
+            <legend
+              class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
+              >Categoría</legend
+            >
+            <div class="mt-3 grid gap-2">
+              <label class="flex items-center gap-x-2 text-sm">
+                <input
+                  type="radio"
+                  name="group"
+                  value=""
+                  checked
+                  class="text-brand-600 focus:ring-brand-500 border-neutral-300"
+                />
+                <span class="text-neutral-700 dark:text-neutral-300">Todas</span
+                >
+              </label>
+              {
+                groups.map(group => (
+                  <label
+                    class="flex items-center gap-x-2 text-sm"
+                    data-group-option
+                    data-family={group.familyId}
+                  >
+                    <input
+                      type="radio"
+                      name="group"
+                      value={group.id}
+                      class="text-brand-600 focus:ring-brand-500 border-neutral-300"
+                    />
+                    <span class="text-neutral-700 dark:text-neutral-300">
+                      {group.name}{' '}
+                      <span class="text-neutral-500">({group.count})</span>
+                    </span>
+                  </label>
+                ))
+              }
+            </div>
+          </fieldset>
+
+          <button
+            type="button"
+            id="catalog-reset"
+            class="mt-6 rounded-lg text-sm font-medium text-neutral-600 underline underline-offset-2 transition hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200"
+          >
+            Limpiar filtros
+          </button>
+        </div>
+      </aside>
+
+      {/* Resultados */}
+      <div class="mt-10 lg:col-span-3 lg:mt-0">
+        <p
+          class="text-sm text-neutral-600 dark:text-neutral-400"
+          aria-live="polite"
+        >
+          Mostrando <span id="catalog-count">{items.length}</span> de {
+            items.length
+          } referencias
+        </p>
+
+        <div
+          id="catalog-grid"
+          class="mt-6 grid gap-6 sm:grid-cols-2 xl:grid-cols-3"
+        >
+          {
+            items.map(item => (
+              <article
+                class="flex flex-col rounded-xl border border-neutral-300 bg-neutral-100 p-5 dark:border-neutral-700 dark:bg-neutral-900"
+                data-catalog-item
+                data-family={item.familyId}
+                data-group={item.groupId}
+                data-search={item.search}
+              >
+                <a
+                  href={item.url}
+                  class="text-brand-700 dark:text-brand-400 text-xs font-bold tracking-wide uppercase"
+                >
+                  {item.group}
+                </a>
+                <h2 class="mt-2 font-bold text-neutral-800 dark:text-neutral-200">
+                  {item.name}
+                </h2>
+                {item.description && (
+                  <p class="mt-1 grow text-sm text-neutral-600 dark:text-neutral-400">
+                    {item.description}
+                  </p>
+                )}
+                {!item.description && <div class="grow" />}
+                <AddToQuoteBtn
+                  id={item.id}
+                  name={item.name}
+                  group={item.group}
+                />
+              </article>
+            ))
+          }
+        </div>
+
+        <p
+          id="catalog-empty"
+          hidden
+          class="mt-10 text-center text-neutral-600 dark:text-neutral-400"
+        >
+          No encontramos referencias con esos filtros. Prueba con otro término o
+          escríbenos y te asesoramos.
+        </p>
+      </div>
+    </div>
+  </section>
+</MainLayout>
+
+<script>
+  import { normalize } from '@utils/text';
+
+  function initCatalog() {
+    const grid = document.getElementById('catalog-grid');
+    if (!grid) return;
+
+    const cards = Array.from(
+      grid.querySelectorAll<HTMLElement>('[data-catalog-item]')
+    );
+    const search = document.getElementById(
+      'catalog-search'
+    ) as HTMLInputElement | null;
+    const count = document.getElementById('catalog-count');
+    const empty = document.getElementById('catalog-empty');
+    const reset = document.getElementById('catalog-reset');
+    const groupOptions = Array.from(
+      document.querySelectorAll<HTMLElement>('[data-group-option]')
+    );
+
+    const checked = (name: string) =>
+      (
+        document.querySelector(
+          `input[name="${name}"]:checked`
+        ) as HTMLInputElement | null
+      )?.value ?? '';
+
+    function apply() {
+      const family = checked('family');
+      const group = checked('group');
+      const term = normalize(search?.value.trim() ?? '');
+
+      // Las categorías que no pertenecen a la línea elegida se ocultan
+      for (const option of groupOptions) {
+        const belongs = !family || option.dataset.family === family;
+        option.hidden = !belongs;
+        const input = option.querySelector('input') as HTMLInputElement;
+        if (!belongs && input.checked) {
+          input.checked = false;
+          (
+            document.querySelector(
+              'input[name="group"][value=""]'
+            ) as HTMLInputElement
+          ).checked = true;
+        }
+      }
+
+      const activeGroup = checked('group');
+      let visible = 0;
+      for (const card of cards) {
+        const matches =
+          (!family || card.dataset.family === family) &&
+          (!activeGroup || card.dataset.group === activeGroup) &&
+          (!term || (card.dataset.search ?? '').includes(term));
+        card.hidden = !matches;
+        if (matches) visible++;
+      }
+
+      if (count) count.textContent = String(visible);
+      if (empty) empty.hidden = visible > 0;
+    }
+
+    document.addEventListener('change', event => {
+      const target = event.target as HTMLElement;
+      if (target.matches('input[name="family"], input[name="group"]')) apply();
+    });
+    search?.addEventListener('input', apply);
+    reset?.addEventListener('click', () => {
+      if (search) search.value = '';
+      for (const name of ['family', 'group']) {
+        const all = document.querySelector(
+          `input[name="${name}"][value=""]`
+        ) as HTMLInputElement;
+        if (all) all.checked = true;
+      }
+      apply();
+    });
+
+    apply();
+  }
+
+  initCatalog();
+  document.addEventListener('astro:page-load', initCatalog);
+</script>

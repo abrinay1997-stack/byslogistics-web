@@ -4,6 +4,7 @@
 // subpáginas. Convertirlos en desplegables requiere el contenido de cada
 // submenú, que aún está pendiente.
 const navBarLinks = [
+  { name: 'Catálogo', url: '/catalogo' },
   { name: 'Precintos', url: '/precintos' },
   { name: 'Productos', url: '/productos' },
   { name: 'Usos', url: '/usos' },
@@ -16,6 +17,7 @@ const footerLinks = [
   {
     section: 'Productos',
     links: [
+      { name: 'Catálogo completo', url: '/catalogo' },
       {
         name: 'Precintos de seguridad',
         url: '/productos/precintos-de-seguridad',

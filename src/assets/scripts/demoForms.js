@@ -1,39 +1,43 @@
 /**
- * Demo form handler for template UI shells (contact, newsletter, auth).
- * Prevents silent submits and surfaces an honest demo status message.
+ * Manejo de los formularios de demostración (contacto y suscripción).
+ * Evita el envío silencioso y muestra un mensaje honesto de que aún no hay
+ * un backend conectado.
+ *
+ * Nota: este archivo traía anotaciones de tipo de TypeScript dentro de un
+ * archivo .js, así que `querySelectorAll < HTMLFormElement > '...'` se
+ * evaluaba como una comparación y lanzaba
+ * `"[data-demo-form]".forEach is not a function`. El error rompía el módulo
+ * completo, de modo que ningún formulario respondía.
  */
 function initDemoForms() {
-  document.querySelectorAll <
-    HTMLFormElement >
-    '[data-demo-form]'.forEach(form => {
-      if (form.dataset.demoBound === 'true') return;
-      form.dataset.demoBound = 'true';
+  for (const form of document.querySelectorAll('[data-demo-form]')) {
+    if (form.dataset.demoBound === 'true') continue;
+    form.dataset.demoBound = 'true';
 
-      form.addEventListener('submit', event => {
-        event.preventDefault();
-        if (!form.checkValidity()) {
-          form.reportValidity();
-          return;
-        }
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
 
-        const status =
-          form.querySelector < HTMLElement > '[data-demo-status]' ??
-          form.parentElement?.querySelector <
-            HTMLElement >
-            '[data-demo-status]';
-        const message =
-          form.dataset.demoMessage ||
-          status?.dataset.successMessage ||
-          'Demo only — this form is not connected to a backend.';
+      const status =
+        form.querySelector('[data-demo-status]') ??
+        form.parentElement?.querySelector('[data-demo-status]');
+      const message =
+        form.dataset.demoMessage ||
+        status?.dataset.successMessage ||
+        'Demo: este formulario todavía no está conectado a un servidor.';
 
-        if (status) {
-          status.textContent = message;
-          status.classList.remove('hidden');
-        }
+      if (status) {
+        status.textContent = message;
+        status.hidden = false;
+        status.classList.remove('hidden');
+      }
 
-        form.reset();
-      });
+      form.reset();
     });
+  }
 }
 
 if (document.readyState === 'loading') {
@@ -41,3 +45,5 @@ if (document.readyState === 'loading') {
 } else {
   initDemoForms();
 }
+
+document.addEventListener('astro:page-load', initDemoForms);

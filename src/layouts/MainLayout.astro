@@ -3,6 +3,7 @@
 import Meta from '@components/Meta.astro';
 import Navbar from '@components/sections/navbar&footer/Navbar.astro';
 import FooterSection from '@components/sections/navbar&footer/FooterSection.astro';
+import QuoteCart from '@components/QuoteCart.astro';
 import { SITE } from '@data/constants';
 import '@styles/global.css';
 
@@ -55,6 +56,7 @@ interface Props {
     <script>
       import '@scripts/lenisSmoothScroll.js';
       import '@scripts/demoForms.js';
+      import '@scripts/quoteCart.js';
     </script>
   </head>
   <body
@@ -81,6 +83,7 @@ interface Props {
       </main>
     </div>
     {!hideFooter && <FooterSection />}
+    <QuoteCart />
     <script>
       // https://preline.co
       import 'preline';
