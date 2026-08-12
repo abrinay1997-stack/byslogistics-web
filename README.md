@@ -155,12 +155,21 @@ correr con un listado nuevo sin pisar nada.
 
 ### Poner una imagen de fondo en una sección
 
-`SectionBackdrop.astro` pone la imagen a un lado de la sección, a plena
-intensidad, y la desvanece hacia el lado donde está el texto — ni pegada tal
-cual detrás del contenido ni rebajada a una opacidad mínima. La usan el hero,
-los encabezados de página (`MainSection`, prop `backdrop`), los testimonios y
-el cierre de página (`HeroSectionAlt`). La sección contenedora debe ser
-`relative overflow-hidden` y su contenido ir en un `div` `relative`.
+`SectionBackdrop.astro` pone la imagen a un lado de la sección y la desvanece
+hacia el lado donde está el texto. Tiene dos tratamientos:
+
+- `ambient` (el de por defecto): desenfocada y con un velo del color de la
+  sección encima. Deja de leerse como una foto pegada y pasa a ser un campo de
+  color. Es el que corresponde cuando la foto es literal —un producto
+  recortado—, y es el único que se muestra también en móvil, con el velo más
+  cargado porque el texto va encima.
+- `photo`: nítida. Solo para ilustraciones y planos generales, que no
+  distraen; en móvil se oculta.
+
+La usan el hero, los encabezados de página (`MainSection`, props `backdrop` y
+`backdropTreatment`), los testimonios y el cierre de página (`HeroSectionAlt`).
+La sección contenedora debe ser `relative overflow-hidden` y su contenido ir en
+un `div` `relative`.
 
 ---
 
