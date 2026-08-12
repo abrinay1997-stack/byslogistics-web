@@ -3,7 +3,8 @@
  *
  * Levanta un servidor estático sobre dist/ y maneja Chromium con Playwright.
  * Cubre lo que solo se ve en ejecución: los filtros del catálogo, el
- * cotizador, el envío del formulario y la accesibilidad con axe.
+ * cotizador, el envío del formulario, la maquetación a distintos anchos y la
+ * accesibilidad con axe.
  *
  * Requiere `pnpm build` previo. Si Playwright no está instalado, los tests se
  * omiten en lugar de fallar, para que `pnpm test` siga siendo útil sin él.
@@ -357,6 +358,141 @@ describe('navegación móvil', { skip: skip() }, () => {
     await page.close();
   });
 });
+
+// El bug que motivó este bloque: el contenido vivía dentro de una caja de
+// 1536 px, así que en pantallas más anchas la foto del hero se cortaba en seco
+// contra ese límite y quedaban franjas de fondo muerto a los lados. A 390 px no
+// se notaba, de ahí que el test de desbordamiento de arriba no lo viera.
+describe(
+  'el contenido va a sangre en pantallas anchas',
+  { skip: skip() },
+  () => {
+    const ANCHO = 1820;
+    const RUTAS = ['/', '/nosotros/', '/faq/', '/precintos/'];
+
+    // Ojo: no todas las secciones ocupan el ancho completo, ni deben. Las que
+    // no llevan fondo son ellas mismas el contenedor centrado (`mx-auto
+    // max-w-[85rem]`), y está bien que se queden en el centro. Lo que sí tiene
+    // que ir a sangre es el <main> y cualquier sección con imagen de fondo.
+    test('el contenido no está encajonado', async () => {
+      const page = await browser.newPage({
+        viewport: { width: ANCHO, height: 960 },
+      });
+      for (const r of RUTAS) {
+        await page.goto(base + r, { waitUntil: 'networkidle' });
+        const { win, main, conFondo } = await page.evaluate(() => {
+          const caja = el => {
+            const { left, right } = el.getBoundingClientRect();
+            return { left, right };
+          };
+          return {
+            win: window.innerWidth,
+            main: caja(document.querySelector('main')),
+            conFondo: [...document.querySelectorAll('.backdrop')].map(el =>
+              caja(el.closest('section'))
+            ),
+          };
+        });
+        assert.ok(
+          main.left <= 1 && main.right >= win - 1,
+          `${r}: el contenido está encajonado (${main.left}–${main.right} de ${win})`
+        );
+        for (const [i, s] of conFondo.entries()) {
+          assert.ok(
+            s.left <= 1 && s.right >= win - 1,
+            `${r}: la sección con fondo ${i} no llega a los bordes (${s.left}–${s.right} de ${win})`
+          );
+        }
+      }
+      await page.close();
+    });
+
+    test('los fondos de sección llegan hasta el borde derecho', async () => {
+      const page = await browser.newPage({
+        viewport: { width: ANCHO, height: 960 },
+      });
+      let medidos = 0;
+      for (const r of RUTAS) {
+        await page.goto(base + r, { waitUntil: 'networkidle' });
+        const fondos = await page.evaluate(() =>
+          [...document.querySelectorAll('.backdrop')]
+            .filter(el => getComputedStyle(el).display !== 'none')
+            .map(el => ({
+              right: el.getBoundingClientRect().right,
+              win: window.innerWidth,
+            }))
+        );
+        for (const f of fondos) {
+          assert.ok(
+            f.right >= f.win - 1,
+            `${r}: un fondo termina en ${f.right} y la ventana mide ${f.win}`
+          );
+        }
+        medidos += fondos.length;
+      }
+      // Si el marcado del fondo cambia, el bucle pasaría en vacío sin avisar.
+      assert.ok(
+        medidos > 0,
+        'no se encontró ningún fondo de sección que medir'
+      );
+      await page.close();
+    });
+
+    test('ninguna página desborda horizontalmente', async () => {
+      const page = await browser.newPage({
+        viewport: { width: ANCHO, height: 960 },
+      });
+      for (const r of RUTAS) {
+        await page.goto(base + r, { waitUntil: 'networkidle' });
+        const { scroll, client } = await page.evaluate(() => ({
+          scroll: document.documentElement.scrollWidth,
+          client: document.documentElement.clientWidth,
+        }));
+        assert.ok(scroll <= client + 1, `${r} desborda: ${scroll} > ${client}`);
+      }
+      await page.close();
+    });
+
+    test('la barra de navegación sí queda separada de los bordes', async () => {
+      const page = await browser.newPage({
+        viewport: { width: ANCHO, height: 960 },
+      });
+      await page.goto(base + '/', { waitUntil: 'networkidle' });
+      const { left, right, win } = await page.evaluate(() => {
+        const { left, right } = document
+          .querySelector('header')
+          .getBoundingClientRect();
+        return { left, right, win: window.innerWidth };
+      });
+      assert.ok(
+        left > 0 && right < win,
+        `la píldora del menú toca los bordes (${left}–${right} de ${win})`
+      );
+      await page.close();
+    });
+
+    test('el menú sigue fijo al hacer scroll', async () => {
+      const page = await browser.newPage({
+        viewport: { width: ANCHO, height: 960 },
+      });
+      await page.goto(base + '/nosotros/', { waitUntil: 'networkidle' });
+      const arriba = await page.evaluate(
+        () => document.querySelector('header').getBoundingClientRect().top
+      );
+      await page.evaluate(() => window.scrollTo(0, 1500));
+      await page.waitForTimeout(600);
+      const despues = await page.evaluate(
+        () => document.querySelector('header').getBoundingClientRect().top
+      );
+      assert.equal(
+        Math.round(despues),
+        Math.round(arriba),
+        'el menú dejó de quedarse fijo al sacarlo de su contenedor'
+      );
+      await page.close();
+    });
+  }
+);
 
 describe('accesibilidad (axe)', { skip: skip() }, () => {
   const RUTAS = [
