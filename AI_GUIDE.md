@@ -1,20 +1,22 @@
-# ScrewFast AI Guide
+# Guía del repositorio
 
-For AI assistants (Cursor, Copilot, Claude, ChatGPT): this file describes project structure, conventions, and where to find or add code. See [README.md](README.md) for human-facing setup and features.
+Para asistentes de IA (Claude, Cursor, Copilot…) y para quien llegue nuevo. Describe la estructura real del proyecto y sus convenciones. El [README.md](README.md) cubre la instalación y el uso.
 
-## Project Overview
+## Qué es esto
 
-ScrewFast is an Astro + Tailwind CSS + Preline UI template for landing pages, blogs, documentation, and product/content pages. Stack: Astro 7, Tailwind v4 (via `@tailwindcss/vite`), Preline (modals, accordions), Starlight (docs), Lenis (smooth scroll), GSAP (animations).
+Sitio institucional de **Business & Supplies Logistics Ltda. (B&S Logistics)**, distribuidor colombiano de precintos y elementos de seguridad preventiva. Es un sitio estático: catálogo, fichas de producto y captación de contactos. No hay comercio electrónico ni área privada.
 
-Marketing site locales: **en** and **fr** (file-based routes under `src/pages/` and `src/pages/fr/`). Use `getMarketingLocale()` from [`src/utils/locale.ts`](src/utils/locale.ts) for nav/footer/forms — do not rely only on `Astro.currentLocale` for marketing pages.
+Un dato que condiciona todo el contenido: **el sitio no publica precios**. El listado del que salen las referencias es administrativo, y hay un test que lo verifica.
 
-Docs (Starlight) locales: en, de, es, fa, fr, ja, zh-cn. Guides and welcome are translated; `construction/`, `tools/`, and `advanced/` fall back to English for non-root locales.
+Stack: **Astro 7** + **Tailwind CSS v4** (vía `@tailwindcss/vite`) + **Preline** (acordeones y colapsables) + **Lenis** (scroll suave). Se despliega en **Netlify** desde `main`.
 
-## Path Aliases
+El sitio nació de la plantilla [ScrewFast](https://github.com/mearashadowfax/ScrewFast), pero ya casi no queda nada de ella: un solo idioma (español de Colombia), sin blog, sin documentación con Starlight y sin sección de precios. Si un componente o un dato no está enlazado desde `src/pages/`, probablemente sea un resto de la plantilla y haya que borrarlo, no reutilizarlo.
 
-Use these imports so paths stay correct and consistent:
+## Alias de importación
 
-| Alias           | Resolves to            |
+Definidos en [tsconfig.json](tsconfig.json). Úsalos siempre en lugar de rutas relativas largas:
+
+| Alias           | Apunta a               |
 | --------------- | ---------------------- |
 | `@/*`           | `src/*`                |
 | `@components/*` | `src/components/*`     |
@@ -25,49 +27,75 @@ Use these imports so paths stay correct and consistent:
 | `@styles/*`     | `src/assets/styles/*`  |
 | `@utils/*`      | `src/utils/*`          |
 
-Example: `import { SITE } from "@data/constants";` – do not use `@/data_files/constants`.
+Ejemplo: `import { CONTACT } from '@data/constants';`
 
-Defined in [tsconfig.json](tsconfig.json).
+## Estructura
 
-## Key Folders
+| Carpeta                                              | Qué hay                                                                                                                                            |
+| ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [src/pages/](src/pages/)                             | Rutas (Astro enruta por archivos). Páginas sueltas y dos rutas dinámicas: `productos/[id]` y `precintos/[id]`.                                     |
+| [src/layouts/](src/layouts/)                         | [MainLayout.astro](src/layouts/MainLayout.astro): navbar, slot del contenido, footer, panel de cotización y los scripts globales.                  |
+| [src/components/sections/](src/components/sections/) | Bloques de página: héroes, testimonios, FAQ, contacto, navbar y footer.                                                                            |
+| [src/components/ui/](src/components/ui/)             | Piezas reutilizables: botones, tarjetas, campos de formulario, iconos y bloques sueltos.                                                           |
+| [src/content/](src/content/)                         | Colecciones en Markdown: `soluciones/` (familias de producto) y `precintos/` (categorías). Esquemas en [content.config.ts](src/content.config.ts). |
+| [src/data_files/](src/data_files/)                   | [constants.ts](src/data_files/constants.ts) (`SITE`, `CONTACT`, `FORMS`, `SEO`, `OG`, `partnersData`) y `faqs.json`.                               |
+| [src/utils/](src/utils/)                             | `catalog.ts` (arma el catálogo y sus filtros), `navigation.ts` (menú, footer, redes), `text.ts` (`normalize`, `slugify`), `ui.ts`, `utils.ts`.     |
+| [src/assets/](src/assets/)                           | `styles/` (global.css, lenis.css) y `scripts/` (carrito de cotización, formularios, scroll suave).                                                 |
+| [src/images/](src/images/)                           | Imágenes que procesa Astro: `productos/`, `backgrounds/`, `brand/`.                                                                                |
+| [public/](public/)                                   | Se sirve tal cual, sin procesar.                                                                                                                   |
+| [tests/](tests/)                                     | Pruebas con el runner de Node. Ver más abajo.                                                                                                      |
+| [scripts/](scripts/)                                 | `extract-xlsx-images.mjs` (saca las fotos del listado de precios) y `smoke.mjs` (comprueba que las rutas responden).                               |
 
-| Purpose                 | Path                               | Notes                                                                                                                                                                                                                     |
-| ----------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Reusable UI & sections  | [src/components/](src/components/) | `sections/` for landing, features, navbar&footer, testimonials, pricing, misc; `ui/` for buttons, cards, forms, icons, etc.                                                                                               |
-| Layout                  | [src/layouts/](src/layouts/)       | [MainLayout.astro](src/layouts/MainLayout.astro) wraps Navbar, main slot, FooterSection.                                                                                                                                  |
-| Pages                   | [src/pages/](src/pages/)           | Astro file-based routing; `fr/` for French locale.                                                                                                                                                                        |
-| Content (collections)   | [src/content/](src/content/)       | `blog/`, `products/`, `insights/`; `docs/` for Starlight (i18n subdirs: guides, construction, tools, advanced, de, es, fa, fr, ja, zh-cn).                                                                                |
-| Static assets           | [public/](public/)                 | Served as-is.                                                                                                                                                                                                             |
-| Navigation & UI helpers | [src/utils/](src/utils/)           | [navigation.ts](src/utils/navigation.ts) exports default `{ navBarLinks, footerLinks, socialLinks }`; [fr/navigation.ts](src/utils/fr/navigation.ts) for French. Navbar/Footer use `Astro.currentLocale` to pick strings. |
-| Site config & JSON data | [src/data_files/](src/data_files/) | [constants.ts](src/data_files/constants.ts): SITE, SEO, OG, partnersData; faqs.json, features.json, pricing.json, mega_link.ts; `fr/` for localized JSON.                                                                 |
-| Styles & scripts        | [src/assets/](src/assets/)         | `styles/` (global.css, lenis.css, starlight); `scripts/` e.g. [lenisSmoothScroll.js](src/assets/scripts/lenisSmoothScroll.js).                                                                                            |
-| Images (imported)       | [src/images/](src/images/)         | Use with `@images/`; processed by Astro.                                                                                                                                                                                  |
+## Cómo está armada la maquetación
 
-## Layout and Main Components
+Vale la pena entenderlo antes de tocar anchos o márgenes:
 
-- **MainLayout** ([MainLayout.astro](src/layouts/MainLayout.astro)): Props `title`, `meta`, `structuredData`, `lang`, `customDescription`, `customOgTitle`. Imports Meta, Navbar, FooterSection; includes Preline script and Lenis. Pages use `<MainLayout>…</MainLayout>` with content as default slot.
-- **Homepage** ([src/pages/index.astro](src/pages/index.astro)): Composes AnnouncementBanner, HeroSection, ClientsSection, FeaturesGeneral, FeaturesNavs, TestimonialsSection, PricingSection, FAQ; data from `@data/*` and [constants.ts](src/data_files/constants.ts) (e.g. partnersData).
-- **SEO**: [Meta.astro](src/components/Meta.astro) uses SITE/SEO/OG from `@data/constants`; per-page overrides via MainLayout props.
+- **El contenido va a sangre.** `<main>` no tiene ancho máximo, así que cada sección se estira de borde a borde de la ventana. Es lo que permite que las fotos y los fondos lleguen al filo de la pantalla.
+- **Cada sección centra su propio texto** con `mx-auto max-w-[85rem] px-10 sm:px-14 lg:px-20`. Esa combinación es la convención del proyecto: si agregas una sección, cópiala tal cual para que quede alineada con las demás.
+- **La barra de navegación es la excepción**: lleva su propio `max-w-(--breakpoint-2xl)` y su padding dentro de [Navbar.astro](src/components/sections/navbar&footer/Navbar.astro), porque es una píldora flotante que debe quedar separada de los bordes. Va suelta en el layout, sin contenedor que la envuelva, para que `position: sticky` siga funcionando.
+- **Los fondos de sección** usan [SectionBackdrop.astro](src/components/ui/blocks/SectionBackdrop.astro): una franja lateral con la imagen desvanecida por una máscara hacia el lado del texto. La sección que lo use debe ser `relative overflow-hidden` y su contenido ir en un contenedor `relative`. Por debajo de `lg` el fondo se oculta, porque estorbaría la lectura.
 
-## Conventions
+Hay tests que verifican todo esto; si los rompes, el mensaje de error dice qué medida se salió.
 
-- **Props:** Passed inline in page files (see [index.astro](src/pages/index.astro)); no global state.
-- **Styling:** Tailwind CSS only; use **Tailwind v4** syntax (refer to Tailwind v4 docs).
-- **Interactive UI:** Preline for modals, dropdowns, accordions (script loaded in MainLayout).
-- **Smooth scroll:** Lenis via [lenisSmoothScroll.js](src/assets/scripts/lenisSmoothScroll.js).
-- **Content collections:** Schemas in [content.config.ts](src/content.config.ts) (blog, products, insights, docs); use `getCollection('blog')` etc. in pages.
+## Convenciones
 
-## Development Commands
+- **Todo en español (Colombia)**, incluidos comentarios, mensajes de commit y textos de test.
+- **Tailwind v4 únicamente.** No uses sintaxis de la v3.
+- **Sin precios en el sitio.** Ni en contenido, ni en componentes, ni en datos estructurados.
+- **Los datos de la empresa viven en `constants.ts`**, no repartidos por las plantillas. Hay tests que comprueban que el WhatsApp, el correo y el dominio sean los correctos.
+- **Las props se pasan en línea** desde las páginas; no hay estado global.
+- **Interacción**: Preline para acordeones y colapsables; el resto son scripts propios en `src/assets/scripts/`.
+- **Formato**: Prettier con el plugin de Tailwind. Corre `pnpm format:fix` antes de commitear — CI falla si el formato no está limpio.
 
-- `pnpm dev` – run dev server
-- `pnpm build` – typecheck (`astro check`), build, then HTML processing ([process-html.mjs](process-html.mjs))
-- `pnpm preview` – preview production build
+## Comandos
 
-## Recommendations for AI
+| Comando             | Qué hace                                                      |
+| ------------------- | ------------------------------------------------------------- |
+| `pnpm dev`          | Servidor de desarrollo.                                       |
+| `pnpm build`        | `astro check` + build + [process-html.mjs](process-html.mjs). |
+| `pnpm preview`      | Sirve lo construido.                                          |
+| `pnpm format:fix`   | Aplica Prettier.                                              |
+| `pnpm test`         | Toda la suite.                                                |
+| `pnpm test:content` | Colecciones, datos de la empresa y configuración.             |
+| `pnpm test:build`   | El HTML generado (requiere `pnpm build` antes).               |
+| `pnpm test:smoke`   | Que las rutas respondan.                                      |
+| `pnpm test:e2e`     | Navegador real con Playwright (requiere `pnpm build` antes).  |
 
-- Use **path aliases** (`@components`, `@data`, `@images`, etc.) in suggested code.
-- Put new reusable components under [src/components/](src/components/) (choose `sections/` or `ui/` by purpose).
-- Add or edit content in [src/content/](src/content/) and respect [content.config.ts](src/content.config.ts) schemas.
-- Follow [MainLayout.astro](src/layouts/MainLayout.astro) for layout and Meta/SEO.
-- Use **Tailwind v4** only; do not use Tailwind v3 syntax.
-- Navigation/footer copy: edit [src/utils/navigation.ts](src/utils/navigation.ts) (and [src/utils/fr/navigation.ts](src/utils/fr/navigation.ts) for French); Navbar/Footer receive the default export as `strings`.
+Gestor de paquetes: **pnpm**, con la versión fijada en `packageManager` para que CI use exactamente la misma.
+
+## Los tests
+
+Usan el runner de `node:test`, sin framework. Tres archivos:
+
+- **[tests/content.test.js](tests/content.test.js)** — sin navegador ni build. Colecciones de contenido, iconos declarados, datos de la empresa y configuración de despliegue.
+- **[tests/build.test.js](tests/build.test.js)** — lee el HTML de `dist/`. Rutas, metadatos, enlaces rotos, formularios y las referencias del catálogo.
+- **[tests/e2e.test.js](tests/e2e.test.js)** — levanta `dist/` y maneja Chromium. Filtros del catálogo, cotizador, formulario de contacto, menú móvil, maquetación a sangre y accesibilidad con axe.
+
+Si Playwright no está instalado, los tests de navegador se omiten en lugar de fallar. Para apuntar a un Chromium propio: `CHROMIUM_PATH=/ruta/al/chromium pnpm test`.
+
+## Al agregar cosas
+
+- **Una familia de producto o una categoría de precintos** → un archivo Markdown en `src/content/`, respetando el esquema de [content.config.ts](src/content.config.ts). El campo `icon` debe existir en [icons.ts](src/components/ui/icons/icons.ts); hay un test que lo comprueba.
+- **Un icono** → agrégalo a `icons.ts` solo cuando lo vayas a usar. El archivo se mantiene podado a propósito.
+- **Una sección nueva** → componente en `src/components/sections/`, con el contenedor estándar descrito arriba.
+- **Texto del menú o del footer** → [src/utils/navigation.ts](src/utils/navigation.ts).
