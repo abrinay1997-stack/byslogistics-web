@@ -9,36 +9,43 @@ import Icon from '@components/ui/icons/Icon.astro';
 import { CONTACT, FORMS } from '@data/constants';
 
 const copy = {
-  title: 'Estamos aquí para ayudarte',
+  title: 'Estamos aquí para ayudarle',
   subTitle:
     'Tenemos una gran variedad de elementos de seguridad. Descríbanos su necesidad y podremos asesorarle con respecto al producto ideal para su empresa.',
   formTitle: 'Realizar una consulta',
-  formSubTitle: 'Te respondemos en un plazo de 1 a 2 días hábiles.',
+  formSubTitle: 'Le respondemos en un plazo de 1 a 2 días hábiles.',
   name: 'Nombre',
   details: 'Mensaje adicional',
   send: 'Enviar mensaje',
   pbxHeading: 'P.B.X. en Bogotá',
-  pbxContent: 'Comunícate con nuestras líneas fijas.',
+  pbxContent: 'Comuníquese con nuestras líneas fijas.',
   mobileHeading: 'Celulares',
-  mobileContent: 'También puedes escribirnos por WhatsApp.',
+  mobileContent: 'También puede escribirnos por WhatsApp.',
   panamaHeading: 'Celular Panamá',
   panamaContent: 'Atención para operaciones en Panamá.',
-  emailHeading: 'Escríbenos por correo',
-  emailContent: '¿Prefieres el correo electrónico? Escríbenos a',
+  emailHeading: 'Escríbanos por correo',
+  emailContent: '¿Prefiere el correo electrónico? Escríbanos a',
   mapHeading: 'Dónde estamos',
   mapContent: 'Estamos en Bogotá, Colombia. ',
 };
 ---
 
 <section class="mx-auto max-w-[85rem] px-10 py-16 sm:px-14 lg:px-20 lg:py-24">
-  <div class="mx-auto max-w-2xl lg:max-w-5xl">
-    <div class="text-center">
+  <div>
+    {
+      /* Alineado a la izquierda y con la misma escala de encabezado que el
+         resto del sitio (ver MainSection.astro). Centrado y en un cuerpo
+         menor, esta era la única página que rompía el eje de lectura. */
+    }
+    <div class="max-w-2xl">
       <h1
-        class="text-2xl font-bold tracking-tight text-balance text-neutral-800 md:text-4xl md:leading-tight dark:text-neutral-200"
+        class="mb-5 text-4xl font-extrabold tracking-tight text-balance text-neutral-800 sm:text-5xl lg:text-6xl dark:text-neutral-100"
       >
         {copy.title}
       </h1>
-      <p class="mt-1 text-pretty text-neutral-600 dark:text-neutral-400">
+      <p
+        class="max-w-prose text-lg font-normal text-pretty text-neutral-600 sm:text-xl dark:text-neutral-400"
+      >
         {copy.subTitle}
       </p>
     </div>
@@ -58,7 +65,7 @@ const copy = {
           data-contact-form
           data-form-whatsapp={CONTACT.whatsapp}
           data-wa-intro="Hola, quisiera hacer una consulta:"
-          data-form-success="¡Gracias! Recibimos tu mensaje y te respondemos en 1 o 2 días hábiles."
+          data-form-success="¡Gracias! Recibimos su mensaje y le respondemos en 1 o 2 días hábiles."
         >
           {/* Netlify identifica el formulario por este campo */}
           <input type="hidden" name="form-name" value={FORMS.contact} />
@@ -96,8 +103,13 @@ const copy = {
               required
               class="text-brand-600 focus:ring-brand-500 mt-1 shrink-0 rounded-sm border-neutral-300 dark:border-neutral-600"
             />
+            {
+              /* El `{' '}` no es decorativo: sin él Astro se come el salto de
+                 línea que separa el texto del enlace y queda pegado («conforme
+                 a laPolítica…»). Mismo idioma que usa el footer. */
+            }
             <span class="text-neutral-600 dark:text-neutral-400">
-              Autorizo el tratamiento de mis datos personales conforme a la
+              Autorizo el tratamiento de mis datos personales conforme a la{' '}
               <a
                 href="/politica-de-datos"
                 class="text-brand-700 dark:text-brand-400 underline underline-offset-2"

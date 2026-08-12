@@ -18,8 +18,11 @@ const pageTitle = `Política de Tratamiento de Datos Personales | ${SITE.title}`
 const metaDescription =
   'Política de Tratamiento de Datos Personales de Business & Supplies Logistics, conforme a la Ley 1581 de 2012 y el Decreto 1377 de 2013.';
 
-// TODO(pendiente): reemplazar por la fecha real de aprobación de la política.
-const vigenciaDesde = 'por definir';
+// Fecha de aprobación de la política, en formato «15 de marzo de 2026».
+// Mientras esté vacía la línea no se publica: en un documento legal es
+// preferible no mostrar fecha a mostrar «Vigente desde: por definir».
+// TODO(pendiente): pedirle a la empresa la fecha real de aprobación.
+const vigenciaDesde = '';
 ---
 
 <MainLayout
@@ -43,9 +46,13 @@ const vigenciaDesde = 'por definir';
       >
         Política de Tratamiento de Datos Personales
       </h1>
-      <p class="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
-        Vigente desde: {vigenciaDesde}
-      </p>
+      {
+        vigenciaDesde && (
+          <p class="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
+            Vigente desde: {vigenciaDesde}
+          </p>
+        )
+      }
 
       <div
         class="prose prose-neutral dark:prose-invert prose-headings:font-bold prose-a:text-brand-700 dark:prose-a:text-brand-400 mt-8 max-w-none"

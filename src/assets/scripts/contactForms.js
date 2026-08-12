@@ -98,7 +98,7 @@ function initForms() {
         setStatus(
           form,
           form.dataset.formSuccess ??
-            '¡Gracias! Recibimos tu mensaje y te respondemos pronto.',
+            '¡Gracias! Recibimos su mensaje y le respondemos pronto.',
           'ok'
         );
         form.reset();
@@ -115,14 +115,14 @@ function initForms() {
           window.open(url, '_blank', 'noopener');
           setStatus(
             form,
-            'No pudimos enviar el formulario, así que abrimos WhatsApp con tu mensaje listo.',
+            'No pudimos enviar el formulario, así que abrimos WhatsApp con su mensaje listo.',
             'error'
           );
         } else {
           setStatus(
             form,
             form.dataset.formFallback ??
-              'No pudimos enviar el mensaje. Escríbenos por WhatsApp o al correo de la empresa.',
+              'No pudimos enviar el mensaje. Escríbanos por WhatsApp o al correo de la empresa.',
             'error'
           );
         }
