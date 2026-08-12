@@ -11,6 +11,17 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
+  /* Interlineado de los tamaños de titular.
+   *
+   * Tailwind trae `line-height: 1` de fábrica de text-5xl para arriba, y a ese
+   * ritmo un título de dos líneas queda con los renglones tocándose. Se corrige
+   * aquí, en el tema, en lugar de repartir `leading-*` por cada componente: así
+   * todo titular nace con el mismo aire y no vuelve a divergir. text-4xl ya
+   * viene en 1.11 de fábrica, que es el valor al que se alinean los demás. */
+  --text-5xl--line-height: 1.1;
+  --text-6xl--line-height: 1.1;
+  --text-7xl--line-height: 1.1;
+
   /* https://tailwindcss.com/docs/colors#customizing-your-colors */
   --color-*: initial;
   --color-transparent: transparent;
