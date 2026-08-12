@@ -3,6 +3,8 @@ title: 'Cajas de Seguridad'
 description: 'Permiten almacenar o transportar de forma eficiente diversidad de elementos y garantizan seguridad en su operación logística, pues requieren para su uso precinto de Seguridad.'
 order: 4
 icon: groups
+cardImage: ../../images/productos/caja-de-seguridad.jpeg
+cardImageAlt: 'Caja de seguridad plástica azul con tapa abatible'
 highlights:
   - 'Almacenan y transportan diversidad de elementos'
   - 'Requieren precinto de seguridad para su cierre'

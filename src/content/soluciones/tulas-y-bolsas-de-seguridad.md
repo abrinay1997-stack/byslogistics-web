@@ -3,6 +3,8 @@ title: 'Tulas y Bolsas de Seguridad'
 description: 'Es la solución perfecta en seguridad para el transporte de valores y documentos. Están diseñadas para evidenciar cualquier intento de manipulación o apertura indebida.'
 order: 3
 icon: books
+cardImage: ../../images/productos/tula-de-seguridad.png
+cardImageAlt: 'Tula de seguridad azul con cierre y portadocumentos'
 highlights:
   - 'Diseñadas para el transporte de valores y documentos'
   - 'Evidencian cualquier intento de apertura indebida'

@@ -1,0 +1,112 @@
+---
+import { Image } from 'astro:assets';
+
+/**
+ * Fondo lateral de sección.
+ *
+ * La imagen no se pone "tal cual" detrás del texto ni rebajada a una opacidad
+ * mínima: ocupa el lado contrario al del contenido, a plena intensidad, y se
+ * desvanece con una máscara hacia el lado donde está el texto. Así se ve la
+ * fotografía de verdad —no un aguado— y el texto conserva su fondo limpio.
+ *
+ * La sección que lo use debe ser `relative overflow-hidden`, y su contenido ir
+ * en un contenedor `relative` para quedar por encima.
+ *
+ * Es decorativo: se oculta por debajo de `lg`, donde el texto ocupa todo el
+ * ancho y cualquier imagen detrás estorbaría la lectura.
+ */
+interface Props {
+  src: ImageMetadata;
+  /** Lado en el que se ve la imagen. El texto va en el contrario. */
+  side?: 'left' | 'right';
+  /** Ancho de la franja, en porcentaje del ancho de la sección. */
+  width?: string;
+}
+
+const { src, side = 'right', width = '56%' } = Astro.props;
+---
+
+<div
+  class:list={['backdrop', side === 'right' ? 'to-right' : 'to-left']}
+  style={`--backdrop-width:${width}`}
+  aria-hidden="true"
+>
+  <Image
+    src={src}
+    alt=""
+    class="h-full w-full object-cover"
+    widths={[640, 960, 1280]}
+    sizes="(min-width: 1024px) 56vw, 0px"
+    loading="lazy"
+    decoding="async"
+    draggable={false}
+  />
+</div>
+
+<style>
+  .backdrop {
+    display: none;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: var(--backdrop-width);
+    pointer-events: none;
+    user-select: none;
+  }
+
+  @media (min-width: 1024px) {
+    .backdrop {
+      display: block;
+    }
+  }
+
+  .to-right {
+    right: 0;
+  }
+
+  .to-left {
+    left: 0;
+  }
+
+  /* Dos degradados combinados: el horizontal apaga la imagen del lado del
+     texto, el vertical le quita el corte seco contra la sección vecina. */
+  .to-right :global(img) {
+    mask-image:
+      linear-gradient(
+        to right,
+        transparent 0%,
+        rgba(0, 0, 0, 0.25) 26%,
+        rgba(0, 0, 0, 0.85) 48%,
+        #000 62%
+      ),
+      linear-gradient(
+        to bottom,
+        transparent 0%,
+        #000 14%,
+        #000 86%,
+        transparent 100%
+      );
+    mask-composite: intersect;
+    -webkit-mask-composite: source-in;
+  }
+
+  .to-left :global(img) {
+    mask-image:
+      linear-gradient(
+        to left,
+        transparent 0%,
+        rgba(0, 0, 0, 0.25) 26%,
+        rgba(0, 0, 0, 0.85) 48%,
+        #000 62%
+      ),
+      linear-gradient(
+        to bottom,
+        transparent 0%,
+        #000 14%,
+        #000 86%,
+        transparent 100%
+      );
+    mask-composite: intersect;
+    -webkit-mask-composite: source-in;
+  }
+</style>

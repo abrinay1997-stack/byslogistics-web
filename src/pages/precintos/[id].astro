@@ -5,6 +5,7 @@ import { getCollection, render } from 'astro:content';
 import { Image } from 'astro:assets';
 import MainLayout from '@/layouts/MainLayout.astro';
 import Breadcrumb from '@components/ui/blocks/Breadcrumb.astro';
+import ImagePlaceholder from '@components/ui/blocks/ImagePlaceholder.astro';
 import HeroSectionAlt from '@components/sections/landing/HeroSectionAlt.astro';
 import { CONTACT, SITE } from '@data/constants';
 
@@ -46,7 +47,7 @@ function quoteHref(product: string) {
     inLanguage: 'es-CO',
   }}
 >
-  <section class="mx-auto max-w-[85rem] px-4 pt-8 sm:px-6 lg:px-8">
+  <section class="mx-auto max-w-[85rem] px-6 pt-10 sm:px-8 lg:px-12">
     <Breadcrumb
       items={[
         { name: 'Inicio', url: '/' },
@@ -56,65 +57,92 @@ function quoteHref(product: string) {
     />
   </section>
 
-  <section class="mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8">
-    <h1
-      class="max-w-(--breakpoint-md) text-4xl font-extrabold tracking-tight text-balance text-neutral-800 dark:text-neutral-200"
-    >
-      {categoria.data.title}
-    </h1>
-    <p
-      class="mt-4 max-w-prose text-pretty text-neutral-600 sm:text-xl dark:text-neutral-400"
-    >
-      {categoria.data.description}
-    </p>
-    <div
-      class="prose prose-neutral dark:prose-invert prose-headings:font-bold mt-8 max-w-prose"
-    >
-      <Content />
+  <section class="mx-auto max-w-[85rem] px-6 py-14 sm:px-8 lg:px-12 lg:py-20">
+    <div class="grid gap-12 lg:grid-cols-12 lg:items-start lg:gap-16">
+      <div class="lg:col-span-7">
+        <h1
+          class="text-4xl font-extrabold tracking-tight text-balance text-neutral-800 sm:text-5xl dark:text-neutral-100"
+        >
+          {categoria.data.title}
+        </h1>
+        <p
+          class="mt-5 max-w-prose text-lg text-pretty text-neutral-600 sm:text-xl dark:text-neutral-400"
+        >
+          {categoria.data.description}
+        </p>
+        <div
+          class="prose prose-neutral dark:prose-invert prose-headings:font-bold mt-8 max-w-prose"
+        >
+          <Content />
+        </div>
+      </div>
+
+      {
+        categoria.data.cardImage && (
+          <div class="lg:col-span-5">
+            <Image
+              class="aspect-[4/3] w-full rounded-2xl bg-white object-contain p-8"
+              src={categoria.data.cardImage}
+              alt={categoria.data.cardImageAlt ?? categoria.data.title}
+              widths={[480, 720]}
+              sizes="(min-width: 1024px) 32rem, 90vw"
+              loading="eager"
+            />
+          </div>
+        )
+      }
     </div>
   </section>
 
   {
     categoria.data.products.length > 0 && (
-      <section class="mx-auto max-w-[85rem] px-4 pb-10 sm:px-6 lg:px-8 lg:pb-14">
-        <h2 class="text-2xl font-bold text-neutral-800 dark:text-neutral-200">
+      <section class="mx-auto max-w-[85rem] px-6 pb-16 sm:px-8 lg:px-12 lg:pb-24">
+        <h2 class="text-3xl font-bold text-neutral-800 dark:text-neutral-100">
           Referencias
         </h2>
-        <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <p class="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
           Mostrando {categoria.data.products.length}
           {categoria.data.products.length === 1 ? ' resultado' : ' resultados'}.
           Los precios se entregan por cotización según la cantidad requerida.
         </p>
-        <div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {categoria.data.products.map(product => (
-            <div class="flex flex-col rounded-xl border border-neutral-300 bg-neutral-100 p-6 dark:border-neutral-700 dark:bg-neutral-900">
-              {product.image && (
-                <Image
-                  class="mb-4 aspect-square w-full rounded-lg object-contain"
-                  src={product.image}
-                  alt={product.name}
-                  loading="lazy"
-                />
-              )}
-              {product.code && (
-                <p class="text-xs text-neutral-600 dark:text-neutral-400">
-                  Ref. {product.code}
-                </p>
-              )}
-              <h3 class="mt-1 font-bold text-neutral-800 dark:text-neutral-200">
-                {product.name}
-              </h3>
-              {product.description && (
-                <p class="mt-2 grow text-sm text-neutral-600 dark:text-neutral-400">
-                  {product.description}
-                </p>
-              )}
-              <a
-                href={quoteHref(product.name)}
-                class="bg-brand-600 hover:bg-brand-700 mt-4 inline-flex items-center justify-center gap-x-2 rounded-full border border-transparent px-5 py-2.5 text-sm font-bold text-neutral-50 ring-zinc-500 outline-hidden transition duration-300 focus-visible:ring-3 dark:ring-zinc-200"
-              >
-                Solicitar cotización
-              </a>
+            <div class="flex flex-col overflow-hidden rounded-2xl border border-neutral-300 bg-neutral-100 transition duration-300 hover:shadow-lg dark:border-neutral-700 dark:bg-neutral-900">
+              <div class="flex aspect-[5/3] items-center justify-center bg-white">
+                {product.image ? (
+                  <Image
+                    class="h-full w-full object-contain p-6"
+                    src={product.image}
+                    alt={product.name}
+                    widths={[320, 480]}
+                    sizes="(min-width: 1024px) 24rem, (min-width: 640px) 45vw, 90vw"
+                    loading="lazy"
+                  />
+                ) : (
+                  <ImagePlaceholder />
+                )}
+              </div>
+              <div class="flex grow flex-col p-6 sm:p-7">
+                {product.code && (
+                  <p class="text-xs text-neutral-600 dark:text-neutral-400">
+                    Ref. {product.code}
+                  </p>
+                )}
+                <h3 class="text-lg font-bold text-neutral-800 dark:text-neutral-100">
+                  {product.name}
+                </h3>
+                {product.description && (
+                  <p class="mt-2 grow text-sm text-neutral-600 dark:text-neutral-400">
+                    {product.description}
+                  </p>
+                )}
+                <a
+                  href={quoteHref(product.name)}
+                  class="border-brand-600 text-brand-700 hover:bg-brand-600 dark:border-brand-400 dark:text-brand-300 dark:hover:bg-brand-600 mt-5 inline-flex items-center justify-center gap-x-2 self-start rounded-full border-2 px-5 py-2.5 text-sm font-bold ring-zinc-500 outline-hidden transition duration-300 hover:text-neutral-50 focus-visible:ring-3 dark:ring-zinc-200 dark:hover:text-neutral-50"
+                >
+                  Solicitar cotización
+                </a>
+              </div>
             </div>
           ))}
         </div>

@@ -5,6 +5,8 @@ order: 1
 icon: verified
 catalogUrl: /precintos
 catalogLabel: 'Ver las 11 categorías de precintos'
+cardImage: ../../images/productos/precinto-dentado-doble-cierre.png
+cardImageAlt: 'Precinto plástico dentado dorado con logotipo'
 highlights:
   - 'Evidencian cualquier intento de manipulación durante su uso'
   - 'No pueden retirarse sin dejar evidencia'

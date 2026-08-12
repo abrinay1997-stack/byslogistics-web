@@ -47,7 +47,10 @@ src/
 ├── data_files/
 │   ├── constants.ts          Datos de la empresa: contacto, SEO, formularios
 │   └── faqs.json             Preguntas frecuentes
-├── images/brand/             Logo y colores (ver su README)
+├── images/
+│   ├── brand/                Logo y colores (ver su README)
+│   ├── backgrounds/          Fondos laterales de sección
+│   └── productos/            Fotos del catálogo
 ├── pages/                    Una página por ruta
 └── utils/
     ├── catalog.ts            Aplana las colecciones para el catálogo
@@ -123,10 +126,41 @@ estructurados.
 
 ### Agregar fotografías
 
-Las páginas ya están preparadas: mientras el campo esté vacío, simplemente no se
-muestra imagen. Pon los archivos en `src/images/` y referencia la ruta relativa
-en el campo `cardImage` (familias y categorías) o `image` (referencias
-individuales).
+Las fotos del catálogo van en `src/images/productos/` y se referencian con su
+ruta relativa desde el `.md`, en `cardImage` (familias y categorías) o `image`
+(referencias individuales). Mientras el campo esté vacío la ficha muestra el
+logotipo atenuado en lugar de la foto, así que la rejilla no se desarma.
+
+```yaml
+cardImage: ../../images/productos/precinto-botella.png
+cardImageAlt: 'Precinto de botella metálico amarillo'
+products:
+  - name: 'Precinto Botella One Seal'
+    image: ../../images/productos/precinto-botella-oneseal.png
+```
+
+#### Sacar las fotos del listado de precios
+
+El `.xlsx` de precios lleva las fotos incrustadas. Para extraerlas ya nombradas
+con el producto de su fila:
+
+```bash
+node scripts/extract-xlsx-images.mjs LISTADO_PRECIOS_2026.xlsx
+```
+
+Deja todo en `tmp/xlsx-images/`. De ahí se copian a `src/images/productos/`
+**solo las que se vayan a publicar**: el listado trae también capturas de
+tablas y fotos repetidas. El script no toca `src/`, así que se puede volver a
+correr con un listado nuevo sin pisar nada.
+
+### Poner una imagen de fondo en una sección
+
+`SectionBackdrop.astro` pone la imagen a un lado de la sección, a plena
+intensidad, y la desvanece hacia el lado donde está el texto — ni pegada tal
+cual detrás del contenido ni rebajada a una opacidad mínima. La usan el hero,
+los encabezados de página (`MainSection`, prop `backdrop`), los testimonios y
+el cierre de página (`HeroSectionAlt`). La sección contenedora debe ser
+`relative overflow-hidden` y su contenido ir en un `div` `relative`.
 
 ---
 
@@ -219,8 +253,12 @@ añadir su dominio a la cabecera o quedará bloqueado en silencio.
 
 ## Pendientes
 
-- **Fotografías.** Es lo que más se nota: falta el material de producto y de
-  operación.
+- **Fotografías.** Las familias y categorías ya tienen foto, salida del listado
+  de precios. Faltan referencias sueltas que el listado no identifica sin
+  ambigüedad (tubulares 2 y 3, rotor Ref. 01 y 3, tornillo 9, ancla mini y 1,
+  espiral 33 cms, plano BC 42, candado, dentado doble cierre 39 cms) y no hay
+  ninguna foto de rastreo satelital: en el Excel esa hoja solo trae una captura
+  de la tabla de precios.
 - **Logo para fondo oscuro.** El actual tiene letras negras y grises; en modo
   oscuro se dibuja sobre una base blanca como solución provisional.
 - **Política de datos.** El texto es un borrador conforme a la ley, pero

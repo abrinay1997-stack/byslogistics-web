@@ -1,0 +1,25 @@
+---
+import { Image } from 'astro:assets';
+import logo from '@images/brand/logo.png';
+
+/**
+ * Relleno para las fichas cuyo producto todavía no tiene fotografía.
+ *
+ * El listado de precios no trae foto de todas las referencias, y dejar el
+ * hueco vacío desarma la rejilla. Se marca con el logotipo atenuado, que se
+ * lee como "falta la foto" y no como si esa fuera la imagen del producto.
+ */
+---
+
+<div class="flex h-full w-full items-center justify-center bg-white">
+  <Image
+    src={logo}
+    alt=""
+    aria-hidden="true"
+    class="w-1/2 max-w-[10rem] opacity-20 grayscale"
+    widths={[160, 320]}
+    sizes="10rem"
+    loading="lazy"
+    draggable={false}
+  />
+</div>

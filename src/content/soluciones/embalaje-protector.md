@@ -3,6 +3,8 @@ title: 'Embalaje Protector'
 description: 'Bolsas inflables, absorbentes de humedad e infladoras para proteger la carga durante el trayecto y aprovechar mejor el espacio del contenedor.'
 order: 5
 icon: puzzle
+cardImage: ../../images/productos/bolsa-inflable.png
+cardImageAlt: 'Bolsa inflable de embalaje para estibar carga'
 highlights:
   - 'Bolsas inflables para estibar y proteger la carga'
   - 'Absorbentes de humedad para contenedor'

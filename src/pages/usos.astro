@@ -1,6 +1,7 @@
 ---
 import MainLayout from '@/layouts/MainLayout.astro';
 import MainSection from '@components/ui/blocks/MainSection.astro';
+import backdrop from '@images/backgrounds/precinto-tecnologia.jpg';
 import HeroSectionAlt from '@components/sections/landing/HeroSectionAlt.astro';
 import { SITE } from '@data/constants';
 
@@ -76,9 +77,10 @@ const metaDescription =
   <MainSection
     title="Usos y sectores que atendemos"
     subTitle="Nuestra gama de productos nos ha permitido suministrar a líderes de industria en sectores donde la trazabilidad y el control de activos no admiten dudas."
+    backdrop={backdrop}
   />
 
-  <section class="mx-auto max-w-[85rem] px-4 pb-10 sm:px-6 lg:px-8 lg:pb-14">
+  <section class="mx-auto max-w-[85rem] px-6 pb-16 sm:px-8 lg:px-12 lg:pb-24">
     <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
       {
         sectores.map(sector => (
