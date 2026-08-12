@@ -1,6 +1,7 @@
 ---
 import MainLayout from '@/layouts/MainLayout.astro';
 import MainSection from '@components/ui/blocks/MainSection.astro';
+import backdrop from '@images/backgrounds/precintos-estudio.jpg';
 import AddToQuoteBtn from '@components/ui/buttons/AddToQuoteBtn.astro';
 import { getCatalog, getFacets } from '@utils/catalog';
 import { SITE } from '@data/constants';
@@ -35,9 +36,10 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
   <MainSection
     title="Catálogo"
     subTitle="Filtra por línea o busca por nombre, arma tu cotización y envíala por WhatsApp. Los precios se entregan por cotización según la cantidad."
+    backdrop={backdrop}
   />
 
-  <section class="mx-auto max-w-[85rem] px-4 pb-14 sm:px-6 lg:px-8">
+  <section class="mx-auto max-w-[85rem] px-6 pb-20 sm:px-8 lg:px-12">
     <div class="lg:grid lg:grid-cols-4 lg:gap-10">
       {/* Filtros */}
       <aside class="lg:col-span-1">

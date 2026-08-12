@@ -2,6 +2,7 @@
 // Import necessary components
 import MainLayout from '@/layouts/MainLayout.astro';
 import MainSection from '@components/ui/blocks/MainSection.astro';
+import backdrop from '@images/backgrounds/logistica-claro.jpg';
 import HeroSectionAlt from '@components/sections/landing/HeroSectionAlt.astro';
 import { SITE } from '@data/constants';
 
@@ -51,9 +52,10 @@ const paragraphs: string[] = [
     btnExists={true}
     btnTitle="Solicitar una cotización"
     btnURL="/contacto"
+    backdrop={backdrop}
   />
 
-  <section class="mx-auto max-w-[85rem] px-4 pb-10 sm:px-6 lg:px-8 lg:pb-14">
+  <section class="mx-auto max-w-[85rem] px-6 pb-16 sm:px-8 lg:px-12 lg:pb-24">
     <div class="grid max-w-(--breakpoint-md) gap-6">
       {
         paragraphs.map(paragraph => (

@@ -3,6 +3,8 @@ title: 'Etiquetas y Cintas de Seguridad'
 description: 'Permiten identificar manipulaciones no autorizadas dejando evidencia si hay un intento de remoción. Es ideal como sello de garantía o control de inventarios.'
 order: 2
 icon: frame
+cardImage: ../../images/productos/cinta-void-seguridad.png
+cardImageAlt: 'Cinta de seguridad azul con leyenda VOID al retirarla'
 highlights:
   - 'Dejan evidencia visible ante cualquier intento de remoción'
   - 'Funcionan como sello de garantía'
