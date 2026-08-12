@@ -29,6 +29,25 @@ const solucionesCollection = defineCollection({
       cardImageAlt: z.string().optional(),
       // Puntos destacados que se listan en la página de la familia
       highlights: z.array(z.string()).default([]),
+      // Si la familia tiene su propio índice de categorías (los precintos),
+      // se enlaza ahí en lugar de listar las referencias en esta página.
+      catalogUrl: z.string().optional(),
+      catalogLabel: z.string().optional(),
+      // Referencias agrupadas por subtipo. Los precios no se publican: el
+      // listado del Excel es administrativo.
+      groups: z
+        .array(
+          z.object({
+            name: z.string(),
+            products: z.array(
+              z.object({
+                name: z.string(),
+                description: z.string().optional(),
+              })
+            ),
+          })
+        )
+        .default([]),
     }),
 });
 

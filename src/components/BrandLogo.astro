@@ -1,56 +1,41 @@
 ---
 /**
- * PROVISIONAL: este NO es el logo de la empresa, es un wordmark hecho a mano
- * mientras llega el archivo oficial.
+ * Logo oficial de B&S Logistics.
  *
- * Para poner el logo real:
- *   1. Sube el archivo a `src/images/brand/` (ver el README de esa carpeta).
- *   2. Si es SVG, pega su contenido aquí dejando `{...Astro.props}` en el <svg>
- *      raíz. Si es PNG, importa la imagen y renderiza <Image>.
+ * El PNG original (1600x839, fondo transparente) vive en
+ * `src/images/brand/logo.png`, así que Astro lo optimiza y genera las
+ * versiones responsivas. Navbar y FooterSection controlan el tamaño con la
+ * clase que le pasan (`w-24`, `w-32`).
  *
- * Mantener `{...Astro.props}` es lo que permite que Navbar y FooterSection
- * sigan controlando el tamaño con sus clases (`h-auto w-24`, `h-auto w-32`).
- *
- * Este wordmark usa <text>, así que depende de las fuentes del sistema. El logo
- * definitivo debería traer los trazos en <path>.
+ * El logo solo existe en versión para fondo claro: sus letras son negras y
+ * grises. En modo oscuro se dibuja sobre una base blanca para que siga siendo
+ * legible. Si llega una versión para fondo oscuro, se puede importar aquí y
+ * mostrarla con `hidden dark:block` en lugar de la base blanca.
  */
+import { Image } from 'astro:assets';
+import logo from '@images/brand/logo.png';
+
+const { class: className, ...rest } = Astro.props;
+
+interface Props {
+  class?: string;
+  [key: string]: unknown;
+}
 ---
 
-<svg
-  {...Astro.props}
-  viewBox="0 0 320 130"
-  fill="none"
-  role="img"
-  aria-label="BYS Logistics"
+<span
+  class:list={[
+    'inline-block rounded-md dark:bg-white dark:px-1.5 dark:py-1',
+    className,
+  ]}
 >
-  <title>BYS Logistics</title>
-  {/* Marca: tres barras inclinadas que sugieren carga en movimiento */}
-  <g
-    transform="translate(28,0) skewX(-18)"
-    class="text-brand-500 dark:text-brand-400 fill-current"
-  >
-    <rect x="26" y="30" width="74" height="15" rx="7.5"></rect>
-    <rect x="18" y="54" width="82" height="15" rx="7.5"></rect>
-    <rect x="10" y="78" width="90" height="15" rx="7.5"></rect>
-  </g>
-
-  {/* Wordmark */}
-  <text
-    x="132"
-    y="70"
-    class="fill-current text-neutral-800 dark:text-neutral-200"
-    font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif"
-    font-size="56"
-    font-weight="800"
-    letter-spacing="-1">BYS</text
-  >
-  <text
-    x="134"
-    y="105"
-    class="fill-current text-neutral-600 dark:text-neutral-400"
-    font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif"
-    font-size="24"
-    font-weight="500"
-    letter-spacing="3.4">LOGISTICS</text
-  >
-</svg>
+  <Image
+    src={logo}
+    alt="B&S Logistics"
+    widths={[160, 320, 480]}
+    sizes="(min-width: 768px) 160px, 128px"
+    class="h-auto w-full"
+    loading="eager"
+    {...rest}
+  />
+</span>

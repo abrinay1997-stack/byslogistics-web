@@ -1,45 +1,50 @@
 # Logo e imágenes de marca
 
-Aquí van los archivos de marca de Business & Supplies Logistics Ltda.
-Todo lo que se ponga en esta carpeta lo procesa y optimiza Astro
-automáticamente.
+Archivos de marca de B&S Logistics. Todo lo que se ponga en esta carpeta lo
+procesa y optimiza Astro automáticamente.
 
 ## Logo
 
-Sube el logo con **exactamente** uno de estos nombres:
+`logo.png` — logo oficial, 1600 x 839 px, fondo transparente. Ya está
+conectado: lo usa `src/components/BrandLogo.astro`, que lo muestra en el
+encabezado y en el pie de página de todas las páginas.
 
-| Archivo         | Uso                                                                                      |
-| --------------- | ---------------------------------------------------------------------------------------- |
-| `logo.svg`      | Preferido. Escala sin perder nitidez en cualquier tamaño.                                |
-| `logo.png`      | Alternativa si no hay SVG. Que venga a **1000 px de ancho como mínimo**.                 |
-| `logo-dark.svg` | Opcional. Versión para modo oscuro (fondo oscuro), si el logo normal no se lee bien ahí. |
+Para cambiarlo, reemplaza este archivo conservando el nombre. Si algún día
+hay una versión en SVG, es preferible: escala sin perder nitidez.
 
-En cuanto el archivo esté en esta carpeta, hay que apuntar
-`src/components/BrandLogo.astro` a él. Ese componente hoy dibuja un
-**wordmark provisional** hecho a mano, no el logo real: es lo único que
-falta cambiar para que el logo oficial aparezca en el encabezado y en el
-pie de página de todas las páginas.
-
-Si el logo tiene fondo blanco "quemado" (no transparente), avísalo: el
-encabezado tiene fondo azul claro y se vería un recuadro blanco alrededor.
+**Pendiente — versión para fondo oscuro.** El logo actual tiene las letras
+en negro y gris, así que sobre fondo oscuro no se lee. Mientras tanto,
+`BrandLogo.astro` lo dibuja sobre una base blanca cuando el sitio está en
+modo oscuro. Si llega un `logo-dark.png` o `logo-dark.svg` con las letras
+en blanco, se puede mostrar esa versión y quitar la base blanca.
 
 ## Colores
 
-La paleta vive en un solo sitio: la rampa `--color-brand-*` dentro del
-bloque `@theme` de `src/assets/styles/global.css`. Ahora está cargado el
-azul aproximado tomado de las capturas del sitio actual.
+Los colores salen del logo y viven en un solo sitio: la rampa
+`--color-brand-*` dentro del bloque `@theme` de
+`src/assets/styles/global.css`.
 
-Si tienes los códigos de color exactos de la marca (hex), pásalos y se
-ajustan ahí: no hay que tocar ningún otro archivo, porque todos los
-componentes usan las clases `brand-*`.
+| Color | Hex       | Dónde está                           |
+| ----- | --------- | ------------------------------------ |
+| Azul  | `#0060A8` | `brand-600`. Botones y enlaces.      |
+| Gris  | `#848484` | Cubierto por las rampas `neutral-*`. |
+| Negro | `#181818` | Cubierto por las rampas `neutral-*`. |
+
+Cambiar el color de la marca es cambiar esos once valores y nada más: todos
+los componentes usan las clases `brand-*`.
 
 ## Fotografías
 
 Las fotos de producto y de operación **no** van en esta carpeta, sino en
-`src/images/`. Hacen falta, entre otras:
+`src/images/`. Hacen falta:
 
 - Imagen principal para el encabezado de la página de inicio
-- Una foto por familia de producto (precintos, etiquetas y cintas, tulas
-  y bolsas, cajas de seguridad)
-- Una foto por referencia del catálogo de precintos
+- Una foto por familia de producto (campo `cardImage` en los archivos de
+  `src/content/soluciones/`)
+- Una foto por categoría de precinto (campo `cardImage` en
+  `src/content/precintos/`)
+- Fotos por referencia del catálogo (campo `image` dentro de `products`)
 - Fotos para la página `Nosotros`
+
+Las páginas ya están preparadas para recibirlas: mientras el campo esté
+vacío, simplemente no se muestra ninguna imagen.

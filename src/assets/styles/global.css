@@ -54,19 +54,23 @@
   --color-neutral-900: oklch(0.205 0 0);
   --color-neutral-950: oklch(0.145 0 0);
 
-  /* Paleta de marca B&S Logistics: azul del sitio actual.
-     Sustituye las rampas yellow/orange de la plantilla original. */
-  --color-brand-50: #f0f9ff;
-  --color-brand-100: #e0f2fe;
-  --color-brand-200: #bae6fd;
-  --color-brand-300: #7dd3fc;
-  --color-brand-400: #38bdf8;
-  --color-brand-500: #0ea5e9;
-  --color-brand-600: #0284c7;
-  --color-brand-700: #0369a1;
-  --color-brand-800: #075985;
-  --color-brand-900: #0c4a6e;
-  --color-brand-950: #082f49;
+  /* Paleta de marca B&S Logistics.
+     Construida alrededor del azul del logo oficial (#0060A8, que queda en
+     brand-600). Los grises del logo (#848484) y su negro (#181818) ya están
+     cubiertos por las rampas neutral-*.
+     Sustituye las rampas yellow/orange de la plantilla original: cambiar el
+     color de la marca es cambiar estos once valores y nada más. */
+  --color-brand-50: #eff7fc;
+  --color-brand-100: #d7ecf8;
+  --color-brand-200: #aed8f0;
+  --color-brand-300: #79bce4;
+  --color-brand-400: #3c99d4;
+  --color-brand-500: #157cbf;
+  --color-brand-600: #0060a8;
+  --color-brand-700: #00518e;
+  --color-brand-800: #004174;
+  --color-brand-900: #00335c;
+  --color-brand-950: #00203a;
 
   --color-red-50: oklch(0.971 0.013 17.38);
   --color-red-100: oklch(0.936 0.032 17.717);

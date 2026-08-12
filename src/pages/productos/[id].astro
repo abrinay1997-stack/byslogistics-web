@@ -28,6 +28,10 @@ const pageTitle = `${solucion.data.title} | ${SITE.title}`;
 const quoteHref = `mailto:${CONTACT.email}?subject=${encodeURIComponent(
   `Cotización: ${solucion.data.title}`
 )}`;
+const referenceCount = solucion.data.groups.reduce(
+  (total, group) => total + group.products.length,
+  0
+);
 ---
 
 <MainLayout
@@ -85,10 +89,22 @@ const quoteHref = `mailto:${CONTACT.email}?subject=${encodeURIComponent(
           )
         }
 
+        {
+          solucion.data.catalogUrl && (
+            <a
+              href={solucion.data.catalogUrl}
+              class="text-brand-600 dark:text-brand-400 mt-8 inline-flex items-center gap-x-2 font-medium"
+            >
+              {solucion.data.catalogLabel ?? 'Ver categorías'}
+              <Icon name="arrowRight" />
+            </a>
+          )
+        }
+
         <div class="mt-8 flex flex-wrap gap-3">
           <a
             href={quoteHref}
-            class="bg-brand-500 hover:bg-brand-600 inline-flex items-center justify-center gap-x-2 rounded-lg border border-transparent px-6 py-3 text-sm font-bold text-neutral-50 ring-zinc-500 outline-hidden transition duration-300 focus-visible:ring-3 dark:ring-zinc-200"
+            class="bg-brand-600 hover:bg-brand-700 inline-flex items-center justify-center gap-x-2 rounded-lg border border-transparent px-6 py-3 text-sm font-bold text-neutral-50 ring-zinc-500 outline-hidden transition duration-300 focus-visible:ring-3 dark:ring-zinc-200"
           >
             Solicitar cotización
           </a>
@@ -122,6 +138,48 @@ const quoteHref = `mailto:${CONTACT.email}?subject=${encodeURIComponent(
       </div>
     </div>
   </section>
+
+  {
+    /* Referencias agrupadas por subtipo. Sin precios: se cotizan por cantidad. */
+  }
+  {
+    solucion.data.groups.length > 0 && (
+      <section class="mx-auto max-w-[85rem] px-4 pb-10 sm:px-6 lg:px-8 lg:pb-14">
+        <h2 class="text-2xl font-bold text-neutral-800 dark:text-neutral-200">
+          Referencias disponibles
+        </h2>
+        <p class="mt-1 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+          {referenceCount}
+          {referenceCount === 1 ? ' referencia' : ' referencias'} en total. Los
+          precios se entregan por cotización según la cantidad requerida.
+        </p>
+
+        <div class="mt-8 grid gap-10">
+          {solucion.data.groups.map(group => (
+            <div>
+              <h3 class="text-brand-700 dark:text-brand-400 text-sm font-bold tracking-wide uppercase">
+                {group.name}
+              </h3>
+              <ul class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {group.products.map(product => (
+                  <li class="flex flex-col rounded-lg border border-neutral-300 bg-neutral-100 px-4 py-3 dark:border-neutral-700 dark:bg-neutral-900">
+                    <span class="font-medium text-neutral-800 dark:text-neutral-200">
+                      {product.name}
+                    </span>
+                    {product.description && (
+                      <span class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+                        {product.description}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </section>
+    )
+  }
 
   <HeroSectionAlt
     title="Estamos Aquí Para Ayudarte, Contáctanos Ahora"
