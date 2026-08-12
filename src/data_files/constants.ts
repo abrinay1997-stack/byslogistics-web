@@ -14,12 +14,10 @@ export const SITE = {
 
 /**
  * Datos de contacto de la empresa: única fuente de verdad para el footer,
- * la página de contacto y los datos estructurados.
+ * la página de contacto, el cotizador y los datos estructurados.
  *
- * TODO(confirmar): el número de WhatsApp y la dirección de la oficina no
- * aparecen en el material recibido. `whatsapp` usa el primer celular como
- * suposición — confirmar antes de publicar, porque un número equivocado
- * desvía las consultas de los clientes.
+ * TODO(pendiente): falta la dirección de la oficina; aún no está en el
+ * material recibido.
  */
 export const CONTACT = {
   pbx: [
