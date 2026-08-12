@@ -1,25 +1,25 @@
 {
-  "subTitle": "Resolvemos las dudas más frecuentes sobre nuestros servicios logísticos. Si necesitas algo puntual, escríbenos.",
+  "subTitle": "Resolvemos las dudas más frecuentes sobre nuestros elementos de seguridad preventiva. Si necesitas algo puntual, escríbenos.",
   "faqs": [
     {
-      "question": "¿Qué tipo de mercancía transportan?",
-      "answer": "Contamos con equipo para transportar mercancía de todos los tamaños, desde carga suelta hasta el traslado de mobiliario completo. Cuéntanos las características de tu carga y te indicamos la solución más adecuada."
+      "question": "¿Qué es un precinto de seguridad y para qué sirve?",
+      "answer": "Es un elemento diseñado para custodiar bienes y activos: evidencia cualquier intento de manipulación durante su uso y no puede retirarse sin dejar rastro. Se emplea para garantizar la trazabilidad y la cadena de custodia en operaciones de transporte y almacenamiento."
+    },
+    {
+      "question": "¿Qué tipos de productos manejan?",
+      "answer": "Distribuimos y comercializamos precintos de seguridad, etiquetas y cintas de seguridad, tulas y bolsas de seguridad, y cajas de seguridad. Contamos con una completa gama de productos a precios competitivos enfocados a soluciones logísticas en transporte y control de activos."
+    },
+    {
+      "question": "¿A qué sectores atienden?",
+      "answer": "Suministramos a líderes de industria en sectores como financiero, transportes, combustibles e hidrocarburos, minería y carbón, alimentos, cárnicos, apuestas y farmacéuticos, entre otros."
     },
     {
       "question": "¿Cómo solicito una cotización?",
-      "answer": "Escríbenos a través del formulario de contacto, al correo cco@byslogistics.com o al teléfono +57 316 576 8602. Para darte un valor ajustado necesitamos conocer el tipo de mercancía, el origen, el destino y los tiempos que manejas."
+      "answer": "Escríbenos por el formulario de contacto, al correo ventas@precintosdeseguridad.co, a nuestro P.B.X. en Bogotá (601) 469 9575 o a cualquiera de nuestros celulares. Descríbenos tu necesidad y te asesoramos sobre el producto ideal para tu empresa."
     },
     {
-      "question": "¿Atienden operaciones de comercio exterior?",
-      "answer": "Sí. Acompañamos operaciones de importación y exportación con estrategias propias diseñadas para mejorar la experiencia y posicionar tus productos de forma competitiva en el mercado colombiano."
-    },
-    {
-      "question": "¿Cuál es su horario de atención?",
-      "answer": "Atendemos de lunes a viernes, de 9:00 a.m. a 6:00 p.m. Puedes dejarnos tu mensaje fuera de ese horario y te respondemos el siguiente día hábil."
-    },
-    {
-      "question": "¿Dónde están ubicados?",
-      "answer": "Nuestra oficina está en la Carrera 38 # 9-45, Oficina 610, en Bogotá, Colombia."
+      "question": "¿Atienden operaciones fuera de Colombia?",
+      "answer": "Sí. Además de nuestras líneas en Bogotá, contamos con atención en Panamá a través del celular (507) 6302 0175."
     }
   ]
 }

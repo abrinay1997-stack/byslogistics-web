@@ -1,22 +1,22 @@
 [
   {
-    "heading": "Soluciones a la medida",
-    "content": "Diseñamos cada operación según el tipo de carga, el volumen y los tiempos de tu negocio. No hay dos cadenas de suministro iguales, y nuestra propuesta se ajusta a la tuya.",
-    "svg": "groups"
-  },
-  {
-    "heading": "Experiencia en comercio exterior",
-    "content": "Acompañamos tus operaciones de importación y exportación con estrategias propias que mejoran la experiencia y reducen los tiempos de gestión.",
+    "heading": "Precintos de Seguridad",
+    "content": "Ideales para custodiar sus bienes y activos ya que su diseño permite evidenciar cualquier intento de manipulación durante su uso y no pueden retirarse sin dejar evidencia.",
     "svg": "verified"
   },
   {
-    "heading": "Carga de todos los tamaños",
-    "content": "Contamos con el equipo necesario para transportar mercancía de cualquier dimensión, incluido el traslado de todo tipo de mobiliario.",
-    "svg": "tools"
+    "heading": "Etiquetas y Cintas de Seguridad",
+    "content": "Permiten identificar manipulaciones no autorizadas dejando evidencia si hay un intento de remoción. Es ideal como sello de garantía o control de inventarios.",
+    "svg": "frame"
   },
   {
-    "heading": "Acompañamiento permanente",
-    "content": "Un equipo dedicado hace seguimiento a cada etapa del proceso y te mantiene informado sobre el estado de tu carga.",
+    "heading": "Tulas y Bolsas de Seguridad",
+    "content": "Es la solución perfecta en seguridad para el transporte de valores y documentos. Están diseñadas para evidenciar cualquier intento de manipulación o apertura indebida.",
     "svg": "books"
+  },
+  {
+    "heading": "Cajas de Seguridad",
+    "content": "Permiten almacenar o transportar de forma eficiente diversidad de elementos y garantizan seguridad en su operación logística, pues requieren para su uso precinto de Seguridad.",
+    "svg": "groups"
   }
 ]

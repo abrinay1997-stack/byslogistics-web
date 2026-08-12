@@ -1,32 +1,39 @@
-// An array of links for navigation bar
+// Menú principal, replicando la estructura del sitio actual.
+// Los menús "Precintos", "Productos" y "Usos" son desplegables en el sitio
+// original; aquí apuntan al catálogo hasta tener el listado completo de
+// categorías y sus productos.
 const navBarLinks = [
-  { name: 'Inicio', url: '/' },
-  { name: 'Servicios', url: '/services' },
-  { name: 'Soluciones', url: '/products' },
-  { name: 'Blog', url: '/blog' },
+  { name: 'Precintos', url: '/products' },
+  { name: 'Productos', url: '/products' },
+  { name: 'Usos', url: '/products' },
+  { name: 'Nosotros', url: '/nosotros' },
+  { name: "FAQ's", url: '/#faq' },
   { name: 'Contacto', url: '/contact' },
 ];
 // An array of links for footer
 const footerLinks = [
   {
-    section: 'Servicios',
+    section: 'Productos',
     links: [
-      { name: 'Nuestros servicios', url: '/services' },
-      { name: 'Soluciones logísticas', url: '/products' },
-      { name: 'Documentación', url: '/welcome-to-docs/' },
+      { name: 'Precintos de seguridad', url: '/products' },
+      { name: 'Etiquetas y cintas', url: '/products' },
+      { name: 'Tulas y bolsas', url: '/products' },
+      { name: 'Cajas de seguridad', url: '/products' },
     ],
   },
   {
     section: 'Empresa',
     links: [
-      { name: 'Quiénes somos', url: '/services' },
-      { name: 'Blog', url: '/blog' },
+      { name: 'Nosotros', url: '/nosotros' },
+      { name: 'Preguntas frecuentes', url: '/#faq' },
       { name: 'Contacto', url: '/contact' },
     ],
   },
 ];
-// An object of links for social icons. Deja vacío lo que no aplique:
-// el footer solo renderiza los iconos que tienen URL configurada.
+// Redes sociales. Deja vacío lo que no aplique: el footer solo renderiza los
+// iconos que tienen URL configurada.
+// TODO(confirmar): faltan las URL exactas de los perfiles de Facebook e
+// Instagram, que en el sitio actual están enlazados desde el footer.
 const socialLinks: Record<string, string> = {
   facebook: '',
   instagram: '',

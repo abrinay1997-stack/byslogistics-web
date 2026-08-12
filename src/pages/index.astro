@@ -2,82 +2,67 @@
 // Import the necessary components
 import MainLayout from '@/layouts/MainLayout.astro';
 import HeroSection from '@components/sections/landing/HeroSection.astro';
+import HeroSectionAlt from '@components/sections/landing/HeroSectionAlt.astro';
 import ClientsSection from '@components/sections/landing/ClientsSection.astro';
 import FeaturesGeneral from '@components/sections/features/FeaturesGeneral.astro';
-import FeaturesNavs from '@components/sections/features/FeaturesNavs.astro';
+import TestimonialsSection from '@components/sections/testimonials/TestimonialsSection.astro';
 import FAQ from '@components/sections/misc/FAQ.astro';
-import heroImage from '@images/hero-image.avif';
 import faqs from '@data/faqs.json';
 import features from '@data/features.json';
-import featureImage from '@images/features-image.avif';
-import construction from '@images/construction-image.avif';
-import tools from '@images/automated-tools.avif';
-import dashboard from '@images/dashboard-image.avif';
-import { partnersData, SITE } from '@/data_files/constants';
+import { partnersData } from '@/data_files/constants';
+
+/**
+ * TODO(imágenes): la home va sin fotografías porque las de la plantilla son de
+ * herramientas y maquinaria de construcción, ajenas al negocio. Faltan las
+ * imágenes reales (precintos en uso, contenedores, producto sobre fondo blanco)
+ * para el hero, la sección de soluciones y la de aplicaciones por sector.
+ */
 ---
 
 <MainLayout>
   <HeroSection
-    title=`Soluciones logísticas con <span
-        class="text-yellow-500 dark:text-yellow-400">BYS Logistics</span>`
-    subTitle="Diseñamos operaciones logísticas a la medida para posicionar tus productos de forma competitiva en el mercado colombiano."
-    primaryBtn="Ver servicios"
-    primaryBtnURL="/services"
-    secondaryBtn="Solicitar cotización"
+    title=`<span class="text-brand-500 dark:text-brand-400">B&amp;S</span>, Líderes en Seguridad Preventiva`
+    subTitle="En B&S LOGISTICS nos especializamos en la distribución y comercialización de elementos de Seguridad preventiva. Estamos comprometidos en ofrecer productos de óptima calidad que permitan garantizar la trazabilidad y custodia de bienes y activos."
+    primaryBtn="Ver Productos"
+    primaryBtnURL="/products"
+    secondaryBtn="Contáctanos"
     secondaryBtnURL="/contact"
-    src={heroImage}
-    alt="Operación de carga y distribución de mercancía"
   />
 
   {
     partnersData.length > 0 && (
       <ClientsSection
         title="Empresas que confían en nosotros"
-        subTitle="Acompañamos la cadena de suministro de compañías en distintos sectores."
+        subTitle="Suministramos a líderes de industria en múltiples sectores."
         partners={partnersData}
       />
     )
   }
 
   <FeaturesGeneral
-    title="Logística pensada para tu operación"
-    subTitle={SITE.description}
-    src={featureImage}
-    alt="Mercancía preparada para su distribución"
+    title="Nuestras Soluciones"
+    subTitle="Contamos con una completa gama de productos a precios competitivos enfocados a brindar soluciones logísticas en transporte y control de activos. A continuación encontrará los productos en los que nos especializamos."
     features={features}
   />
 
-  <FeaturesNavs
-    title=`Conoce cómo <span class="text-yellow-500 dark:text-yellow-400">BYS Logistics</span> se adapta a las necesidades de tu cadena de suministro.`
-    tabs={[
+  <TestimonialsSection
+    title="Testimonios de Nuestros Clientes"
+    subTitle="Estas son algunas opiniones de nuestros clientes, contamos con 5 estrellas en la puntuación de satisfacción de Google."
+    testimonials={[
       {
-        heading: 'Transporte y distribución',
         content:
-          'Movilizamos mercancía de todos los tamaños con el equipo adecuado para cada tipo de carga, incluido el traslado de mobiliario.',
-        svg: 'tools',
-        src: tools,
-        alt: 'Vehículo de carga durante una operación de transporte',
-        first: true,
-      },
-      {
-        heading: 'Comercio exterior',
-        content:
-          'Acompañamos tus operaciones de importación y exportación con estrategias propias que reducen tiempos y simplifican la gestión documental.',
-        svg: 'dashboard',
-        src: dashboard,
-        alt: 'Seguimiento de una operación de comercio exterior',
-        second: true,
-      },
-      {
-        heading: 'Almacenamiento y manejo de carga',
-        content:
-          'Gestionamos el manejo de tu mercancía con procesos definidos en cada etapa, para que sepas siempre en qué estado se encuentra.',
-        svg: 'house',
-        src: construction,
-        alt: 'Bodega con mercancía organizada para su distribución',
+          'Su asesoría al momento de elegir el producto que mejor se adaptara a las necesidades de mi empresa, fue clave para el éxito de los procesos logísticos de mi negocio. Los recomiendo.',
+        author: 'Daniel Molina',
+        role: 'Reseña de Google · 5 estrellas',
       },
     ]}
   />
 
   <FAQ title="Preguntas<br />frecuentes" faqs={faqs} />
+
+  <HeroSectionAlt
+    title="Estamos Aquí Para Ayudarte, Contáctanos Ahora"
+    subTitle="Tenemos una gran variedad de elementos de seguridad. Descríbanos su necesidad y podremos asesorarle con respecto al producto ideal para su empresa."
+    url="/contact"
+  />
 </MainLayout>

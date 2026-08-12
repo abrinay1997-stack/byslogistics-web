@@ -6,32 +6,28 @@ import EmailContactInput from '@components/ui/forms/input/EmailContactInput.astr
 import PhoneInput from '@components/ui/forms/input/PhoneInput.astro';
 import TextAreaInput from '@components/ui/forms/input/TextAreaInput.astro';
 import Icon from '@components/ui/icons/Icon.astro';
-import { CONTACT, SITE } from '@data/constants';
+import { CONTACT } from '@data/constants';
 
 const copy = {
-  title: 'Contáctanos',
+  title: 'Estamos aquí para ayudarte',
   subTitle:
-    '¿Tienes una operación en mente o necesitas una cotización? Escríbenos y diseñamos la solución logística que mejor se ajuste a tu carga.',
-  formTitle: 'Completa el formulario',
+    'Tenemos una gran variedad de elementos de seguridad. Descríbanos su necesidad y podremos asesorarle con respecto al producto ideal para su empresa.',
+  formTitle: 'Realizar una consulta',
   formSubTitle: 'Te respondemos en un plazo de 1 a 2 días hábiles.',
-  firstName: 'Nombre',
-  lastName: 'Apellido',
-  details: 'Cuéntanos sobre tu operación',
+  name: 'Nombre',
+  details: 'Mensaje adicional',
   send: 'Enviar mensaje',
   demoMessage:
     '¡Gracias! (Demo — conecta un endpoint de formulario para recibir mensajes reales.)',
-  phoneHeading: 'Llámanos',
-  phoneContent: `Atención ${CONTACT.hours.toLowerCase()}.`,
-  faqHeading: 'Preguntas frecuentes',
-  faqContent: 'Encuentra respuestas rápidas a las consultas más comunes.',
-  faqLink: 'Ver preguntas frecuentes',
-  officeHeading: 'Visita nuestra oficina',
-  officeContent: SITE.legalName,
+  pbxHeading: 'P.B.X. en Bogotá',
+  pbxContent: 'Comunícate con nuestras líneas fijas.',
+  mobileHeading: 'Celulares',
+  mobileContent: 'También puedes escribirnos por WhatsApp.',
+  panamaHeading: 'Celular Panamá',
+  panamaContent: 'Atención para operaciones en Panamá.',
   emailHeading: 'Escríbenos por correo',
   emailContent: '¿Prefieres el correo electrónico? Escríbenos a',
 };
-
-const addressContent = `${CONTACT.address.street}, ${CONTACT.address.city}, ${CONTACT.address.country}`;
 ---
 
 <section class="mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
@@ -47,7 +43,7 @@ const addressContent = `${CONTACT.address.street}, ${CONTACT.address.city}, ${CO
       </p>
     </div>
 
-    <div class="mt-12 grid items-center gap-6 lg:grid-cols-2 lg:gap-16">
+    <div class="mt-12 grid items-start gap-6 lg:grid-cols-2 lg:gap-16">
       <div class="flex flex-col rounded-xl p-4 sm:p-6 lg:p-8">
         <h2
           class="mb-8 text-xl font-bold text-neutral-700 dark:text-neutral-300"
@@ -56,18 +52,11 @@ const addressContent = `${CONTACT.address.street}, ${CONTACT.address.city}, ${CO
         </h2>
         <form data-demo-form data-demo-message={copy.demoMessage}>
           <div class="grid gap-4">
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <TextInput
-                id="hs-firstname-contacts"
-                label={copy.firstName}
-                name="hs-firstname-contacts"
-              />
-              <TextInput
-                id="hs-lastname-contacts"
-                label={copy.lastName}
-                name="hs-lastname-contacts"
-              />
-            </div>
+            <TextInput
+              id="hs-name-contacts"
+              label={copy.name}
+              name="hs-name-contacts"
+            />
             <EmailContactInput id="hs-email-contacts" />
             <PhoneInput id="hs-phone-number" />
             <TextAreaInput
@@ -86,7 +75,7 @@ const addressContent = `${CONTACT.address.street}, ${CONTACT.address.city}, ${CO
               {copy.formSubTitle}
             </p>
             <p
-              class="mt-2 hidden text-sm text-orange-500 dark:text-orange-400"
+              class="mt-2 hidden text-sm text-brand-500 dark:text-brand-400"
               data-demo-status
               aria-live="polite"
             >
@@ -97,30 +86,24 @@ const addressContent = `${CONTACT.address.street}, ${CONTACT.address.city}, ${CO
 
       <div class="divide-y divide-neutral-300 dark:divide-neutral-700">
         <ContactIconBlock
-          heading={copy.phoneHeading}
-          content={copy.phoneContent}
-          isLinkVisible={true}
-          linkTitle={CONTACT.phone}
-          linkURL={CONTACT.phoneHref}
+          heading={copy.pbxHeading}
+          content={copy.pbxContent}
+          links={CONTACT.pbx}
           ><Icon name="chatBubble" />
         </ContactIconBlock>
 
         <ContactIconBlock
-          heading={copy.faqHeading}
-          content={copy.faqContent}
-          isLinkVisible={true}
-          linkTitle={copy.faqLink}
-          linkURL="/#faq"
-          isArrowVisible={true}
-          ><Icon name="question" />
+          heading={copy.mobileHeading}
+          content={copy.mobileContent}
+          links={CONTACT.mobiles}
+          ><Icon name="chatBubble" />
         </ContactIconBlock>
 
         <ContactIconBlock
-          heading={copy.officeHeading}
-          content={copy.officeContent}
-          isAddressVisible={true}
-          addressContent={addressContent}
-          ><Icon name="mapPin" />
+          heading={copy.panamaHeading}
+          content={copy.panamaContent}
+          links={[CONTACT.panama]}
+          ><Icon name="earth" />
         </ContactIconBlock>
 
         <ContactIconBlock

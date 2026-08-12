@@ -9,6 +9,7 @@ const {
   linkTitle,
   linkURL,
   isArrowVisible,
+  links = [],
 } = Astro.props;
 
 // Define TypeScript interface for props
@@ -21,6 +22,8 @@ interface Props {
   linkTitle?: string;
   linkURL?: string;
   isArrowVisible?: boolean;
+  /* Varias líneas de contacto (teléfonos) renderizadas como lista */
+  links?: Array<{ label: string; href: string }>;
 }
 
 // Define SVG arrow to be used in the component
@@ -45,6 +48,23 @@ fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" >
     {
       isAddressVisible ? (
         <p class="mt-1 text-sm text-neutral-500 italic">{addressContent}</p>
+      ) : null
+    }
+    {/* Lista de líneas de contacto, cuando se pasan varias */}
+    {
+      links.length > 0 ? (
+        <ul class="mt-2 grid gap-y-1">
+          {links.map(link => (
+            <li>
+              <a
+                class="rounded-lg text-sm font-medium text-zinc-600 ring-zinc-500 outline-hidden transition duration-300 hover:text-zinc-800 focus-visible:ring-3 dark:text-zinc-400 dark:ring-zinc-200 dark:hover:text-zinc-200 dark:focus:ring-1 dark:focus:outline-hidden"
+                href={link.href}
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
       ) : null
     }
     {

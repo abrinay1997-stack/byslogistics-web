@@ -8,7 +8,8 @@ interface Props {
   content: string;
   author: string;
   role: string;
-  avatarSrc: string;
+  /* Opcional: si no hay foto del autor, se omite el avatar */
+  avatarSrc?: string;
 }
 ---
 
@@ -23,16 +24,20 @@ interface Props {
 
   <div class="mt-6">
     <div class="flex items-center">
-      <div class="shrink-0">
-        <Image
-          class="h-8 w-8 rounded-full"
-          src={avatarSrc}
-          alt={`${author} photo`}
-          loading="lazy"
-          inferSize
-        />
-      </div>
-      <div class="ms-4 grow">
+      {
+        avatarSrc && (
+          <div class="shrink-0">
+            <Image
+              class="h-8 w-8 rounded-full"
+              src={avatarSrc}
+              alt={`Foto de ${author}`}
+              loading="lazy"
+              inferSize
+            />
+          </div>
+        )
+      }
+      <div class:list={['grow', avatarSrc && 'ms-4']}>
         <div class="font-bold text-neutral-800 dark:text-neutral-200">
           {author}
         </div>
