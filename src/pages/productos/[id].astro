@@ -1,0 +1,131 @@
+---
+import type { GetStaticPaths } from 'astro';
+import type { CollectionEntry } from 'astro:content';
+import { getCollection, render } from 'astro:content';
+import { Image } from 'astro:assets';
+import MainLayout from '@/layouts/MainLayout.astro';
+import Breadcrumb from '@components/ui/blocks/Breadcrumb.astro';
+import HeroSectionAlt from '@components/sections/landing/HeroSectionAlt.astro';
+import Icon from '@components/ui/icons/Icon.astro';
+import { CONTACT, SITE } from '@data/constants';
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const soluciones = await getCollection('soluciones');
+  return soluciones.map(solucion => ({
+    params: { id: solucion.id },
+    props: { solucion },
+  }));
+};
+
+interface Props {
+  solucion: CollectionEntry<'soluciones'>;
+}
+
+const { solucion } = Astro.props;
+const { Content } = await render(solucion);
+
+const pageTitle = `${solucion.data.title} | ${SITE.title}`;
+const quoteHref = `mailto:${CONTACT.email}?subject=${encodeURIComponent(
+  `Cotización: ${solucion.data.title}`
+)}`;
+---
+
+<MainLayout
+  title={pageTitle}
+  customDescription={solucion.data.description}
+  customOgTitle={pageTitle}
+  structuredData={{
+    '@context': 'https://schema.org',
+    '@type': 'ItemPage',
+    '@id': `${SITE.url}/productos/${solucion.id}`,
+    url: `${SITE.url}/productos/${solucion.id}`,
+    name: pageTitle,
+    description: solucion.data.description,
+    inLanguage: 'es-CO',
+  }}
+>
+  <section class="mx-auto max-w-[85rem] px-4 pt-8 sm:px-6 lg:px-8">
+    <Breadcrumb
+      items={[
+        { name: 'Inicio', url: '/' },
+        { name: 'Productos', url: '/productos' },
+        { name: solucion.data.title },
+      ]}
+    />
+  </section>
+
+  <section class="mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+    <div class="grid gap-10 lg:grid-cols-2 lg:items-start lg:gap-16">
+      <div>
+        <h1
+          class="text-4xl font-extrabold tracking-tight text-balance text-neutral-800 dark:text-neutral-200"
+        >
+          {solucion.data.title}
+        </h1>
+        <p
+          class="mt-4 text-pretty text-neutral-600 sm:text-xl dark:text-neutral-400"
+        >
+          {solucion.data.description}
+        </p>
+
+        {
+          solucion.data.highlights.length > 0 && (
+            <ul class="mt-8 grid gap-3">
+              {solucion.data.highlights.map(highlight => (
+                <li class="flex items-start gap-x-3">
+                  <span class="text-brand-500 dark:text-brand-400 mt-0.5">
+                    <Icon name="checkCircle" />
+                  </span>
+                  <span class="text-neutral-700 dark:text-neutral-300">
+                    {highlight}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a
+            href={quoteHref}
+            class="bg-brand-500 hover:bg-brand-600 inline-flex items-center justify-center gap-x-2 rounded-lg border border-transparent px-6 py-3 text-sm font-bold text-neutral-50 ring-zinc-500 outline-hidden transition duration-300 focus-visible:ring-3 dark:ring-zinc-200"
+          >
+            Solicitar cotización
+          </a>
+          <a
+            href={CONTACT.whatsapp}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center justify-center gap-x-2 rounded-lg border border-neutral-300 px-6 py-3 text-sm font-bold text-neutral-700 ring-zinc-500 outline-hidden transition duration-300 hover:bg-neutral-100 focus-visible:ring-3 dark:border-neutral-600 dark:text-neutral-300 dark:ring-zinc-200 dark:hover:bg-neutral-800"
+          >
+            Escribir por WhatsApp
+          </a>
+        </div>
+      </div>
+
+      <div>
+        {
+          solucion.data.cardImage && (
+            <Image
+              class="w-full rounded-xl object-cover"
+              src={solucion.data.cardImage}
+              alt={solucion.data.cardImageAlt ?? solucion.data.title}
+              loading="eager"
+            />
+          )
+        }
+        <div
+          class="prose prose-neutral dark:prose-invert prose-headings:font-bold mt-8 max-w-none"
+        >
+          <Content />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <HeroSectionAlt
+    title="Estamos Aquí Para Ayudarte, Contáctanos Ahora"
+    subTitle="Tenemos una gran variedad de elementos de seguridad. Descríbanos su necesidad y podremos asesorarle con respecto al producto ideal para su empresa."
+    url="/contacto"
+  />
+</MainLayout>

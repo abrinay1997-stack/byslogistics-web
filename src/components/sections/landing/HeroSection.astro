@@ -3,7 +3,6 @@
 import { Image } from 'astro:assets';
 import PrimaryCTA from '@components/ui/buttons/PrimaryCTA.astro';
 import SecondaryCTA from '@components/ui/buttons/SecondaryCTA.astro';
-import ReviewComponent from '@components/ui/blocks/ReviewComponent.astro';
 
 // Define props from Astro
 const {
@@ -13,11 +12,6 @@ const {
   primaryBtnURL,
   secondaryBtn,
   secondaryBtnURL,
-  withReview,
-  avatars,
-  starCount,
-  rating,
-  reviews,
   src,
   alt,
 } = Astro.props;
@@ -30,11 +24,6 @@ interface Props {
   primaryBtnURL?: string;
   secondaryBtn?: string;
   secondaryBtnURL?: string;
-  withReview?: boolean;
-  avatars?: Array<string>;
-  starCount?: number;
-  rating?: string;
-  reviews?: string;
   src?: any;
   alt?: string;
 }
@@ -75,22 +64,6 @@ interface Props {
         )
       }
     </div>
-
-    {
-      /* Review Section: This section presents avatars, review ratings and the number of reviews */
-    }
-    {
-      withReview ? (
-        <ReviewComponent
-          avatars={avatars}
-          starCount={starCount}
-          rating={rating}
-          reviews={reviews}
-        />
-      ) : (
-        ''
-      )
-    }
   </div>
   {/* Hero Image Section — aspect ratio reserves space before the AVIF loads */}
   <div class="flex w-full">

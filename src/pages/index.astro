@@ -1,32 +1,35 @@
 ---
-// Import the necessary components
+import { getCollection } from 'astro:content';
 import MainLayout from '@/layouts/MainLayout.astro';
 import HeroSection from '@components/sections/landing/HeroSection.astro';
 import HeroSectionAlt from '@components/sections/landing/HeroSectionAlt.astro';
 import ClientsSection from '@components/sections/landing/ClientsSection.astro';
-import FeaturesGeneral from '@components/sections/features/FeaturesGeneral.astro';
 import TestimonialsSection from '@components/sections/testimonials/TestimonialsSection.astro';
-import FAQ from '@components/sections/misc/FAQ.astro';
-import faqs from '@data/faqs.json';
-import features from '@data/features.json';
+import Icon from '@components/ui/icons/Icon.astro';
 import { partnersData } from '@/data_files/constants';
 
 /**
- * TODO(imágenes): la home va sin fotografías porque las de la plantilla son de
+ * Home. Es una página de entrada: resume la propuesta y enlaza a cada sección,
+ * que vive en su propia página (/precintos, /productos, /usos, /nosotros,
+ * /faq, /contacto).
+ *
+ * TODO(imágenes): va sin fotografías porque las de la plantilla son de
  * herramientas y maquinaria de construcción, ajenas al negocio. Faltan las
- * imágenes reales (precintos en uso, contenedores, producto sobre fondo blanco)
- * para el hero, la sección de soluciones y la de aplicaciones por sector.
+ * imágenes reales para el hero y las tarjetas de solución.
  */
+const soluciones = (await getCollection('soluciones')).sort(
+  (a, b) => a.data.order - b.data.order
+);
 ---
 
 <MainLayout>
   <HeroSection
-    title=`<span class="text-brand-500 dark:text-brand-400">B&amp;S</span>, Líderes en Seguridad Preventiva`
+    title=`<span class="text-brand-500 dark:text-brand-400">B&S</span>, Líderes en Seguridad Preventiva`
     subTitle="En B&S LOGISTICS nos especializamos en la distribución y comercialización de elementos de Seguridad preventiva. Estamos comprometidos en ofrecer productos de óptima calidad que permitan garantizar la trazabilidad y custodia de bienes y activos."
     primaryBtn="Ver Productos"
-    primaryBtnURL="/products"
+    primaryBtnURL="/productos"
     secondaryBtn="Contáctanos"
-    secondaryBtnURL="/contact"
+    secondaryBtnURL="/contacto"
   />
 
   {
@@ -39,11 +42,46 @@ import { partnersData } from '@/data_files/constants';
     )
   }
 
-  <FeaturesGeneral
-    title="Nuestras Soluciones"
-    subTitle="Contamos con una completa gama de productos a precios competitivos enfocados a brindar soluciones logísticas en transporte y control de activos. A continuación encontrará los productos en los que nos especializamos."
-    features={features}
-  />
+  {/* Resumen de soluciones: cada tarjeta lleva a su propia página */}
+  <section
+    class="mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 2xl:max-w-full"
+  >
+    <div class="max-w-(--breakpoint-md)">
+      <h2
+        class="text-3xl font-bold text-neutral-800 lg:text-4xl dark:text-neutral-200"
+      >
+        Nuestras Soluciones
+      </h2>
+      <p class="mt-2 text-pretty text-neutral-600 dark:text-neutral-400">
+        A continuación encontrará los productos en los que nos especializamos.
+        Contamos con una completa gama a precios competitivos enfocados a
+        brindar soluciones logísticas en transporte y control de activos.
+      </p>
+    </div>
+
+    <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {
+        soluciones.map(solucion => (
+          <a
+            href={`/productos/${solucion.id}`}
+            class="group hover:border-brand-400 dark:hover:border-brand-400 flex flex-col rounded-xl border border-neutral-300 bg-neutral-100 p-6 ring-zinc-500 outline-hidden transition duration-300 focus-visible:ring-3 dark:border-neutral-700 dark:bg-neutral-900 dark:ring-zinc-200"
+          >
+            <Icon name={solucion.data.icon} />
+            <h3 class="mt-4 font-bold text-neutral-800 dark:text-neutral-200">
+              {solucion.data.title}
+            </h3>
+            <p class="mt-2 grow text-sm text-neutral-600 dark:text-neutral-400">
+              {solucion.data.description}
+            </p>
+            <span class="text-brand-600 dark:text-brand-400 mt-4 inline-flex items-center gap-x-2 text-sm font-medium">
+              Ver más
+              <Icon name="arrowRight" />
+            </span>
+          </a>
+        ))
+      }
+    </div>
+  </section>
 
   <TestimonialsSection
     title="Testimonios de Nuestros Clientes"
@@ -58,11 +96,9 @@ import { partnersData } from '@/data_files/constants';
     ]}
   />
 
-  <FAQ title="Preguntas<br />frecuentes" faqs={faqs} />
-
   <HeroSectionAlt
     title="Estamos Aquí Para Ayudarte, Contáctanos Ahora"
     subTitle="Tenemos una gran variedad de elementos de seguridad. Descríbanos su necesidad y podremos asesorarle con respecto al producto ideal para su empresa."
-    url="/contact"
+    url="/contacto"
   />
 </MainLayout>

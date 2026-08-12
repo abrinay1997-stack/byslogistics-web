@@ -1,0 +1,43 @@
+---
+/**
+ * Migas de pan, replicando el patrón del sitio actual
+ * ("Inicio / Precintos / Precintos de Botella").
+ * El último elemento se renderiza como texto plano, sin enlace.
+ */
+const { items } = Astro.props;
+
+interface Props {
+  items: Array<{ name: string; url?: string }>;
+}
+---
+
+<nav aria-label="Ruta de navegación">
+  <ol class="flex flex-wrap items-center gap-x-2 text-sm">
+    {
+      items.map((item, index) => (
+        <li class="flex items-center gap-x-2">
+          {item.url && index < items.length - 1 ? (
+            <a
+              href={item.url}
+              class="rounded-lg text-neutral-600 ring-zinc-500 outline-hidden transition duration-300 hover:text-neutral-800 focus-visible:ring-3 dark:text-neutral-400 dark:ring-zinc-200 dark:hover:text-neutral-200"
+            >
+              {item.name}
+            </a>
+          ) : (
+            <span
+              class="text-neutral-800 dark:text-neutral-200"
+              aria-current="page"
+            >
+              {item.name}
+            </span>
+          )}
+          {index < items.length - 1 && (
+            <span class="text-neutral-400" aria-hidden="true">
+              /
+            </span>
+          )}
+        </li>
+      ))
+    }
+  </ol>
+</nav>

@@ -1,0 +1,34 @@
+---
+// Import the necessary components
+import MainLayout from '@/layouts/MainLayout.astro';
+import ContactSection from '@components/sections/misc/ContactSection.astro';
+import { SITE } from '@data/constants';
+
+const pageTitle: string = `Contacto | ${SITE.title}`;
+const metaDescription =
+  '¿Tienes una operación en mente o necesitas una cotización? Escríbenos y diseñamos la solución logística que mejor se ajuste a tu carga.';
+const ogTitle = `Contáctanos | ${SITE.title}`;
+---
+
+<MainLayout
+  title={pageTitle}
+  customDescription={metaDescription}
+  customOgTitle={ogTitle}
+  structuredData={{
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': `${SITE.url}/contacto`,
+    url: `${SITE.url}/contacto`,
+    name: ogTitle,
+    description: metaDescription,
+    isPartOf: {
+      '@type': 'WebSite',
+      url: SITE.url,
+      name: SITE.title,
+      description: SITE.description,
+    },
+    inLanguage: 'es-CO',
+  }}
+>
+  <ContactSection />
+</MainLayout>

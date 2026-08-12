@@ -1,0 +1,128 @@
+---
+import type { GetStaticPaths } from 'astro';
+import type { CollectionEntry } from 'astro:content';
+import { getCollection, render } from 'astro:content';
+import { Image } from 'astro:assets';
+import MainLayout from '@/layouts/MainLayout.astro';
+import Breadcrumb from '@components/ui/blocks/Breadcrumb.astro';
+import HeroSectionAlt from '@components/sections/landing/HeroSectionAlt.astro';
+import { CONTACT, SITE } from '@data/constants';
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const precintos = await getCollection('precintos');
+  return precintos.map(categoria => ({
+    params: { id: categoria.id },
+    props: { categoria },
+  }));
+};
+
+interface Props {
+  categoria: CollectionEntry<'precintos'>;
+}
+
+const { categoria } = Astro.props;
+const { Content } = await render(categoria);
+
+const pageTitle = `${categoria.data.title} | ${SITE.title}`;
+
+function quoteHref(product: string) {
+  return `mailto:${CONTACT.email}?subject=${encodeURIComponent(
+    `Cotización: ${product}`
+  )}`;
+}
+---
+
+<MainLayout
+  title={pageTitle}
+  customDescription={categoria.data.description}
+  customOgTitle={pageTitle}
+  structuredData={{
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    '@id': `${SITE.url}/precintos/${categoria.id}`,
+    url: `${SITE.url}/precintos/${categoria.id}`,
+    name: pageTitle,
+    description: categoria.data.description,
+    inLanguage: 'es-CO',
+  }}
+>
+  <section class="mx-auto max-w-[85rem] px-4 pt-8 sm:px-6 lg:px-8">
+    <Breadcrumb
+      items={[
+        { name: 'Inicio', url: '/' },
+        { name: 'Precintos', url: '/precintos' },
+        { name: categoria.data.title },
+      ]}
+    />
+  </section>
+
+  <section class="mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8">
+    <h1
+      class="max-w-(--breakpoint-md) text-4xl font-extrabold tracking-tight text-balance text-neutral-800 dark:text-neutral-200"
+    >
+      {categoria.data.title}
+    </h1>
+    <p
+      class="mt-4 max-w-prose text-pretty text-neutral-600 sm:text-xl dark:text-neutral-400"
+    >
+      {categoria.data.description}
+    </p>
+    <div
+      class="prose prose-neutral dark:prose-invert prose-headings:font-bold mt-8 max-w-prose"
+    >
+      <Content />
+    </div>
+  </section>
+
+  {
+    categoria.data.products.length > 0 && (
+      <section class="mx-auto max-w-[85rem] px-4 pb-10 sm:px-6 lg:px-8 lg:pb-14">
+        <h2 class="text-2xl font-bold text-neutral-800 dark:text-neutral-200">
+          Referencias
+        </h2>
+        <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+          Mostrando {categoria.data.products.length}
+          {categoria.data.products.length === 1 ? ' resultado' : ' resultados'}.
+          Los precios se entregan por cotización según la cantidad requerida.
+        </p>
+        <div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {categoria.data.products.map(product => (
+            <div class="flex flex-col rounded-xl border border-neutral-300 bg-neutral-100 p-6 dark:border-neutral-700 dark:bg-neutral-900">
+              {product.image && (
+                <Image
+                  class="mb-4 aspect-square w-full rounded-lg object-contain"
+                  src={product.image}
+                  alt={product.name}
+                  loading="lazy"
+                />
+              )}
+              {product.code && (
+                <p class="text-xs text-neutral-500">Ref. {product.code}</p>
+              )}
+              <h3 class="mt-1 font-bold text-neutral-800 dark:text-neutral-200">
+                {product.name}
+              </h3>
+              {product.description && (
+                <p class="mt-2 grow text-sm text-neutral-600 dark:text-neutral-400">
+                  {product.description}
+                </p>
+              )}
+              <a
+                href={quoteHref(product.name)}
+                class="bg-brand-400 hover:bg-brand-500 mt-4 inline-flex items-center justify-center gap-x-2 rounded-full border border-transparent px-5 py-2.5 text-sm font-bold text-neutral-50 ring-zinc-500 outline-hidden transition duration-300 focus-visible:ring-3 dark:ring-zinc-200"
+              >
+                Solicitar cotización
+              </a>
+            </div>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  <HeroSectionAlt
+    title="Estamos Aquí Para Ayudarte, Contáctanos Ahora"
+    subTitle="Tenemos una gran variedad de elementos de seguridad. Descríbanos su necesidad y podremos asesorarle con respecto al producto ideal para su empresa."
+    url="/contacto"
+  />
+</MainLayout>

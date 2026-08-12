@@ -1,0 +1,46 @@
+---
+import MainLayout from '@/layouts/MainLayout.astro';
+import FAQ from '@components/sections/misc/FAQ.astro';
+import HeroSectionAlt from '@components/sections/landing/HeroSectionAlt.astro';
+import faqs from '@data/faqs.json';
+import { SITE } from '@data/constants';
+
+const pageTitle = `Preguntas frecuentes | ${SITE.title}`;
+const metaDescription =
+  'Respuestas a las preguntas más frecuentes sobre precintos de seguridad, cotizaciones, sectores atendidos y cobertura de B&S Logistics.';
+
+// Datos estructurados de FAQ, para que las respuestas puedan mostrarse
+// directamente en los resultados de búsqueda.
+const faqStructuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  '@id': `${SITE.url}/faq`,
+  url: `${SITE.url}/faq`,
+  name: pageTitle,
+  inLanguage: 'es-CO',
+  mainEntity: faqs.faqs.map(faq => ({
+    '@type': 'Question',
+    name: faq.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: faq.answer,
+    },
+  })),
+};
+---
+
+<MainLayout
+  title={pageTitle}
+  customDescription={metaDescription}
+  customOgTitle={pageTitle}
+  structuredData={faqStructuredData}
+>
+  <FAQ title="Preguntas<br />frecuentes" faqs={faqs} />
+
+  <HeroSectionAlt
+    title="¿No encontró su respuesta?"
+    subTitle="Descríbanos su necesidad y podremos asesorarle con respecto al producto ideal para su empresa."
+    url="/contacto"
+    btnTitle="Contáctanos"
+  />
+</MainLayout>

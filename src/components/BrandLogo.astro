@@ -1,12 +1,18 @@
 ---
 /**
- * Wordmark provisional de BYS Logistics.
+ * PROVISIONAL: este NO es el logo de la empresa, es un wordmark hecho a mano
+ * mientras llega el archivo oficial.
  *
- * Reemplazar por el logo oficial cuando esté disponible: basta con sustituir el
- * contenido de este archivo manteniendo `{...Astro.props}` en el <svg> raíz,
- * para que las clases de tamaño que pasan Navbar y FooterSection sigan
- * aplicando. Ten en cuenta que este wordmark usa <text>, así que depende de las
- * fuentes del sistema; el logo definitivo debería traer los trazos en <path>.
+ * Para poner el logo real:
+ *   1. Sube el archivo a `src/images/brand/` (ver el README de esa carpeta).
+ *   2. Si es SVG, pega su contenido aquí dejando `{...Astro.props}` en el <svg>
+ *      raíz. Si es PNG, importa la imagen y renderiza <Image>.
+ *
+ * Mantener `{...Astro.props}` es lo que permite que Navbar y FooterSection
+ * sigan controlando el tamaño con sus clases (`h-auto w-24`, `h-auto w-32`).
+ *
+ * Este wordmark usa <text>, así que depende de las fuentes del sistema. El logo
+ * definitivo debería traer los trazos en <path>.
  */
 ---
 
@@ -21,7 +27,7 @@
   {/* Marca: tres barras inclinadas que sugieren carga en movimiento */}
   <g
     transform="translate(28,0) skewX(-18)"
-    class="fill-current text-brand-500 dark:text-brand-400"
+    class="text-brand-500 dark:text-brand-400 fill-current"
   >
     <rect x="26" y="30" width="74" height="15" rx="7.5"></rect>
     <rect x="18" y="54" width="82" height="15" rx="7.5"></rect>

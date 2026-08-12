@@ -2,110 +2,68 @@
 
 import { defineCollection } from 'astro:content';
 import { z } from 'astro/zod';
-import { docsLoader } from '@astrojs/starlight/loaders';
-import { docsSchema } from '@astrojs/starlight/schema';
 import { glob } from 'astro/loaders';
 
-const productsCollection = defineCollection({
+/**
+ * Familias de producto ("Nuestras Soluciones"): precintos de seguridad,
+ * etiquetas y cintas, tulas y bolsas, cajas de seguridad.
+ * Cada archivo en src/content/soluciones/ genera su propia página en
+ * /productos/<id>.
+ */
+const solucionesCollection = defineCollection({
   loader: glob({
     pattern: '**/[^_]*.{md,mdx}',
-    base: './src/content/products',
+    base: './src/content/soluciones',
+  }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      // Resumen corto: se usa en la tarjeta del listado y en la metadescripción
+      description: z.string(),
+      // Orden de aparición en /productos
+      order: z.number(),
+      // Nombre de un icono de src/components/ui/icons/icons.ts
+      icon: z.string(),
+      // Imagen de portada. Opcional mientras falte el material fotográfico.
+      cardImage: image().optional(),
+      cardImageAlt: z.string().optional(),
+      // Puntos destacados que se listan en la página de la familia
+      highlights: z.array(z.string()).default([]),
+    }),
+});
+
+/**
+ * Categorías de precintos (de botella, de guaya, plásticos…).
+ * Cada archivo en src/content/precintos/ genera su propia página en
+ * /precintos/<id>.
+ */
+const precintosCollection = defineCollection({
+  loader: glob({
+    pattern: '**/[^_]*.{md,mdx}',
+    base: './src/content/precintos',
   }),
   schema: ({ image }) =>
     z.object({
       title: z.string(),
       description: z.string(),
-      main: z.object({
-        id: z.number(),
-        content: z.string(),
-        imgCard: image(),
-        imgMain: image(),
-        imgAlt: z.string(),
-      }),
-      tabs: z.array(
-        z.object({
-          id: z.string(),
-          dataTab: z.string(),
-          title: z.string(),
-        })
-      ),
-      longDescription: z.object({
-        title: z.string(),
-        subTitle: z.string(),
-        btnTitle: z.string(),
-        btnURL: z.string(),
-      }),
-      descriptionList: z.array(
-        z.object({
-          title: z.string(),
-          subTitle: z.string(),
-        })
-      ),
-      specificationsLeft: z.array(
-        z.object({
-          title: z.string(),
-          subTitle: z.string(),
-        })
-      ),
-      specificationsRight: z
+      order: z.number(),
+      cardImage: image().optional(),
+      cardImageAlt: z.string().optional(),
+      // Referencias del catálogo. `code` es la referencia comercial.
+      products: z
         .array(
           z.object({
-            title: z.string(),
-            subTitle: z.string(),
+            name: z.string(),
+            code: z.string().optional(),
+            description: z.string().optional(),
+            image: image().optional(),
           })
         )
-        .optional(),
-      tableData: z
-        .array(
-          z.object({
-            feature: z.array(z.string()),
-            description: z.array(z.array(z.string())),
-          })
-        )
-        .optional(),
-      blueprints: z.object({
-        first: image().optional(),
-        second: image().optional(),
-      }),
-    }),
-});
-
-const blogCollection = defineCollection({
-  loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: './src/content/blog' }),
-  schema: ({ image }) =>
-    z.object({
-      title: z.string(),
-      description: z.string(),
-      author: z.string(),
-      role: z.string().optional(),
-      authorImage: image(),
-      authorImageAlt: z.string(),
-      pubDate: z.date(),
-      cardImage: image(),
-      cardImageAlt: z.string(),
-      readTime: z.number(),
-      tags: z.array(z.string()).optional(),
-    }),
-});
-
-const insightsCollection = defineCollection({
-  loader: glob({
-    pattern: '**/[^_]*.{md,mdx}',
-    base: './src/content/insights',
-  }),
-  schema: ({ image }) =>
-    z.object({
-      title: z.string(),
-      description: z.string(),
-      // contents: z.array(z.string()),
-      cardImage: image(),
-      cardImageAlt: z.string(),
+        .default([]),
     }),
 });
 
 export const collections = {
-  docs: defineCollection({ loader: docsLoader(), schema: docsSchema() }),
-  products: productsCollection,
-  blog: blogCollection,
-  insights: insightsCollection,
+  soluciones: solucionesCollection,
+  precintos: precintosCollection,
 };

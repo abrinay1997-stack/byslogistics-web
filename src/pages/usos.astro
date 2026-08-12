@@ -1,0 +1,104 @@
+---
+import MainLayout from '@/layouts/MainLayout.astro';
+import MainSection from '@components/ui/blocks/MainSection.astro';
+import HeroSectionAlt from '@components/sections/landing/HeroSectionAlt.astro';
+import { SITE } from '@data/constants';
+
+/**
+ * Sectores atendidos, tomados del texto "¿Quiénes Somos?" del sitio actual.
+ *
+ * TODO(contenido): el menú "Usos" del sitio actual es un desplegable con
+ * páginas propias por aplicación. Falta ese material para desarrollar cada
+ * sector con su caso de uso y sus productos recomendados.
+ */
+const sectores: Array<{ name: string; description: string }> = [
+  {
+    name: 'Financiero',
+    description:
+      'Traslado de valores y documentos con tulas y bolsas de seguridad de un solo uso.',
+  },
+  {
+    name: 'Transporte',
+    description:
+      'Precintado de puertas de contenedor y furgones para asegurar la carga en ruta.',
+  },
+  {
+    name: 'Combustibles e hidrocarburos',
+    description:
+      'Precintos de botella y de guaya en válvulas, tapas y puntos de descarga de carrotanques.',
+  },
+  {
+    name: 'Minería y carbón',
+    description:
+      'Control de despachos a granel y verificación de carga en operaciones de alto volumen.',
+  },
+  {
+    name: 'Alimentos',
+    description:
+      'Sellos de garantía y control de inventarios en cadena de frío y producto terminado.',
+  },
+  {
+    name: 'Cárnicos',
+    description:
+      'Trazabilidad en el transporte refrigerado y evidencia de apertura indebida.',
+  },
+  {
+    name: 'Apuestas',
+    description:
+      'Custodia de recaudo y de equipos en punto de venta con precintos numerados.',
+  },
+  {
+    name: 'Farmacéuticos',
+    description:
+      'Sellos de garantía sobre empaques y control de trazabilidad en la distribución.',
+  },
+];
+
+const pageTitle = `Usos | ${SITE.title}`;
+const metaDescription =
+  'Sectores donde aplicamos nuestros elementos de seguridad preventiva: financiero, transporte, combustibles e hidrocarburos, minería, alimentos, cárnicos, apuestas y farmacéuticos.';
+---
+
+<MainLayout
+  title={pageTitle}
+  customDescription={metaDescription}
+  customOgTitle={pageTitle}
+  structuredData={{
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': `${SITE.url}/usos`,
+    url: `${SITE.url}/usos`,
+    name: pageTitle,
+    description: metaDescription,
+    inLanguage: 'es-CO',
+  }}
+>
+  <MainSection
+    title="Usos y sectores que atendemos"
+    subTitle="Nuestra gama de productos nos ha permitido suministrar a líderes de industria en sectores donde la trazabilidad y el control de activos no admiten dudas."
+  />
+
+  <section class="mx-auto max-w-[85rem] px-4 pb-10 sm:px-6 lg:px-8 lg:pb-14">
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {
+        sectores.map(sector => (
+          <div class="rounded-xl border border-neutral-300 bg-neutral-100 p-6 dark:border-neutral-700 dark:bg-neutral-900">
+            <h2 class="font-bold text-neutral-800 dark:text-neutral-200">
+              {sector.name}
+            </h2>
+            <p class="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+              {sector.description}
+            </p>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <HeroSectionAlt
+    title="¿Su sector no aparece en la lista?"
+    subTitle="Descríbanos su necesidad y podremos asesorarle con respecto al producto ideal para su empresa."
+    url="/contacto"
+    btnTitle="Contáctanos"
+  />
+</MainLayout>
