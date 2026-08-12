@@ -33,6 +33,12 @@ export const CONTACT = {
   email: 'ventas@precintosdeseguridad.co',
   whatsapp: 'https://wa.me/573209514930',
   city: 'Bogotá, Colombia',
+  // Mapa incrustado de Google. La ficha corresponde a
+  // "Precintos de Seguridad Business & Supplies Logistics".
+  mapEmbed:
+    'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3976.8309916399876!2d-74.18022189999999!3d4.624224!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e3f9f7a3b5253f3%3A0xa8a995e52c756cb1!2sPrecintos%20de%20Seguridad%20Business%20%26%20Supplies%20Logistics!5e0!3m2!1ses-419!2spa!4v1786555459273!5m2!1ses-419!2spa',
+  mapLink:
+    'https://www.google.com/maps/search/?api=1&query=Precintos+de+Seguridad+Business+%26+Supplies+Logistics',
 };
 
 /**

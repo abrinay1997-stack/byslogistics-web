@@ -1,3 +1,14 @@
+# Este proyecto no es un monorepo, pero pnpm 10+ lee su configuración desde
+# aquí (antes vivía en el campo "pnpm" de package.json).
+#
+# `packages` debe estar presente aunque esté vacío: sin él, pnpm 9 falla con
+# "packages field missing or empty" al ejecutar `pnpm store path`, que es lo
+# que hace actions/setup-node cuando cachea con `cache: pnpm`.
+packages:
+  - '.'
+
+# Autoriza los scripts de instalación de estas dependencias. Sin esto,
+# `pnpm build` aborta con ERR_PNPM_IGNORED_BUILDS.
 allowBuilds:
   esbuild: true
   sharp: true

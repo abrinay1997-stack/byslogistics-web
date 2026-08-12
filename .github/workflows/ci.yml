@@ -14,23 +14,37 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Sin `version`: la toma del campo packageManager de package.json, para
+      # que CI use exactamente la misma que en desarrollo. Fijarla aquí a mano
+      # fue la causa del fallo anterior: con pnpm 9, `pnpm store path` aborta
+      # si pnpm-workspace.yaml no declara `packages`.
       - uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
 
-      - name: Install dependencies
+      - name: Instalar dependencias
         run: pnpm install --frozen-lockfile
 
-      - name: Format check
+      - name: Formato
         run: pnpm format:check
 
-      - name: Typecheck and build
+      - name: Tipos y build
         run: pnpm build
 
-      - name: Smoke tests
+      - name: Contenido y catálogo
+        run: pnpm test:content
+
+      - name: HTML generado
+        run: pnpm test:build
+
+      - name: Rutas servidas
         run: pnpm test:smoke
+
+      - name: Instalar Chromium para los tests de navegador
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Comportamiento y accesibilidad
+        run: pnpm test:e2e

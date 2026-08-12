@@ -90,7 +90,7 @@ function render() {
     item.innerHTML = `
       <div class="min-w-0 grow">
         <p class="truncate font-medium text-neutral-800 dark:text-neutral-200"></p>
-        <p class="truncate text-xs text-neutral-500"></p>
+        <p class="truncate text-xs text-neutral-600 dark:text-neutral-400"></p>
       </div>
       <label class="sr-only" for="qty-${line.id}">Cantidad</label>
       <input
@@ -107,7 +107,7 @@ function render() {
         type="button"
         data-quote-remove="${line.id}"
         aria-label="Quitar de la cotización"
-        class="shrink-0 rounded-lg px-2 py-2 text-lg leading-none text-neutral-500 transition hover:text-red-600 dark:hover:text-red-400"
+        class="shrink-0 rounded-lg px-2 py-2 text-lg leading-none text-neutral-600 dark:text-neutral-400 transition hover:text-red-600 dark:hover:text-red-400"
       >&times;</button>
     `;
     // El nombre se asigna como texto, nunca como HTML.
@@ -143,6 +143,17 @@ function setQty(id, qty) {
   }
 }
 
+/** Elementos enfocables dentro del panel, en orden de tabulación. */
+function focusables(panel) {
+  return [
+    ...panel.querySelectorAll(
+      'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled])'
+    ),
+  ].filter(el => el.offsetParent !== null);
+}
+
+let lastFocused = null;
+
 function openPanel(open) {
   const panel = document.querySelector('[data-quote-panel]');
   if (!panel) return;
@@ -151,9 +162,41 @@ function openPanel(open) {
   // de Tailwind mira el atributo del elemento donde está la clase.
   const drawer = panel.querySelector('[data-quote-drawer]');
   if (drawer) drawer.dataset.open = open ? 'true' : 'false';
+
+  // `inert` saca del árbol de accesibilidad y del orden de tabulación todo el
+  // contenido del panel mientras está cerrado. Con aria-hidden solo, el lector
+  // de pantalla lo ocultaba pero sus botones seguían siendo tabulables, que es
+  // justo lo que axe marca como aria-hidden-focus.
+  panel.inert = !open;
   panel.setAttribute('aria-hidden', open ? 'false' : 'true');
+  panel.setAttribute('aria-modal', open ? 'true' : 'false');
   document.body.style.overflow = open ? 'hidden' : '';
-  if (open) panel.querySelector('[data-quote-close]')?.focus();
+
+  if (open) {
+    lastFocused = document.activeElement;
+    panel.querySelector('[data-quote-close]')?.focus();
+  } else if (lastFocused instanceof HTMLElement) {
+    // Al cerrar, el foco vuelve al botón que abrió el panel.
+    lastFocused.focus();
+    lastFocused = null;
+  }
+}
+
+/** Mantiene el foco dentro del panel mientras está abierto. */
+function trapFocus(event) {
+  const panel = document.querySelector('[data-quote-panel]');
+  if (!panel || panel.dataset.open !== 'true' || event.key !== 'Tab') return;
+  const items = focusables(panel);
+  if (items.length === 0) return;
+  const first = items[0];
+  const last = items[items.length - 1];
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
 }
 
 /** Arma el texto del pedido para WhatsApp. */
@@ -224,7 +267,12 @@ function init() {
 
   document.addEventListener('keydown', event => {
     if (event.key === 'Escape') openPanel(false);
+    trapFocus(event);
   });
+
+  // Arranca cerrado e inerte, para que su contenido no sea tabulable.
+  const panel = document.querySelector('[data-quote-panel]');
+  if (panel) panel.inert = true;
 
   render();
 }

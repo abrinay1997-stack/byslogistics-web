@@ -1,0 +1,405 @@
+/**
+ * Tests de comportamiento en un navegador real.
+ *
+ * Levanta un servidor estático sobre dist/ y maneja Chromium con Playwright.
+ * Cubre lo que solo se ve en ejecución: los filtros del catálogo, el
+ * cotizador, el envío del formulario y la accesibilidad con axe.
+ *
+ * Requiere `pnpm build` previo. Si Playwright no está instalado, los tests se
+ * omiten en lugar de fallar, para que `pnpm test` siga siendo útil sin él.
+ */
+import { test, describe, before, after } from 'node:test';
+import assert from 'node:assert/strict';
+import { createServer } from 'node:http';
+import { readFile } from 'node:fs/promises';
+import { existsSync, readFileSync } from 'node:fs';
+import { extname, join, normalize } from 'node:path';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
+const ROOT = new URL('..', import.meta.url).pathname;
+const DIST = join(ROOT, 'dist');
+
+let chromium, axeSource;
+try {
+  ({ chromium } = require('playwright'));
+  axeSource = readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8');
+} catch {
+  chromium = null;
+}
+
+const MIME = {
+  '.html': 'text/html; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.ico': 'image/x-icon',
+  '.json': 'application/json',
+  '.xml': 'application/xml',
+  '.txt': 'text/plain; charset=utf-8',
+  '.webp': 'image/webp',
+  '.avif': 'image/avif',
+};
+
+let server, browser, base;
+
+before(async () => {
+  if (!chromium) return;
+  assert.ok(existsSync(DIST), 'ejecuta `pnpm build` antes de estos tests');
+
+  server = createServer(async (req, res) => {
+    // El POST del formulario lo interceptan los tests; aquí se responde 200
+    // para simular el endpoint que Netlify expone en producción.
+    if (req.method === 'POST') {
+      res.writeHead(200).end('ok');
+      return;
+    }
+    let path = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+    if (path.endsWith('/')) path += 'index.html';
+    const file = join(DIST, normalize(path).replace(/^(\.\.[/\\])+/, ''));
+    try {
+      const body = await readFile(file);
+      res.writeHead(200, {
+        'Content-Type': MIME[extname(file)] ?? 'application/octet-stream',
+      });
+      res.end(body);
+    } catch {
+      const notFound = await readFile(join(DIST, '404.html')).catch(() => '');
+      res.writeHead(404, { 'Content-Type': MIME['.html'] }).end(notFound);
+    }
+  });
+  await new Promise(r => server.listen(0, r));
+  base = `http://localhost:${server.address().port}`;
+  browser = await chromium.launch({
+    executablePath: process.env.CHROMIUM_PATH || undefined,
+  });
+});
+
+after(async () => {
+  await browser?.close();
+  server?.close();
+});
+
+const skip = () => (chromium ? false : 'playwright no está instalado');
+
+describe('catálogo con filtros', { skip: skip() }, () => {
+  test('filtra por línea de producto y acota las categorías', async () => {
+    const page = await browser.newPage();
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+
+    assert.equal(await page.locator('#catalog-count').textContent(), '115');
+
+    await page
+      .locator('input[name="family"][value="etiquetas-y-cintas-de-seguridad"]')
+      .check();
+    await page.waitForTimeout(150);
+    assert.equal(await page.locator('#catalog-count').textContent(), '33');
+    assert.equal(
+      await page.locator('[data-group-option]:visible').count(),
+      5,
+      'solo deben verse las categorías de esa línea'
+    );
+    await page.close();
+  });
+
+  test('el buscador ignora tildes y mayúsculas', async () => {
+    const page = await browser.newPage();
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+    await page.fill('#catalog-search', 'GUAYA');
+    await page.waitForTimeout(150);
+    const conMayusculas = await page.locator('#catalog-count').textContent();
+    await page.fill('#catalog-search', 'guaya');
+    await page.waitForTimeout(150);
+    assert.equal(
+      await page.locator('#catalog-count').textContent(),
+      conMayusculas
+    );
+    assert.ok(Number(conMayusculas) > 0);
+    await page.close();
+  });
+
+  test('avisa cuando la búsqueda no encuentra nada', async () => {
+    const page = await browser.newPage();
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+    await page.fill('#catalog-search', 'xyz-no-existe');
+    await page.waitForTimeout(150);
+    assert.equal(await page.locator('#catalog-count').textContent(), '0');
+    assert.ok(await page.locator('#catalog-empty').isVisible());
+    await page.close();
+  });
+
+  test('«limpiar filtros» restaura el listado completo', async () => {
+    const page = await browser.newPage();
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+    await page.fill('#catalog-search', 'bolsa');
+    await page.locator('input[name="family"]').nth(1).check();
+    await page.waitForTimeout(150);
+    await page.click('#catalog-reset');
+    await page.waitForTimeout(150);
+    assert.equal(await page.locator('#catalog-count').textContent(), '115');
+    await page.close();
+  });
+});
+
+describe('cotizador', { skip: skip() }, () => {
+  test('acumula referencias y las conserva al cambiar de página', async () => {
+    const page = await browser.newPage();
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+    await page.locator('[data-quote-add]').first().click();
+    await page.locator('[data-quote-add]').nth(3).click();
+    await page.waitForTimeout(150);
+    assert.equal(
+      await page.locator('[data-quote-count]').first().textContent(),
+      '2'
+    );
+    await page.goto(base + '/nosotros/', { waitUntil: 'networkidle' });
+    await page.waitForTimeout(200);
+    assert.equal(
+      await page.locator('[data-quote-count]').first().textContent(),
+      '2',
+      'el carrito debe sobrevivir a la navegación'
+    );
+    await page.close();
+  });
+
+  test('no duplica una referencia añadida dos veces', async () => {
+    const page = await browser.newPage();
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+    await page.locator('[data-quote-add]').first().click();
+    await page.locator('[data-quote-add]').first().click();
+    await page.waitForTimeout(150);
+    assert.equal(
+      await page.locator('[data-quote-count]').first().textContent(),
+      '1'
+    );
+    await page.close();
+  });
+
+  test('arma el mensaje de WhatsApp con cantidades y datos', async () => {
+    const page = await browser.newPage();
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+    await page.locator('[data-quote-add]').first().click();
+    await page.click('[data-quote-toggle]');
+    await page.waitForTimeout(400);
+    await page.locator('[data-quote-qty]').first().fill('2500');
+    await page.fill('[data-quote-field="name"]', 'Richard');
+    await page.fill('[data-quote-field="company"]', 'Transportes SAS');
+    await page.waitForTimeout(150);
+
+    const url = await page.evaluate(() => {
+      let captured = null;
+      const orig = window.open;
+      window.open = u => {
+        captured = u;
+        return null;
+      };
+      document.querySelector('[data-quote-send]').click();
+      window.open = orig;
+      return captured;
+    });
+    assert.match(url, /^https:\/\/wa\.me\/573209514930\?text=/);
+    const mensaje = decodeURIComponent(url.split('?text=')[1]);
+    assert.match(mensaje, /2\.500 und\./, 'la cantidad debe ir formateada');
+    assert.match(mensaje, /Nombre: Richard/);
+    assert.match(mensaje, /Empresa: Transportes SAS/);
+    await page.close();
+  });
+
+  test('permite quitar una referencia', async () => {
+    const page = await browser.newPage();
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+    await page.locator('[data-quote-add]').first().click();
+    await page.click('[data-quote-toggle]');
+    await page.waitForTimeout(400);
+    await page.locator('[data-quote-remove]').first().click();
+    await page.waitForTimeout(150);
+    assert.ok(await page.locator('[data-quote-empty]').isVisible());
+    await page.close();
+  });
+
+  test('el foco se queda dentro del panel mientras está abierto', async () => {
+    const page = await browser.newPage();
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+    await page.locator('[data-quote-add]').first().click();
+    await page.click('[data-quote-toggle]');
+    await page.waitForTimeout(400);
+    for (let i = 0; i < 12; i++) {
+      await page.keyboard.press('Tab');
+      const dentro = await page.evaluate(
+        () => !!document.activeElement.closest('[data-quote-panel]')
+      );
+      assert.ok(dentro, `el foco se escapó del panel en el tabulador ${i + 1}`);
+    }
+    await page.close();
+  });
+
+  test('se cierra con Escape', async () => {
+    const page = await browser.newPage();
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+    await page.locator('[data-quote-add]').first().click();
+    await page.click('[data-quote-toggle]');
+    await page.waitForTimeout(400);
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(400);
+    assert.equal(
+      await page.getAttribute('[data-quote-panel]', 'data-open'),
+      'false'
+    );
+    await page.close();
+  });
+});
+
+describe('formulario de contacto', { skip: skip() }, () => {
+  test('no envía sin la autorización de datos', async () => {
+    const page = await browser.newPage();
+    await page.goto(base + '/contacto/', { waitUntil: 'networkidle' });
+    await page.fill('#hs-name-contacts', 'Richard');
+    await page.fill('#hs-email-contacts', 'r@e.com');
+    await page.fill('#hs-about-contacts', 'Consulta');
+    await page.getByRole('button', { name: 'Enviar mensaje' }).click();
+    await page.waitForTimeout(300);
+    assert.equal(
+      await page.locator('[data-form-status]').first().isVisible(),
+      false
+    );
+    await page.close();
+  });
+
+  test('envía los campos y la constancia de autorización', async () => {
+    const page = await browser.newPage();
+    let cuerpo = null;
+    await page.route('**/', route => {
+      if (route.request().method() === 'POST') {
+        cuerpo = route.request().postData();
+        return route.fulfill({ status: 200, body: 'ok' });
+      }
+      return route.continue();
+    });
+    await page.goto(base + '/contacto/', { waitUntil: 'networkidle' });
+    await page.fill('#hs-name-contacts', 'Richard');
+    await page.fill('#hs-email-contacts', 'r@e.com');
+    await page.fill('#hs-phone-number', '3001234567');
+    await page.fill('#hs-about-contacts', 'Necesito precintos');
+    await page.check('input[name="autorizacion"]');
+    await page.getByRole('button', { name: 'Enviar mensaje' }).click();
+    await page.waitForTimeout(600);
+
+    const datos = new URLSearchParams(cuerpo ?? '');
+    assert.equal(datos.get('form-name'), 'contacto');
+    assert.equal(datos.get('name'), 'Richard');
+    assert.equal(datos.get('email'), 'r@e.com');
+    assert.equal(datos.get('message'), 'Necesito precintos');
+    assert.equal(datos.get('autorizacion'), 'Sí');
+    await page.close();
+  });
+
+  test('si el envío falla, ofrece WhatsApp en lugar de fallar en silencio', async () => {
+    const page = await browser.newPage();
+    await page.route('**/', route =>
+      route.request().method() === 'POST'
+        ? route.fulfill({ status: 500, body: 'err' })
+        : route.continue()
+    );
+    await page.goto(base + '/contacto/', { waitUntil: 'networkidle' });
+    await page.fill('#hs-name-contacts', 'Richard');
+    await page.fill('#hs-email-contacts', 'r@e.com');
+    await page.fill('#hs-about-contacts', 'Consulta');
+    await page.check('input[name="autorizacion"]');
+
+    const url = await page.evaluate(
+      () =>
+        new Promise(res => {
+          const orig = window.open;
+          window.open = u => {
+            window.open = orig;
+            res(u);
+            return null;
+          };
+          document
+            .querySelector('form[data-contact-form] button[type="submit"]')
+            .click();
+          setTimeout(() => res(null), 3000);
+        })
+    );
+    assert.ok(url, 'debía abrirse WhatsApp como alternativa');
+    assert.match(url, /wa\.me\/573209514930/);
+    await page.close();
+  });
+});
+
+describe('navegación móvil', { skip: skip() }, () => {
+  test('el menú se despliega al pulsar el botón', async () => {
+    const page = await browser.newPage({
+      viewport: { width: 390, height: 844 },
+    });
+    await page.goto(base + '/', { waitUntil: 'networkidle' });
+    const menu = page.locator('#navbar-collapse-with-animation');
+    assert.equal(await menu.isVisible(), false);
+    await page.click('[data-hs-collapse]');
+    await page.waitForTimeout(500);
+    assert.equal(await menu.isVisible(), true);
+    await page.close();
+  });
+
+  test('ninguna página desborda horizontalmente', async () => {
+    const page = await browser.newPage({
+      viewport: { width: 390, height: 844 },
+    });
+    for (const r of ['/', '/catalogo/', '/contacto/', '/faq/', '/nosotros/']) {
+      await page.goto(base + r, { waitUntil: 'networkidle' });
+      const { scroll, client } = await page.evaluate(() => ({
+        scroll: document.documentElement.scrollWidth,
+        client: document.documentElement.clientWidth,
+      }));
+      assert.ok(scroll <= client + 1, `${r} desborda: ${scroll} > ${client}`);
+    }
+    await page.close();
+  });
+});
+
+describe('accesibilidad (axe)', { skip: skip() }, () => {
+  const RUTAS = [
+    '/',
+    '/catalogo/',
+    '/precintos/',
+    '/productos/etiquetas-y-cintas-de-seguridad/',
+    '/usos/',
+    '/faq/',
+    '/nosotros/',
+    '/contacto/',
+    '/politica-de-datos/',
+    '/404.html',
+  ];
+
+  for (const ruta of RUTAS) {
+    test(`sin violaciones serias ni críticas en ${ruta}`, async () => {
+      const page = await browser.newPage({
+        viewport: { width: 1280, height: 900 },
+      });
+      await page.goto(base + ruta, { waitUntil: 'networkidle' });
+      await page.addScriptTag({ content: axeSource });
+      const { violations } = await page.evaluate(
+        async () =>
+          await axe.run(document, {
+            runOnly: {
+              type: 'tag',
+              values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'],
+            },
+          })
+      );
+      const graves = violations.filter(v =>
+        ['critical', 'serious'].includes(v.impact)
+      );
+      const detalle = graves
+        .map(v => `${v.id}: ${v.nodes[0]?.html?.slice(0, 120)}`)
+        .join('\n');
+      assert.deepEqual(
+        graves.map(v => v.id),
+        [],
+        `\n${detalle}`
+      );
+      await page.close();
+    });
+  }
+});

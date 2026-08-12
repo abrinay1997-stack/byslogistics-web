@@ -7,13 +7,13 @@
 
 # Cabeceras de seguridad. Equivalen a las que traía vercel.json.
 #
-# connect-src incluye api.web3forms.com por si algún día se vuelve a ese
-# servicio; los formularios de hoy envían al propio sitio ('self'), que es
-# como funciona Netlify Forms.
+# frame-src permite google.com porque la página de contacto incrusta el mapa
+# de Google Maps. Los formularios envían al propio sitio ('self'), que es como
+# funciona Netlify Forms.
 [[headers]]
   for = "/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; base-uri 'self'; form-action 'self'; frame-src 'self'; frame-ancestors 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; upgrade-insecure-requests"
+    Content-Security-Policy = "default-src 'self'; base-uri 'self'; form-action 'self'; frame-src 'self' https://www.google.com; frame-ancestors 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; upgrade-insecure-requests"
     Permissions-Policy = "interest-cohort=()"
     Referrer-Policy = "strict-origin-when-cross-origin"
     X-Content-Type-Options = "nosniff"

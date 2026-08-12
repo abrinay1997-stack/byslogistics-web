@@ -43,11 +43,9 @@ const footerLinks = [
 ];
 // Redes sociales. Deja vacío lo que no aplique: el footer solo renderiza los
 // iconos que tienen URL configurada.
-// TODO(confirmar): faltan las URL exactas de los perfiles de Facebook e
-// Instagram, que en el sitio actual están enlazados desde el footer.
 const socialLinks: Record<string, string> = {
-  facebook: '',
-  instagram: '',
+  facebook: 'https://www.facebook.com/people/Byslogistics/100070925777333/',
+  instagram: 'https://www.instagram.com/byslogistics/',
   linkedin: '',
   x: '',
 };

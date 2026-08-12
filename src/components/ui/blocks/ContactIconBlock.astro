@@ -47,7 +47,9 @@ fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" >
     {/* Conditional rendering of address content if isAddressVisible is true */}
     {
       isAddressVisible ? (
-        <p class="mt-1 text-sm text-neutral-500 italic">{addressContent}</p>
+        <p class="mt-1 text-sm text-neutral-600 italic dark:text-neutral-400">
+          {addressContent}
+        </p>
       ) : null
     }
     {/* Lista de líneas de contacto, cuando se pasan varias */}
@@ -57,7 +59,7 @@ fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" >
           {links.map(link => (
             <li>
               <a
-                class="rounded-lg text-sm font-medium text-zinc-600 ring-zinc-500 outline-hidden transition duration-300 hover:text-zinc-800 focus-visible:ring-3 dark:text-zinc-400 dark:ring-zinc-200 dark:hover:text-zinc-200 dark:focus:ring-1 dark:focus:outline-hidden"
+                class="inline-flex min-h-11 items-center rounded-lg text-sm font-medium text-zinc-600 ring-zinc-500 outline-hidden transition duration-300 hover:text-zinc-800 focus-visible:ring-3 md:min-h-0 dark:text-zinc-400 dark:ring-zinc-200 dark:hover:text-zinc-200 dark:focus:ring-1 dark:focus:outline-hidden"
                 href={link.href}
               >
                 {link.label}

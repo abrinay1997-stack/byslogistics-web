@@ -2,6 +2,7 @@
   "name": "byslogistics-web",
   "type": "module",
   "version": "0.0.1",
+  "packageManager": "pnpm@11.21.0",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
@@ -10,7 +11,11 @@
     "format:fix": "prettier --write .",
     "preview": "astro preview",
     "astro": "astro",
-    "test:smoke": "node scripts/smoke.mjs"
+    "test:smoke": "node scripts/smoke.mjs",
+    "test": "node --test \"tests/**/*.test.js\"",
+    "test:content": "node --test tests/content.test.js",
+    "test:build": "node --test tests/build.test.js",
+    "test:e2e": "node --test tests/e2e.test.js"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.10",
@@ -29,6 +34,8 @@
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/typography": "^0.5.20",
+    "axe-core": "^4.13.0",
+    "playwright": "^1.62.1",
     "prettier": "^3.9.6",
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-tailwindcss": "^0.8.1",

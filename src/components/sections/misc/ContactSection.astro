@@ -25,6 +25,8 @@ const copy = {
   panamaContent: 'Atención para operaciones en Panamá.',
   emailHeading: 'Escríbenos por correo',
   emailContent: '¿Prefieres el correo electrónico? Escríbenos a',
+  mapHeading: 'Dónde estamos',
+  mapContent: 'Estamos en Bogotá, Colombia. ',
 };
 ---
 
@@ -153,6 +155,36 @@ const copy = {
           linkURL={`mailto:${CONTACT.email}`}
           ><Icon name="envelopeOpen" />
         </ContactIconBlock>
+      </div>
+    </div>
+
+    {/* Mapa de la sede. loading="lazy" para no penalizar la carga inicial. */}
+    <div class="mt-12">
+      <h2 class="text-xl font-bold text-neutral-700 dark:text-neutral-300">
+        {copy.mapHeading}
+      </h2>
+      <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        {copy.mapContent}
+        <a
+          href={CONTACT.mapLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-brand-700 dark:text-brand-400 underline underline-offset-2"
+          >Abrir en Google Maps</a
+        >.
+      </p>
+      <div
+        class="mt-4 overflow-hidden rounded-xl border border-neutral-300 dark:border-neutral-700"
+      >
+        <iframe
+          src={CONTACT.mapEmbed}
+          title="Ubicación de B&S Logistics en Google Maps"
+          width="100%"
+          height="420"
+          style="border:0"
+          loading="lazy"
+          referrerpolicy="strict-origin-when-cross-origin"
+          class="block w-full"></iframe>
       </div>
     </div>
   </div>
