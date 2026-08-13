@@ -5,247 +5,746 @@ import Icon from '@components/ui/icons/Icon.astro';
 /**
  * Carrusel de soluciones para la portada.
  *
- * Antes la home repetía la misma rejilla de tarjetas que /productos, así que
- * quien bajaba por la portada veía dos veces lo mismo y la segunda no aportaba
- * nada. Aquí las seis líneas se recorren de lado, con la fotografía grande y
- * los puntos fuertes de cada una: la portada resume y remite, el listado
- * detalla.
+ * Ocupa el ancho completo y casi todo el alto de la ventana: una línea de
+ * producto por diapositiva, con la foto grande, el titular y una sola frase.
+ * La portada resume y remite; el listado de /productos detalla.
  *
  * DECISIONES QUE NO SON DE ESTILO
  *
- * · **Es scroll nativo, no un carrusel con temporizador.** `scroll-snap` con
- *   `overflow-x`, y las flechas solo empujan ese mismo scroll. Sale gratis en
- *   táctil —arrastrar ya funciona—, respeta el teclado y la rueda, y no hay
- *   nada que se mueva solo mientras alguien está leyendo. Un carrusel que
- *   avanza cada cinco segundos es la forma más rápida de que se pierda de
- *   vista justo la tarjeta que interesaba.
+ * · **Avanza solo, pero se para en cuanto hay alguien.** El temporizador se
+ *   detiene con el puntero encima, con el foco dentro, con la pestaña en
+ *   segundo plano y cuando el carrusel sale de la pantalla. Un carrusel que
+ *   sigue corriendo mientras alguien lee es la forma más rápida de que se
+ *   pierda de vista justo la diapositiva que interesaba.
  *
- * · **Sin JavaScript sigue siendo utilizable.** Las flechas son un añadido:
- *   si el script no llega, el carril se sigue arrastrando y las tarjetas
- *   siguen siendo enlaces.
+ * · **Con `prefers-reduced-motion` no se mueve solo.** Ni temporizador ni
+ *   acercamiento de la foto: quedan las flechas, los puntos y el arrastre.
  *
- * · **Cada tarjeta es un enlace entero**, no una tarjeta con un enlace dentro:
- *   el objetivo táctil es toda la superficie.
+ * · **La foto va contenida sobre un fondo claro, no recortada a sangre.** Son
+ *   fotos de producto sobre blanco, verticales muchas de ellas: recortarlas
+ *   para llenar media pantalla dejaría el producto fuera de cuadro. Por eso la
+ *   diapositiva se divide en dos —el texto sobre el azul de marca, la foto
+ *   sobre su plano claro— en lugar de poner el texto encima de la imagen.
+ *
+ * · **Sin JavaScript sigue siendo utilizable.** La primera diapositiva se
+ *   pinta activa desde el servidor y cada una es un enlace a su línea.
  */
 interface Solucion {
   id: string;
   title: string;
-  description: string;
+  /** Una sola frase. Si viene larga, la diapositiva deja de ser una portada. */
+  subtitle: string;
   image?: ImageMetadata;
   imageAlt?: string;
-  highlights: string[];
 }
 
 interface Props {
   soluciones: Solucion[];
+  /** Milisegundos que dura cada diapositiva antes de pasar sola. */
+  intervalo?: number;
 }
 
-const { soluciones } = Astro.props;
+const { soluciones, intervalo = 6500 } = Astro.props;
+const total = soluciones.length;
 ---
 
-<div class="carrusel" data-carrusel>
-  <div class="mb-4 flex items-center justify-end gap-x-2">
-    <button
-      type="button"
-      class="carrusel-flecha"
-      data-carrusel-prev
-      aria-label="Ver las soluciones anteriores"
-    >
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-      >
-        <path d="m15 18-6-6 6-6"></path>
-      </svg>
-    </button>
-    <button
-      type="button"
-      class="carrusel-flecha"
-      data-carrusel-next
-      aria-label="Ver las siguientes soluciones"
-    >
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-      >
-        <path d="m9 18 6-6-6-6"></path>
-      </svg>
-    </button>
-  </div>
-
-  <ul class="carrusel-carril" data-carrusel-carril>
-    {
-      soluciones.map(solucion => (
-        <li class="carrusel-item">
-          <a
-            href={`/productos/${solucion.id}`}
-            class="group hover:border-brand-400 dark:hover:border-brand-400 flex h-full flex-col overflow-hidden rounded-3xl border border-neutral-300 bg-neutral-100 ring-zinc-500 outline-hidden transition duration-300 hover:-translate-y-1 hover:shadow-xl focus-visible:ring-3 dark:border-neutral-700 dark:bg-neutral-900 dark:ring-zinc-200"
+<section
+  class="slider"
+  data-slider
+  data-intervalo={intervalo}
+  style={`--reloj:${intervalo}ms`}
+  role="region"
+  aria-roledescription="carrusel"
+  aria-label="Nuestras soluciones"
+>
+  <div class="slider-marco" data-slider-marco>
+    <div class="slider-pista">
+      {
+        soluciones.map((solucion, i) => (
+          <div
+            class:list={['slide', i === 0 && 'is-activa']}
+            data-slide
+            role="group"
+            aria-roledescription="diapositiva"
+            aria-label={`${i + 1} de ${total}: ${solucion.title}`}
+            aria-hidden={i === 0 ? 'false' : 'true'}
           >
-            <div class="flex aspect-[4/3] items-center justify-center overflow-hidden bg-white">
-              {solucion.image && (
-                <Image
-                  src={solucion.image}
-                  alt={solucion.imageAlt ?? solucion.title}
-                  class="h-full w-full object-contain p-6 transition-transform duration-500 group-hover:scale-105"
-                  widths={[360, 540, 720]}
-                  sizes="(min-width: 1024px) 22rem, (min-width: 640px) 45vw, 80vw"
-                  loading="lazy"
-                  draggable={false}
-                />
-              )}
-            </div>
-
-            <div class="flex grow flex-col p-6">
-              <h3 class="text-lg font-bold text-neutral-800 dark:text-neutral-100">
-                {solucion.title}
-              </h3>
-              <p class="mt-2 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-                {solucion.description}
+            <div class="slide-texto">
+              <p class="slide-orden anim">
+                <span class="slide-orden-num">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <span class="slide-orden-sep" aria-hidden="true" />
+                <span>Nuestras soluciones</span>
               </p>
-
-              {solucion.highlights.length > 0 && (
-                <ul class="mt-4 grid gap-y-1.5">
-                  {solucion.highlights.slice(0, 2).map(punto => (
-                    <li class="flex items-start gap-x-2 text-xs text-neutral-600 dark:text-neutral-400">
-                      <span class="text-brand-600 dark:text-brand-400 mt-px shrink-0">
-                        ✓
-                      </span>
-                      {punto}
-                    </li>
-                  ))}
-                </ul>
-              )}
-
-              <span class="text-brand-600 dark:text-brand-400 mt-auto inline-flex items-center gap-x-2 pt-5 text-sm font-bold">
+              <h3 class="slide-titulo anim">{solucion.title}</h3>
+              <p class="slide-linea anim">{solucion.subtitle}</p>
+              <a
+                href={`/productos/${solucion.id}`}
+                class="slide-cta anim"
+                data-astro-prefetch
+                tabindex={i === 0 ? undefined : '-1'}
+              >
                 Ver la línea
-                <span class="transition-transform duration-300 group-hover:translate-x-1">
+                <span class="slide-cta-flecha">
                   <Icon name="arrowRight" />
                 </span>
-              </span>
+              </a>
             </div>
-          </a>
-        </li>
-      ))
+
+            <div class="slide-media">
+              <div class="slide-plano">
+                {solucion.image && (
+                  <Image
+                    src={solucion.image}
+                    alt={solucion.imageAlt ?? solucion.title}
+                    class="slide-foto"
+                    widths={[480, 720, 1080]}
+                    sizes="(min-width: 1024px) 45vw, 90vw"
+                    loading={i === 0 ? 'eager' : 'lazy'}
+                    draggable={false}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+
+    {
+      total > 1 && (
+        <>
+          <button
+            type="button"
+            class="slider-flecha slider-flecha-prev"
+            data-slider-prev
+            aria-label="Ver la solución anterior"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="m15 18-6-6 6-6" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="slider-flecha slider-flecha-next"
+            data-slider-next
+            aria-label="Ver la siguiente solución"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="m9 18 6-6-6-6" />
+            </svg>
+          </button>
+
+          {/* Los puntos hacen de índice y de reloj: el activo se alarga y se
+              va llenando con lo que queda de la diapositiva. */}
+          <div class="slider-puntos">
+            {soluciones.map((solucion, i) => (
+              <button
+                type="button"
+                class:list={['slider-punto', i === 0 && 'is-activo']}
+                data-slider-punto={i}
+                aria-current={i === 0 ? 'true' : 'false'}
+                aria-label={`Ir a ${solucion.title}`}
+              >
+                <span class="slider-punto-relleno" data-slider-relleno />
+              </button>
+            ))}
+          </div>
+        </>
+      )
     }
-  </ul>
-</div>
+  </div>
+</section>
 
-<script is:inline>
-  (() => {
-    const root = document.querySelector('[data-carrusel]');
+<script>
+  function initSolutionsCarousel() {
+    const root = document.querySelector<HTMLElement>('[data-slider]');
     if (!root) return;
-    const carril = root.querySelector('[data-carrusel-carril]');
-    const prev = root.querySelector('[data-carrusel-prev]');
-    const next = root.querySelector('[data-carrusel-next]');
+    if (root.dataset.listo === 'true') return;
 
-    /** Un paso = una tarjeta, medida en vivo: cambia con el ancho de pantalla. */
-    const paso = () => {
-      const item = carril.querySelector('.carrusel-item');
-      if (!item) return carril.clientWidth;
-      const gap = parseFloat(getComputedStyle(carril).columnGap || '0');
-      return item.getBoundingClientRect().width + gap;
-    };
+    const slides = Array.from(
+      root.querySelectorAll<HTMLElement>('[data-slide]')
+    );
+    if (slides.length < 2) return;
+    root.dataset.listo = 'true';
 
-    const mover = signo => {
-      // `smooth` respeta `prefers-reduced-motion` en los navegadores actuales;
-      // aquí solo se pide el desplazamiento.
-      carril.scrollBy({ left: signo * paso(), behavior: 'smooth' });
-    };
+    const marco = root.querySelector<HTMLElement>('[data-slider-marco]')!;
+    const puntos = Array.from(
+      root.querySelectorAll<HTMLElement>('[data-slider-punto]')
+    );
+    const intervalo = Number(root.dataset.intervalo) || 6500;
+    const quieto = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-    prev.addEventListener('click', () => mover(-1));
-    next.addEventListener('click', () => mover(1));
+    let actual = 0;
+    let temporizador: number | undefined;
 
     /**
-     * Las flechas se apagan en los extremos. Sin esto quedan dos botones que
-     * parecen funcionar y no hacen nada, que es peor que no tenerlos.
+     * `visibilidad` guarda por qué está parado el carrusel. Son cuatro motivos
+     * independientes —puntero, foco, pestaña y estar fuera de pantalla— y
+     * cualquiera de ellos basta para detenerlo; con un único booleano, salir
+     * con el ratón reanudaba un carrusel que la pestaña oculta había parado.
      */
-    const sincronizar = () => {
-      const max = carril.scrollWidth - carril.clientWidth;
-      prev.disabled = carril.scrollLeft <= 1;
-      next.disabled = carril.scrollLeft >= max - 1;
-      // Si todo cabe en pantalla, el carrusel no es un carrusel.
-      root.dataset.completo = max <= 1 ? 'true' : 'false';
+    const motivos = new Set<string>();
+
+    const pausar = (motivo: string) => {
+      motivos.add(motivo);
+      root.dataset.pausado = 'true';
+      window.clearTimeout(temporizador);
     };
 
-    carril.addEventListener('scroll', sincronizar, { passive: true });
-    window.addEventListener('resize', sincronizar);
-    sincronizar();
-  })();
+    const reanudar = (motivo: string) => {
+      motivos.delete(motivo);
+      if (motivos.size > 0) return;
+      root.dataset.pausado = 'false';
+      programar();
+    };
+
+    function programar() {
+      window.clearTimeout(temporizador);
+      if (quieto.matches || motivos.size > 0) return;
+      temporizador = window.setTimeout(() => ir(actual + 1, 1), intervalo);
+    }
+
+    /** Reinicia la animación de la barra del punto activo. */
+    function reiniciarReloj() {
+      const relleno = puntos[actual]?.querySelector<HTMLElement>(
+        '[data-slider-relleno]'
+      );
+      if (!relleno) return;
+      relleno.style.animation = 'none';
+      // Forzar el reflujo: sin esto el navegador agrupa las dos asignaciones
+      // y la animación nunca vuelve a arrancar.
+      void relleno.offsetWidth;
+      relleno.style.animation = '';
+    }
+
+    function ir(destino: number, direccion: number) {
+      const siguiente = (destino + slides.length) % slides.length;
+      if (siguiente === actual) return;
+
+      const saliendo = slides[actual];
+      const entrando = slides[siguiente];
+
+      // `root!`: `ir` es una declaración de función, así que TypeScript la
+      // considera alcanzable antes de la comprobación de arriba y pierde el
+      // estrechamiento del tipo.
+      root!.style.setProperty('--dir', String(direccion));
+
+      saliendo.classList.remove('is-activa');
+      saliendo.classList.add('is-saliendo');
+      saliendo.setAttribute('aria-hidden', 'true');
+      saliendo.querySelector('a')?.setAttribute('tabindex', '-1');
+
+      entrando.classList.remove('is-saliendo');
+      entrando.classList.add('is-activa');
+      entrando.setAttribute('aria-hidden', 'false');
+      entrando.querySelector('a')?.removeAttribute('tabindex');
+
+      // La clase de salida se retira cuando termina la transición; si se
+      // quitara de inmediato, la diapositiva saliente desaparecería de golpe.
+      window.setTimeout(() => saliendo.classList.remove('is-saliendo'), 800);
+
+      puntos.forEach((punto, i) => {
+        punto.classList.toggle('is-activo', i === siguiente);
+        punto.setAttribute('aria-current', i === siguiente ? 'true' : 'false');
+      });
+
+      actual = siguiente;
+      reiniciarReloj();
+      programar();
+    }
+
+    root
+      .querySelector('[data-slider-prev]')
+      ?.addEventListener('click', () => ir(actual - 1, -1));
+    root
+      .querySelector('[data-slider-next]')
+      ?.addEventListener('click', () => ir(actual + 1, 1));
+
+    puntos.forEach((punto, i) => {
+      punto.addEventListener('click', () => ir(i, i > actual ? 1 : -1));
+    });
+
+    root.addEventListener('mouseenter', () => pausar('puntero'));
+    root.addEventListener('mouseleave', () => reanudar('puntero'));
+    root.addEventListener('focusin', () => pausar('foco'));
+    root.addEventListener('focusout', () => reanudar('foco'));
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) pausar('pestana');
+      else reanudar('pestana');
+    });
+
+    // Fuera de pantalla no hay nada que mirar: el temporizador se detiene para
+    // no llegar de vuelta con la diapositiva cambiada sin motivo.
+    if ('IntersectionObserver' in window) {
+      const observador = new IntersectionObserver(
+        entradas => {
+          for (const entrada of entradas) {
+            if (entrada.isIntersecting) reanudar('fuera');
+            else pausar('fuera');
+          }
+        },
+        { threshold: 0.25 }
+      );
+      observador.observe(root);
+    }
+
+    // Teclado: flechas cuando el foco está dentro del carrusel.
+    root.addEventListener('keydown', event => {
+      if (event.key === 'ArrowLeft') ir(actual - 1, -1);
+      else if (event.key === 'ArrowRight') ir(actual + 1, 1);
+    });
+
+    // Arrastre en táctil. Se mira solo el gesto horizontal: uno vertical es
+    // alguien bajando por la página, no cambiando de diapositiva.
+    let inicioX = 0;
+    let inicioY = 0;
+    marco.addEventListener(
+      'touchstart',
+      event => {
+        inicioX = event.changedTouches[0].clientX;
+        inicioY = event.changedTouches[0].clientY;
+      },
+      { passive: true }
+    );
+    marco.addEventListener(
+      'touchend',
+      event => {
+        const dx = event.changedTouches[0].clientX - inicioX;
+        const dy = event.changedTouches[0].clientY - inicioY;
+        if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy)) return;
+        ir(actual + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
+      },
+      { passive: true }
+    );
+
+    quieto.addEventListener('change', programar);
+    reiniciarReloj();
+    programar();
+  }
+
+  initSolutionsCarousel();
+  document.addEventListener('astro:page-load', initSolutionsCarousel);
 </script>
 
 <style>
-  .carrusel-carril {
-    display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: min(80vw, 20rem);
-    gap: 1.5rem;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    /* Sitio para que la sombra y el desplazamiento del hover no se recorten
-       contra el borde del carril. */
-    padding: 0.5rem 0.25rem 1.5rem;
-    scrollbar-width: thin;
+  .slider {
+    --dir: 1;
+    position: relative;
+    width: 100%;
   }
 
-  @media (min-width: 640px) {
-    .carrusel-carril {
-      grid-auto-columns: 22rem;
+  .slider-marco {
+    position: relative;
+    overflow: hidden;
+    /* Casi toda la ventana, pero con techo y suelo: en una pantalla apaisada
+       de portátil, 80vh sin más deja la diapositiva por debajo del pliegue. */
+    height: clamp(34rem, 82vh, 48rem);
+    background:
+      radial-gradient(
+        120% 100% at 0% 0%,
+        var(--color-brand-700) 0%,
+        transparent 60%
+      ),
+      linear-gradient(
+        135deg,
+        var(--color-brand-900) 0%,
+        var(--color-brand-800) 55%,
+        var(--color-brand-950) 100%
+      );
+  }
+
+  .slider-pista {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* ---------- DIAPOSITIVA ---------- */
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translate3d(calc(var(--dir) * 2.5rem), 0, 0) scale(0.99);
+    transition:
+      opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 0s linear 0.7s;
+  }
+
+  .slide.is-activa {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: none;
+    z-index: 2;
+    transition-delay: 0s;
+  }
+
+  /* La que se va sale hacia el lado contrario al del avance. */
+  .slide.is-saliendo {
+    visibility: visible;
+    opacity: 0;
+    transform: translate3d(calc(var(--dir) * -2.5rem), 0, 0) scale(0.99);
+    z-index: 1;
+  }
+
+  @media (min-width: 1024px) {
+    .slide {
+      grid-template-rows: none;
+      grid-template-columns: 1fr 1fr;
+      align-items: stretch;
     }
   }
 
-  .carrusel-item {
-    scroll-snap-align: start;
+  /* ---------- TEXTO ---------- */
+  .slide-texto {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.85rem;
+    padding: 2rem 1.75rem 3.5rem;
+    color: #fff;
+    order: 2;
   }
 
-  .carrusel-flecha {
+  @media (min-width: 640px) {
+    .slide-texto {
+      padding: 2.5rem 3.5rem 4rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .slide-texto {
+      order: 1;
+      gap: 1.25rem;
+      padding: 4rem 4rem 4rem clamp(2.5rem, 7vw, 8rem);
+    }
+  }
+
+  .slide-orden {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-brand-200);
+  }
+
+  .slide-orden-num {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .slide-orden-sep {
+    display: block;
+    width: 2.5rem;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.55;
+  }
+
+  .slide-titulo {
+    font-size: clamp(2rem, 5.5vw, 4rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  .slide-linea {
+    max-width: 34ch;
+    font-size: clamp(1rem, 1.6vw, 1.375rem);
+    line-height: 1.5;
+    color: var(--color-brand-100);
+    text-wrap: pretty;
+  }
+
+  .slide-cta {
     display: inline-flex;
-    width: 2.75rem;
-    height: 2.75rem;
+    width: fit-content;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.5rem;
+    padding: 0.85rem 1.5rem;
+    border-radius: 999px;
+    background: #fff;
+    color: var(--color-brand-800);
+    font-size: 0.95rem;
+    font-weight: 700;
+    outline: none;
+    transition:
+      background-color 0.3s,
+      color 0.3s,
+      transform 0.3s;
+  }
+
+  .slide-cta:hover {
+    background: var(--color-brand-100);
+    transform: translateY(-2px);
+  }
+
+  .slide-cta:focus-visible {
+    outline: 3px solid var(--color-brand-300);
+    outline-offset: 3px;
+  }
+
+  .slide-cta-flecha {
+    display: inline-flex;
+    transition: transform 0.3s;
+  }
+
+  .slide-cta:hover .slide-cta-flecha {
+    transform: translateX(4px);
+  }
+
+  /* ---------- FOTO ---------- */
+  .slide-media {
+    position: relative;
+    order: 1;
+    min-height: 0;
+    padding: 4.5rem 1.5rem 0;
+  }
+
+  @media (min-width: 1024px) {
+    .slide-media {
+      order: 2;
+      padding: 2.5rem 2.5rem 2.5rem 0;
+    }
+  }
+
+  /* El plano claro donde se apoya el producto. Las fotos vienen recortadas
+     sobre blanco, así que el plano continúa ese blanco en vez de pelearse
+     con él. */
+  .slide-plano {
+    position: relative;
+    display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid var(--color-neutral-300);
+    height: 100%;
+    overflow: hidden;
+    border-radius: 1.75rem;
+    background: radial-gradient(
+      75% 75% at 50% 40%,
+      #fff 0%,
+      #fff 55%,
+      var(--color-brand-50) 100%
+    );
+    box-shadow: 0 40px 80px -40px rgb(0 32 58 / 0.75);
+  }
+
+  .slide-foto {
+    max-height: 100%;
+    max-width: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    padding: 1.5rem;
+    transform-origin: center;
+  }
+
+  /* Acercamiento lento mientras la diapositiva está a la vista: es lo que
+     distingue una portada viva de una captura de pantalla. */
+  .slide.is-activa .slide-foto {
+    animation: slide-zoom 9s ease-out both;
+  }
+
+  @keyframes slide-zoom {
+    from {
+      transform: scale(1);
+    }
+    to {
+      transform: scale(1.07);
+    }
+  }
+
+  /* Entrada escalonada del texto. */
+  .slide.is-activa .anim {
+    animation: slide-sube 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .slide.is-activa .anim:nth-child(2) {
+    animation-delay: 0.07s;
+  }
+  .slide.is-activa .anim:nth-child(3) {
+    animation-delay: 0.14s;
+  }
+  .slide.is-activa .anim:nth-child(4) {
+    animation-delay: 0.21s;
+  }
+
+  @keyframes slide-sube {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 1.25rem, 0);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* ---------- CONTROLES ---------- */
+  .slider-flecha {
+    position: absolute;
+    top: 50%;
+    z-index: 3;
+    display: none;
+    width: 3rem;
+    height: 3rem;
+    transform: translateY(-50%);
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgb(255 255 255 / 0.35);
     border-radius: 999px;
-    background: transparent;
-    color: var(--color-neutral-700);
+    background: rgb(255 255 255 / 0.12);
+    color: #fff;
+    backdrop-filter: blur(8px);
     cursor: pointer;
     transition:
-      border-color 0.2s,
-      color 0.2s,
-      opacity 0.2s;
+      background-color 0.3s,
+      border-color 0.3s,
+      transform 0.3s;
   }
 
-  .carrusel-flecha svg {
-    width: 1.1rem;
-    height: 1.1rem;
+  @media (min-width: 1024px) {
+    .slider-flecha {
+      display: flex;
+    }
   }
 
-  .carrusel-flecha:hover:not(:disabled) {
-    border-color: var(--color-brand-600);
-    color: var(--color-brand-700);
+  .slider-flecha:hover {
+    background: rgb(255 255 255 / 0.24);
+    border-color: rgb(255 255 255 / 0.6);
   }
 
-  .carrusel-flecha:disabled {
-    opacity: 0.35;
-    cursor: default;
+  .slider-flecha:focus-visible {
+    outline: 3px solid var(--color-brand-300);
+    outline-offset: 3px;
   }
 
-  :global(.dark) .carrusel-flecha {
-    border-color: var(--color-neutral-700);
-    color: var(--color-neutral-300);
+  .slider-flecha svg {
+    width: 1.25rem;
+    height: 1.25rem;
   }
 
-  /* Con todas las tarjetas a la vista las flechas sobran. */
-  .carrusel[data-completo='true'] .carrusel-flecha {
-    display: none;
+  .slider-flecha-prev {
+    left: 1.25rem;
+  }
+
+  .slider-flecha-next {
+    right: 1.25rem;
+  }
+
+  .slider-puntos {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 50%;
+    z-index: 3;
+    display: flex;
+    transform: translateX(-50%);
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  @media (min-width: 1024px) {
+    .slider-puntos {
+      left: clamp(2.5rem, 7vw, 8rem);
+      transform: none;
+    }
+  }
+
+  .slider-punto {
+    position: relative;
+    width: 1.75rem;
+    height: 0.3rem;
+    padding: 0;
+    overflow: hidden;
+    border: none;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.3);
+    cursor: pointer;
+    transition:
+      width 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 0.3s;
+  }
+
+  .slider-punto:hover {
+    background: rgb(255 255 255 / 0.55);
+  }
+
+  .slider-punto:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 3px;
+  }
+
+  .slider-punto.is-activo {
+    width: 3.5rem;
+  }
+
+  .slider-punto-relleno {
+    position: absolute;
+    inset: 0;
+    display: block;
+    border-radius: 999px;
+    background: #fff;
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  .slider-punto.is-activo .slider-punto-relleno {
+    animation: slider-reloj var(--reloj, 6500ms) linear both;
+  }
+
+  .slider[data-pausado='true'] .slider-punto-relleno {
+    animation-play-state: paused;
+  }
+
+  @keyframes slider-reloj {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .slide,
+    .slide.is-activa .anim,
+    .slide.is-activa .slide-foto,
+    .slider-punto,
+    .slide-cta {
+      transition: none;
+      animation: none;
+    }
+
+    /* Sin temporizador, la barra del punto activo no mide nada: se queda
+       llena para que siga marcando en cuál estamos. */
+    .slider-punto.is-activo .slider-punto-relleno {
+      transform: scaleX(1);
+    }
   }
 </style>

@@ -415,7 +415,9 @@ export const GET: APIRoute = async () => {
 
   /* ---------------- Preguntas frecuentes ---------------- */
 
-  const faqs = faqsData.faqs as Array<{ question: string; answer: string }>;
+  const faqs = faqsData.categories.flatMap(
+    categoria => categoria.faqs
+  ) as Array<{ question: string; answer: string }>;
   faqs.forEach((faq, i) => {
     add({
       id: `faq-${i + 1}`,

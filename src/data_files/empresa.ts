@@ -15,7 +15,7 @@ export const FUNDACION = 2011;
 
 /** Reseña de la empresa, tal cual se lee en /nosotros. */
 export const RESENA: string[] = [
-  'BUSINESS & SUPPLIES LOGISTICS LTDA., es una empresa colombiana fundada en 2011 que se especializa en la distribución y comercialización de todo tipo de productos y elementos de Seguridad preventiva que intervienen en la cadena de custodia y logística de las compañías.',
+  'BUSINESS & SUPPLIES LOGISTICS S.A.S., es una empresa colombiana fundada en 2011 que se especializa en la distribución y comercialización de todo tipo de productos y elementos de Seguridad preventiva que intervienen en la cadena de custodia y logística de las compañías.',
   'Nos enfocamos en la creación de valor agregado, en establecer relaciones sólidas y confiables que permitan a nuestros clientes contar con soluciones de seguridad oportunas y adecuadas a sus necesidades. Esto, sumado al esfuerzo y compromiso constante, nos ha permitido en pocos años posicionarnos en el mercado nacional como uno de los principales proveedores de Precintos de Seguridad.',
   'Contamos con una completa gama de productos a precios competitivos enfocados a brindar soluciones logísticas en transporte y control de activos, lo que nos ha permitido suministrar a líderes de industria en sectores como: Financiero, transportes, combustibles e hidrocarburos, minería y carbón, alimentos, cárnicos, apuestas, farmacéuticos, entre otros.',
 ];

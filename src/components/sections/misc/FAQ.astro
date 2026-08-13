@@ -1,12 +1,23 @@
 ---
 // Import the necessary AccordionItem component and JSON data
 import AccordionItem from '@components/ui/blocks/AccordionItem.astro';
+import { slugify } from '@utils/text';
 
-// Define props from Astro.
-// `headingLevel` permite que la página /faq use h1 (donde este bloque es el
-// contenido principal) y la home siga usando h2, sin romper la jerarquía.
+/**
+ * Bloque de preguntas frecuentes, agrupadas por categoría.
+ *
+ * Eran cinco preguntas seguidas y bastaba una lista. Al pasar de veinte, una
+ * lista corrida obliga a leerlas todas para encontrar la propia, así que van
+ * por categorías con un índice al lado: quien viene por el precio salta a
+ * «Cotizaciones» sin pasar por lo demás.
+ *
+ * El componente admite las dos formas —`categories` o el `faqs` plano de
+ * antes—, y normaliza a una sola: así el día que otra página quiera un bloque
+ * corto de tres preguntas no tiene que inventarse una categoría.
+ */
 const { title, faqs, headingLevel = 'h2' } = Astro.props;
 const Heading = headingLevel;
+const SubHeading = headingLevel === 'h1' ? 'h2' : 'h3';
 
 // Define TypeScript interface for props
 interface Faq {
@@ -14,9 +25,16 @@ interface Faq {
   answer: string;
 }
 
+interface FaqCategory {
+  id?: string;
+  name: string;
+  faqs: Faq[];
+}
+
 interface FaqGroup {
   subTitle?: string;
-  faqs: Faq[];
+  faqs?: Faq[];
+  categories?: FaqCategory[];
 }
 
 interface Props {
@@ -24,8 +42,15 @@ interface Props {
   faqs: FaqGroup;
   headingLevel?: 'h1' | 'h2';
 }
-// Define a helper function to generate ids dynamically.
-const makeId = (base: any, index: any) => `${base}${index + 1}`;
+
+const categorias: FaqCategory[] = faqs.categories?.length
+  ? faqs.categories.map(categoria => ({
+      ...categoria,
+      id: categoria.id ?? slugify(categoria.name),
+    }))
+  : [{ id: 'general', name: '', faqs: faqs.faqs ?? [] }];
+
+const conIndice = categorias.length > 1;
 ---
 
 {
@@ -37,47 +62,76 @@ const makeId = (base: any, index: any) => `${base}${index + 1}`;
 >
   <div class="grid gap-10 md:grid-cols-5">
     <div class="md:col-span-2">
-      <div class="max-w-xs">
-        <Heading
-          class="text-2xl font-bold text-neutral-800 md:text-4xl dark:text-neutral-200"
-        >
-          <Fragment set:html={title} />
-        </Heading>
-        <p class="mt-1 hidden text-neutral-600 md:block dark:text-neutral-400">
-          {faqs.subTitle}
-        </p>
+      <div class="md:sticky md:top-28">
+        <div class="max-w-xs">
+          <Heading
+            class="text-2xl font-bold text-neutral-800 md:text-4xl dark:text-neutral-200"
+          >
+            <Fragment set:html={title} />
+          </Heading>
+          <p
+            class="mt-1 hidden text-neutral-600 md:block dark:text-neutral-400"
+          >
+            {faqs.subTitle}
+          </p>
+        </div>
+
+        {
+          /* Índice de categorías. Son enlaces a un ancla, no un filtro: así
+            funcionan sin JavaScript y se pueden compartir. */
+        }
+        {
+          conIndice && (
+            <nav
+              class="mt-6 hidden md:block"
+              aria-label="Categorías de preguntas"
+            >
+              <ul class="grid gap-y-1">
+                {categorias.map(categoria => (
+                  <li>
+                    <a
+                      href={`#faq-${categoria.id}`}
+                      class="hover:text-brand-700 dark:hover:text-brand-300 inline-flex rounded-lg py-1.5 text-sm font-medium text-neutral-600 outline-hidden focus-visible:ring-3 dark:text-neutral-400"
+                    >
+                      {categoria.name}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          )
+        }
       </div>
     </div>
     {/* FAQ accordion items */}
     <div class="md:col-span-3">
-      <div
-        class="hs-accordion-group divide-y divide-neutral-200 dark:divide-neutral-700"
-      >
-        {
-          faqs.faqs.map((question, i) => {
-            {
-              /* Generate ids dynamically for each FAQ accordion item. */
+      {
+        categorias.map((categoria, indiceCategoria) => (
+          <div
+            id={`faq-${categoria.id}`}
+            class={
+              indiceCategoria === 0 ? 'scroll-mt-28' : 'mt-12 scroll-mt-28'
             }
-            let id = makeId(
-              'hs-basic-with-title-and-arrow-stretched-heading-',
-              i
-            );
-            let collapseId = makeId(
-              'hs-basic-with-title-and-arrow-stretched-collapse',
-              i
-            );
+          >
+            {categoria.name && (
+              <SubHeading class="text-brand-700 dark:text-brand-400 mb-4 text-xs font-bold tracking-wider uppercase">
+                {categoria.name}
+              </SubHeading>
+            )}
 
-            return (
-              <AccordionItem
-                {...question}
-                id={id}
-                collapseId={collapseId}
-                first={i === 0}
-              />
-            );
-          })
-        }
-      </div>
+            <div class="hs-accordion-group divide-y divide-neutral-200 dark:divide-neutral-700">
+              {categoria.faqs.map((question, i) => (
+                <AccordionItem
+                  {...question}
+                  id={`faq-${categoria.id}-${i + 1}`}
+                  collapseId={`faq-${categoria.id}-${i + 1}-contenido`}
+                  first={indiceCategoria === 0 && i === 0}
+                />
+              ))}
+            </div>
+          </div>
+        ))
+      }
     </div>
   </div>
 </section>

@@ -6,6 +6,8 @@ import EmailContactInput from '@components/ui/forms/input/EmailContactInput.astr
 import PhoneInput from '@components/ui/forms/input/PhoneInput.astro';
 import TextAreaInput from '@components/ui/forms/input/TextAreaInput.astro';
 import Icon from '@components/ui/icons/Icon.astro';
+import SectionBackdrop from '@components/ui/blocks/SectionBackdrop.astro';
+import backdrop from '@images/backgrounds/logistica-oscuro.jpg';
 import { CONTACT, FORMS } from '@data/constants';
 
 const copy = {
@@ -30,8 +32,20 @@ const copy = {
 };
 ---
 
-<section class="mx-auto max-w-[85rem] px-10 py-16 sm:px-14 lg:px-20 lg:py-24">
-  <div>
+{
+  /* El encabezado va en su propia sección a sangre para poder llevar imagen de
+     fondo, igual que el resto de páginas interiores (ver MainSection.astro):
+     era la única cabecera del sitio que salía sobre el fondo pelado. El mapa
+     de rutas es el motivo que corresponde aquí —atendemos Colombia y Panamá—,
+     y va apagado para no competir con el formulario, que es lo que importa de
+     esta página. */
+}
+<section class="relative overflow-hidden">
+  <SectionBackdrop src={backdrop} side="right" width="52%" />
+
+  <div
+    class="relative mx-auto max-w-[85rem] px-10 pt-16 sm:px-14 lg:px-20 lg:pt-24"
+  >
     {
       /* Alineado a la izquierda y con la misma escala de encabezado que el
          resto del sitio (ver MainSection.astro). Centrado y en un cuerpo
@@ -49,7 +63,11 @@ const copy = {
         {copy.subTitle}
       </p>
     </div>
+  </div>
+</section>
 
+<section class="mx-auto max-w-[85rem] px-10 pb-16 sm:px-14 lg:px-20 lg:pb-24">
+  <div>
     <div class="mt-12 grid items-start gap-6 lg:grid-cols-2 lg:gap-16">
       <div class="flex flex-col rounded-xl p-4 sm:p-6 lg:p-8">
         <h2

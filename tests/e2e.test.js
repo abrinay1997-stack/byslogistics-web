@@ -102,15 +102,61 @@ describe('catálogo con filtros', { skip: skip() }, () => {
 
     assert.equal(await page.locator('#catalog-count').textContent(), '115');
 
+    // Las categorías viven dentro del desplegable de su línea: en reposo no se
+    // ve ninguna, y abrir una línea solo enseña las suyas.
+    assert.equal(await page.locator('.filtro-opcion:visible').count(), 0);
+
+    const linea = page.locator(
+      '[data-familia="etiquetas-y-cintas-de-seguridad"]'
+    );
+    await linea.locator('summary').click();
     await page
-      .locator('input[name="family"][value="etiquetas-y-cintas-de-seguridad"]')
+      .locator('input[value="familia:etiquetas-y-cintas-de-seguridad"]')
       .check();
     await page.waitForTimeout(150);
     assert.equal(await page.locator('#catalog-count').textContent(), '33');
     assert.equal(
-      await page.locator('[data-group-option]:visible').count(),
-      5,
-      'solo deben verse las categorías de esa línea'
+      await linea.locator('.filtro-opcion:visible').count(),
+      6,
+      'toda la línea más sus cinco categorías'
+    );
+    assert.equal(
+      await page.locator('.filtro-opcion:visible').count(),
+      6,
+      'las categorías de las demás líneas siguen plegadas'
+    );
+    await page.close();
+  });
+
+  test('filtra por categoría dentro de una línea', async () => {
+    const page = await browser.newPage();
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+
+    await page
+      .locator('[data-familia="precintos-de-seguridad"] summary')
+      .click();
+    await page.locator('input[value="grupo:precintos-de-guaya"]').check();
+    await page.waitForTimeout(150);
+    assert.equal(await page.locator('#catalog-count').textContent(), '8');
+    await page.close();
+  });
+
+  test('abrir una línea pliega la anterior', async () => {
+    const page = await browser.newPage();
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+
+    await page
+      .locator('[data-familia="precintos-de-seguridad"] summary')
+      .click();
+    await page
+      .locator('[data-familia="tulas-y-bolsas-de-seguridad"] summary')
+      .click();
+    await page.waitForTimeout(150);
+    assert.equal(
+      await page
+        .locator('[data-familia="precintos-de-seguridad"]')
+        .evaluate(el => el.open),
+      false
     );
     await page.close();
   });
@@ -145,7 +191,12 @@ describe('catálogo con filtros', { skip: skip() }, () => {
     const page = await browser.newPage();
     await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
     await page.fill('#catalog-search', 'bolsa');
-    await page.locator('input[name="family"]').nth(1).check();
+    await page
+      .locator('[data-familia="tulas-y-bolsas-de-seguridad"] summary')
+      .click();
+    await page
+      .locator('input[value="familia:tulas-y-bolsas-de-seguridad"]')
+      .check();
     await page.waitForTimeout(150);
     await page.click('#catalog-reset');
     await page.waitForTimeout(150);

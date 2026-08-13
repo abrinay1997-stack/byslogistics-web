@@ -50,41 +50,44 @@ const soluciones = (await getCollection('soluciones')).sort(
     /* Resumen de soluciones: cada tarjeta lleva a su propia página.
       El `id` es el destino de la señal de "sigue hacia abajo" del hero. */
   }
-  <section
-    id="soluciones"
-    class="mx-auto max-w-[85rem] px-10 py-16 sm:px-14 lg:px-20 lg:py-24"
-  >
-    <div class="max-w-2xl">
-      <h2
-        class="text-3xl font-bold text-balance text-neutral-800 lg:text-5xl dark:text-neutral-100"
-      >
-        Nuestras Soluciones
-      </h2>
-      <p
-        class="mt-4 max-w-prose text-lg leading-relaxed text-pretty text-neutral-600 dark:text-neutral-400"
-      >
-        A continuación encontrará los productos en los que nos especializamos.
-        Contamos con una completa gama a precios competitivos enfocados a
-        brindar soluciones logísticas en transporte y control de activos.
-      </p>
+  <section id="soluciones" class="py-16 lg:py-24">
+    <div class="mx-auto max-w-[85rem] px-10 sm:px-14 lg:px-20">
+      <div class="max-w-2xl">
+        <h2
+          class="text-3xl font-bold text-balance text-neutral-800 lg:text-5xl dark:text-neutral-100"
+        >
+          Nuestras Soluciones
+        </h2>
+        <p
+          class="mt-4 max-w-prose text-lg leading-relaxed text-pretty text-neutral-600 dark:text-neutral-400"
+        >
+          A continuación encontrará los productos en los que nos especializamos.
+          Contamos con una completa gama a precios competitivos enfocados a
+          brindar soluciones logísticas en transporte y control de activos.
+        </p>
+      </div>
     </div>
 
     {
       /*
         Carrusel y no la misma rejilla de /productos: quien baja por la portada
         ya vio esas seis tarjetas si entró al listado, y repetirlas no le dice
-        nada nuevo. Aquí se recorren de lado, con la foto grande.
+        nada nuevo. Aquí pasan solas, a sangre y con la foto grande, así que va
+        FUERA de la caja de lectura: es una portada, no un párrafo.
+
+        La frase de cada diapositiva es el primer punto destacado de la línea,
+        no su descripción: la descripción son tres renglones, y a este tamaño
+        tres renglones tapan la foto.
       */
     }
-    <div class="mt-6">
+    <div class="mt-10 lg:mt-14">
       <SolutionsCarousel
         soluciones={soluciones.map(solucion => ({
           id: solucion.id,
           title: solucion.data.title,
-          description: solucion.data.description,
+          subtitle: solucion.data.highlights[0] ?? solucion.data.description,
           image: solucion.data.cardImage,
           imageAlt: solucion.data.cardImageAlt,
-          highlights: solucion.data.highlights,
         }))}
       />
     </div>
