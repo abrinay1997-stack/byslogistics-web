@@ -42,6 +42,11 @@ jobs:
       - name: HTML generado
         run: pnpm test:build
 
+      # El asistente. No sale a la red: el proveedor se sustituye por un doble
+      # dentro del propio test, así que no necesita ninguna clave.
+      - name: Asistente
+        run: pnpm test:chat
+
       - name: Rutas servidas
         run: pnpm test:smoke
 

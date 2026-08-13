@@ -31,20 +31,21 @@ Ejemplo: `import { CONTACT } from '@data/constants';`
 
 ## Estructura
 
-| Carpeta                                              | Qué hay                                                                                                                                            |
-| ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [src/pages/](src/pages/)                             | Rutas (Astro enruta por archivos). Páginas sueltas y dos rutas dinámicas: `productos/[id]` y `precintos/[id]`.                                     |
-| [src/layouts/](src/layouts/)                         | [MainLayout.astro](src/layouts/MainLayout.astro): navbar, slot del contenido, footer, panel de cotización y los scripts globales.                  |
-| [src/components/sections/](src/components/sections/) | Bloques de página: héroes, testimonios, FAQ, contacto, navbar y footer.                                                                            |
-| [src/components/ui/](src/components/ui/)             | Piezas reutilizables: botones, tarjetas, campos de formulario, iconos y bloques sueltos.                                                           |
-| [src/content/](src/content/)                         | Colecciones en Markdown: `soluciones/` (familias de producto) y `precintos/` (categorías). Esquemas en [content.config.ts](src/content.config.ts). |
-| [src/data_files/](src/data_files/)                   | [constants.ts](src/data_files/constants.ts) (`SITE`, `CONTACT`, `FORMS`, `SEO`, `OG`, `partnersData`) y `faqs.json`.                               |
-| [src/utils/](src/utils/)                             | `catalog.ts` (arma el catálogo y sus filtros), `navigation.ts` (menú, footer, redes), `text.ts` (`normalize`, `slugify`), `ui.ts`, `utils.ts`.     |
-| [src/assets/](src/assets/)                           | `styles/` (global.css, lenis.css) y `scripts/` (carrito de cotización, formularios, scroll suave).                                                 |
-| [src/images/](src/images/)                           | Imágenes que procesa Astro: `productos/`, `backgrounds/`, `brand/`.                                                                                |
-| [public/](public/)                                   | Se sirve tal cual, sin procesar.                                                                                                                   |
-| [tests/](tests/)                                     | Pruebas con el runner de Node. Ver más abajo.                                                                                                      |
-| [scripts/](scripts/)                                 | `extract-xlsx-images.mjs` (saca las fotos del listado de precios) y `smoke.mjs` (comprueba que las rutas responden).                               |
+| Carpeta                                              | Qué hay                                                                                                                                                                                                     |
+| ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [src/pages/](src/pages/)                             | Rutas (Astro enruta por archivos). Páginas sueltas y dos rutas dinámicas: `productos/[id]` y `precintos/[id]`.                                                                                              |
+| [src/layouts/](src/layouts/)                         | [MainLayout.astro](src/layouts/MainLayout.astro): navbar, slot del contenido, footer, panel de cotización y los scripts globales.                                                                           |
+| [src/components/sections/](src/components/sections/) | Bloques de página: héroes, testimonios, FAQ, contacto, navbar y footer.                                                                                                                                     |
+| [src/components/ui/](src/components/ui/)             | Piezas reutilizables: botones, tarjetas, campos de formulario, iconos y bloques sueltos.                                                                                                                    |
+| [src/content/](src/content/)                         | Colecciones en Markdown: `soluciones/` (familias de producto) y `precintos/` (categorías). Esquemas en [content.config.ts](src/content.config.ts).                                                          |
+| [src/data_files/](src/data_files/)                   | [constants.ts](src/data_files/constants.ts) (`SITE`, `CONTACT`, `FORMS`, `SEO`, `OG`, `partnersData`), [empresa.ts](src/data_files/empresa.ts) (`RESENA`, `SECTORES`) y `faqs.json`.                        |
+| [src/utils/](src/utils/)                             | `catalog.ts` (arma el catálogo y sus filtros), `navigation.ts` (menú, footer, redes), `text.ts` (`normalize`, `slugify`), `ui.ts`, `utils.ts`.                                                              |
+| [src/assets/](src/assets/)                           | `styles/` (global.css, lenis.css) y `scripts/` (carrito de cotización, formularios, scroll suave).                                                                                                          |
+| [src/images/](src/images/)                           | Imágenes que procesa Astro: `productos/`, `backgrounds/`, `brand/`.                                                                                                                                         |
+| [public/](public/)                                   | Se sirve tal cual, sin procesar.                                                                                                                                                                            |
+| [tests/](tests/)                                     | Pruebas con el runner de Node. Ver más abajo.                                                                                                                                                               |
+| [scripts/](scripts/)                                 | `extract-xlsx-images.mjs` (saca las fotos del listado de precios) y `smoke.mjs` (comprueba que las rutas responden).                                                                                        |
+| [netlify/functions/](netlify/functions/)             | El asistente: `chat.mts` (endpoint `/api/chat`) y `_retrieval.mts` (recuperación, prompt y bloqueo de precios). Su base de conocimiento la genera [src/pages/kb.json.ts](src/pages/kb.json.ts) en el build. |
 
 ## Cómo está armada la maquetación
 
@@ -52,7 +53,7 @@ Vale la pena entenderlo antes de tocar anchos o márgenes:
 
 - **El contenido va a sangre.** `<main>` no tiene ancho máximo, así que cada sección se estira de borde a borde de la ventana. Es lo que permite que las fotos y los fondos lleguen al filo de la pantalla.
 - **Cada sección centra su propio texto** con `mx-auto max-w-[85rem] px-10 sm:px-14 lg:px-20`. Esa combinación es la convención del proyecto: si agregas una sección, cópiala tal cual para que quede alineada con las demás.
-- **La barra de navegación es la excepción**: lleva su propio `max-w-(--breakpoint-2xl)` y su padding dentro de [Navbar.astro](src/components/sections/navbar&footer/Navbar.astro), porque es una píldora flotante que debe quedar separada de los bordes. Va suelta en el layout, sin contenedor que la envuelva, para que `position: sticky` siga funcionando.
+- **La barra de navegación es la excepción**: lleva su propio `max-w-(--breakpoint-2xl)` y su padding dentro de [Navbar.astro](src/components/sections/navbar&footer/Navbar.astro), porque es una píldora flotante que debe quedar separada de los bordes. Va suelta en el layout, sin contenedor que la envuelva, para que `position: sticky` siga funcionando. Al bajar se encoge —logo, alto de los enlaces y separación con el borde— y se vuelve opaca; vuelve a su tamaño al llegar al tope. El umbral tiene histéresis (40 px para encoger, 12 para volver) y no se activa en páginas sin recorrido suficiente.
 - **Los fondos de sección** usan [SectionBackdrop.astro](src/components/ui/blocks/SectionBackdrop.astro): una franja lateral con la imagen desvanecida por una máscara hacia el lado del texto. La sección que lo use debe ser `relative overflow-hidden` y su contenido ir en un contenedor `relative`. Por debajo de `lg` el fondo se oculta, porque estorbaría la lectura.
 
 Hay tests que verifican todo esto; si los rompes, el mensaje de error dice qué medida se salió.
@@ -61,7 +62,7 @@ Hay tests que verifican todo esto; si los rompes, el mensaje de error dice qué 
 
 - **Todo en español (Colombia)**, incluidos comentarios, mensajes de commit y textos de test.
 - **Tailwind v4 únicamente.** No uses sintaxis de la v3.
-- **Sin precios en el sitio.** Ni en contenido, ni en componentes, ni en datos estructurados.
+- **Sin precios en el sitio.** Ni en contenido, ni en componentes, ni en datos estructurados, ni en lo que responde el asistente: su lista blanca de importes va vacía y cualquier cifra que escriba el modelo se bloquea antes de llegar a pantalla.
 - **Los datos de la empresa viven en `constants.ts`**, no repartidos por las plantillas. Hay tests que comprueban que el WhatsApp, el correo y el dominio sean los correctos.
 - **Las props se pasan en línea** desde las páginas; no hay estado global.
 - **Interacción**: Preline para acordeones y colapsables; el resto son scripts propios en `src/assets/scripts/`.
@@ -78,6 +79,7 @@ Hay tests que verifican todo esto; si los rompes, el mensaje de error dice qué 
 | `pnpm test`         | Toda la suite.                                                |
 | `pnpm test:content` | Colecciones, datos de la empresa y configuración.             |
 | `pnpm test:build`   | El HTML generado (requiere `pnpm build` antes).               |
+| `pnpm test:chat`    | El asistente (requiere `pnpm build` antes).                   |
 | `pnpm test:smoke`   | Que las rutas respondan.                                      |
 | `pnpm test:e2e`     | Navegador real con Playwright (requiere `pnpm build` antes).  |
 
@@ -89,7 +91,8 @@ Usan el runner de `node:test`, sin framework. Tres archivos:
 
 - **[tests/content.test.js](tests/content.test.js)** — sin navegador ni build. Colecciones de contenido, iconos declarados, datos de la empresa y configuración de despliegue.
 - **[tests/build.test.js](tests/build.test.js)** — lee el HTML de `dist/`. Rutas, metadatos, enlaces rotos, formularios y las referencias del catálogo.
-- **[tests/e2e.test.js](tests/e2e.test.js)** — levanta `dist/` y maneja Chromium. Filtros del catálogo, cotizador, formulario de contacto, menú móvil, maquetación a sangre y accesibilidad con axe.
+- **[tests/chat.test.js](tests/chat.test.js)** — el asistente, con el modelo sustituido por un doble. Qué hecho recupera cada pregunta real, qué importes se bloquean y cómo degrada el endpoint cuando falta la clave o el proveedor falla. Ningún test sale a la red.
+- **[tests/e2e.test.js](tests/e2e.test.js)** — levanta `dist/` y maneja Chromium. Filtros del catálogo, cotizador, formulario de contacto, menú móvil, encogido de la barra al bajar, burbuja del asistente, maquetación a sangre y accesibilidad con axe.
 
 Si Playwright no está instalado, los tests de navegador se omiten en lugar de fallar. Para apuntar a un Chromium propio: `CHROMIUM_PATH=/ruta/al/chromium pnpm test`.
 
@@ -98,4 +101,5 @@ Si Playwright no está instalado, los tests de navegador se omiten en lugar de f
 - **Una familia de producto o una categoría de precintos** → un archivo Markdown en `src/content/`, respetando el esquema de [content.config.ts](src/content.config.ts). El campo `icon` debe existir en [icons.ts](src/components/ui/icons/icons.ts); hay un test que lo comprueba.
 - **Un icono** → agrégalo a `icons.ts` solo cuando lo vayas a usar. El archivo se mantiene podado a propósito.
 - **Una sección nueva** → componente en `src/components/sections/`, con el contenedor estándar descrito arriba.
+- **Un dato que el asistente deba saber** → no lo escribas en `kb.json.ts` a mano si ya vive en otro sitio. La base se genera desde las colecciones, `constants.ts`, `empresa.ts` y `faqs.json`; agrégalo ahí y el asistente lo hereda. Si de verdad es nuevo, añade el hecho con sus `q` — las formas en que la gente pregunta por eso —, porque la recuperación es léxica y solo encuentra lo que está escrito.
 - **Texto del menú o del footer** → [src/utils/navigation.ts](src/utils/navigation.ts).

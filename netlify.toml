@@ -5,6 +5,25 @@
 [build.environment]
   NODE_VERSION = "22"
 
+# ---------- FUNCIONES ----------
+# El asistente del sitio vive en netlify/functions/chat.mts y se publica en
+# /api/chat (la ruta se declara con `export const config` dentro de la propia
+# función).
+#
+# Variables de entorno a configurar en el panel de Netlify — NUNCA en el repo:
+#   GROQ_API_KEY       clave de Groq. Es la que usa el sitio.
+#   ANTHROPIC_API_KEY  opcional, repuesto si Groq falla.
+#   GROQ_MODEL         opcional, para fijar el modelo (por defecto
+#                      llama-3.3-70b-versatile).
+#   CHAT_MAX_PER_DAY   opcional, techo diario de mensajes (300 por defecto).
+#
+# Sin ninguna clave el endpoint sigue respondiendo: deriva al correo y al
+# P.B.X. en vez de fallar. Las claves solo existen en el servidor; el navegador
+# nunca las ve.
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
 # Cabeceras de seguridad. Equivalen a las que traía vercel.json.
 #
 # frame-src permite google.com porque la página de contacto incrusta el mapa

@@ -6,7 +6,6 @@ import HeroSectionAlt from '@components/sections/landing/HeroSectionAlt.astro';
 import ClientsSection from '@components/sections/landing/ClientsSection.astro';
 import TestimonialsSection from '@components/sections/testimonials/TestimonialsSection.astro';
 import ProductCard from '@components/ui/cards/ProductCard.astro';
-import heroImage from '@images/backgrounds/precinto-tecnologia.jpg';
 import testimonialsBackdrop from '@images/backgrounds/precintos-estudio.jpg';
 import { partnersData } from '@/data_files/constants';
 
@@ -26,13 +25,12 @@ const soluciones = (await getCollection('soluciones')).sort(
 
 <MainLayout>
   <HeroSection
-    title=`<span class="text-brand-500 dark:text-brand-400">B&S</span>, Líderes en Seguridad Preventiva`
+    title=`<span class="text-brand-200">B&S</span>, Líderes en Seguridad Preventiva`
     subTitle="En B&S LOGISTICS nos especializamos en la distribución y comercialización de elementos de Seguridad preventiva. Estamos comprometidos en ofrecer productos de óptima calidad que permitan garantizar la trazabilidad y custodia de bienes y activos."
     primaryBtn="Ver Productos"
     primaryBtnURL="/productos"
     secondaryBtn="Contáctenos"
     secondaryBtnURL="/contacto"
-    src={heroImage}
   />
 
   {

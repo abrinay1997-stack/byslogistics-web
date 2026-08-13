@@ -1,6 +1,6 @@
 ---
 // Destructure the properties from Astro.props
-const { title, url, size = 'md' } = Astro.props;
+const { title, url, size = 'md', tone = 'brand' } = Astro.props;
 
 // Define TypeScript interface for the properties
 interface Props {
@@ -8,6 +8,11 @@ interface Props {
   url?: string;
   /** `lg` para emparejar con un PrimaryCTA grande. */
   size?: 'md' | 'lg';
+  /**
+   * `onBrand` para cuando el botón va sobre el azul de la marca: el contorno
+   * gris desaparecería contra el fondo, así que pasa a blanco.
+   */
+  tone?: 'brand' | 'onBrand';
 }
 // Botón secundario de contorno: al no llevar relleno sólido no compite con el
 // principal, pero conserva su mismo tamaño y forma para que el par se lea como
@@ -19,10 +24,16 @@ const sizeClasses =
     ? 'px-8 py-4 text-base sm:text-lg'
     : 'px-6 py-3.5 text-sm 2xl:text-base';
 const colorClasses =
-  'border-2 border-neutral-400 bg-transparent text-neutral-700 hover:border-brand-600 hover:text-brand-700 active:text-brand-800';
+  tone === 'onBrand'
+    ? 'border-2 border-white/60 bg-transparent text-white ring-white hover:border-white hover:bg-white/10 active:bg-white/20'
+    : 'border-2 border-neutral-400 bg-transparent text-neutral-700 hover:border-brand-600 hover:text-brand-700 active:text-brand-800';
 const disableClasses = 'disabled:pointer-events-none disabled:opacity-50';
+// El azul del hero es el mismo en claro y en oscuro, así que la variante
+// `onBrand` no necesita (ni quiere) las reglas `dark:`.
 const darkClasses =
-  'dark:border-neutral-600 dark:text-neutral-200 dark:ring-zinc-200 dark:hover:border-brand-400 dark:hover:text-brand-300 dark:focus:outline-hidden';
+  tone === 'onBrand'
+    ? ''
+    : 'dark:border-neutral-600 dark:text-neutral-200 dark:ring-zinc-200 dark:hover:border-brand-400 dark:hover:text-brand-300 dark:focus:outline-hidden';
 ---
 
 {/* Styled hyperlink */}

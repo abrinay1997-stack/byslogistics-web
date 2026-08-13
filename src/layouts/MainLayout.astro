@@ -4,6 +4,7 @@ import Meta from '@components/Meta.astro';
 import Navbar from '@components/sections/navbar&footer/Navbar.astro';
 import FooterSection from '@components/sections/navbar&footer/FooterSection.astro';
 import QuoteCart from '@components/QuoteCart.astro';
+import ChatWidget from '@components/ChatWidget.astro';
 import { SITE } from '@data/constants';
 import '@styles/global.css';
 
@@ -90,6 +91,7 @@ interface Props {
     </main>
     {!hideFooter && <FooterSection />}
     <QuoteCart />
+    <ChatWidget />
     <script>
       // https://preline.co
       import 'preline';

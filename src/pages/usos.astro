@@ -4,56 +4,7 @@ import MainSection from '@components/ui/blocks/MainSection.astro';
 import backdrop from '@images/backgrounds/precinto-tecnologia.jpg';
 import HeroSectionAlt from '@components/sections/landing/HeroSectionAlt.astro';
 import { SITE } from '@data/constants';
-
-/**
- * Sectores atendidos, tomados del texto "¿Quiénes Somos?" del sitio actual.
- *
- * TODO(contenido): el menú "Usos" del sitio actual es un desplegable con
- * páginas propias por aplicación. Falta ese material para desarrollar cada
- * sector con su caso de uso y sus productos recomendados.
- */
-const sectores: Array<{ name: string; description: string }> = [
-  {
-    name: 'Financiero',
-    description:
-      'Traslado de valores y documentos con tulas y bolsas de seguridad de un solo uso.',
-  },
-  {
-    name: 'Transporte',
-    description:
-      'Precintado de puertas de contenedor y furgones para asegurar la carga en ruta.',
-  },
-  {
-    name: 'Combustibles e hidrocarburos',
-    description:
-      'Precintos de botella y de guaya en válvulas, tapas y puntos de descarga de carrotanques.',
-  },
-  {
-    name: 'Minería y carbón',
-    description:
-      'Control de despachos a granel y verificación de carga en operaciones de alto volumen.',
-  },
-  {
-    name: 'Alimentos',
-    description:
-      'Sellos de garantía y control de inventarios en cadena de frío y producto terminado.',
-  },
-  {
-    name: 'Cárnicos',
-    description:
-      'Trazabilidad en el transporte refrigerado y evidencia de apertura indebida.',
-  },
-  {
-    name: 'Apuestas',
-    description:
-      'Custodia de recaudo y de equipos en punto de venta con precintos numerados.',
-  },
-  {
-    name: 'Farmacéuticos',
-    description:
-      'Sellos de garantía sobre empaques y control de trazabilidad en la distribución.',
-  },
-];
+import { SECTORES } from '@data/empresa';
 
 const pageTitle = `Usos | ${SITE.title}`;
 const metaDescription =
@@ -83,7 +34,7 @@ const metaDescription =
   <section class="mx-auto max-w-[85rem] px-10 pb-16 sm:px-14 lg:px-20 lg:pb-24">
     <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
       {
-        sectores.map(sector => (
+        SECTORES.map(sector => (
           <div class="rounded-xl border border-neutral-300 bg-neutral-100 p-6 dark:border-neutral-700 dark:bg-neutral-900">
             <h2 class="font-bold text-neutral-800 dark:text-neutral-200">
               {sector.name}
