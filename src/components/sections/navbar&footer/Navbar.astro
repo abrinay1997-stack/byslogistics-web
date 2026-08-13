@@ -27,8 +27,9 @@ import { SITE } from '@/data_files/constants';
   {
     /* Navigation container.
 
-       La píldora es de vidrio: el velo y el desenfoque están en el bloque
-       <style> de abajo, no aquí, porque cambian con el desplazamiento.
+       El vidrio —`bg-brand-50/60` con `backdrop-blur-md`, y sus pares para el
+       modo oscuro— es el de siempre y no se toca desde el <style> de abajo:
+       ver la nota que hay allí.
 
        En pantallas anchas es una rejilla de tres columnas —`1fr auto 1fr`— y no
        un `justify-between`: con columnas laterales del mismo ancho, los enlaces
@@ -39,7 +40,7 @@ import { SITE } from '@/data_files/constants';
        son ocho enlaces más el logo y dos botones, y en 768 px eso se apelmaza. */
   }
   <nav
-    class="navbar-pill border-brand-100/40 relative w-full min-w-0 grow rounded-[36px] border px-4 py-3 backdrop-blur-lg backdrop-saturate-150 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-center lg:gap-x-4 lg:px-6 lg:py-0 xl:px-8 dark:border-neutral-700/40"
+    class="navbar-pill border-brand-100/40 bg-brand-50/60 relative w-full min-w-0 grow rounded-[36px] border px-4 py-3 backdrop-blur-md lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-center lg:gap-x-4 lg:px-6 lg:py-0 xl:px-8 dark:border-neutral-700/40 dark:bg-neutral-800/80 dark:backdrop-blur-md"
     aria-label="Global"
   >
     <div class="flex items-center justify-between gap-x-2">
@@ -135,7 +136,7 @@ import { SITE } from '@/data_files/constants';
        que se lea como parte del mismo conjunto. */
   }
   <div
-    class="navbar-theme border-brand-100/40 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border backdrop-blur-lg backdrop-saturate-150 dark:border-neutral-700/40"
+    class="navbar-theme border-brand-100/40 bg-brand-50/60 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border backdrop-blur-md dark:border-neutral-700/40 dark:bg-neutral-800/80 dark:backdrop-blur-md"
   >
     <ThemeIcon />
   </div>
@@ -176,103 +177,19 @@ import { SITE } from '@/data_files/constants';
     top: 0.5rem;
   }
 
-  /* EL VIDRIO DE LA BARRA.
+  /* EL VIDRIO NO SE TOCA DESDE AQUÍ.
 
-     Aquí va solo el VELO, que es lo que cambia al desplazarse. El desenfoque
-     se queda en el marcado, con las utilidades `backdrop-blur-*` de Tailwind,
-     y no aquí: escrito a mano con su pareja `-webkit-`, lightningcss —que ya
-     se encarga él de prefijar según los navegadores de destino— se quedaba
-     solo con la versión prefijada y tiraba la estándar. La barra salía con su
-     velo de color pero SIN desenfoque: transparente y plana, que es
-     exactamente lo contrario de vidrio.
+     El velo y el desenfoque viven en el marcado, con las utilidades de
+     Tailwind —`bg-brand-50/60`, `backdrop-blur-md`, y sus pares para el modo
+     oscuro—, y no cambian en toda la vida de la página. Esto se ha intentado
+     "mejorar" dos veces, subiendo el velo al desplazarse para ganar contraste,
+     y las dos veces el resultado fue el mismo: la barra dejaba de leerse como
+     vidrio y pasaba a ser una banda maciza. Es el efecto lo que se está
+     pagando; si algo de dentro no se lee, se arregla ESO —el color del texto,
+     una placa detrás del logo— y no tapando el fondo.
 
-     El velo va al 72% en reposo y sube al 88% al desplazarse. Sube porque por
-     debajo empieza a pasar TEXTO: con el velo de reposo los renglones blancos
-     del hero se cruzaban con los enlaces y no se leía ni una cosa ni la otra.
-     Quieta sobre el fondo de la página esa colisión no existe, y por eso
-     arriba puede ir más ligera. Antes eran 85% y 100%, y al desplazarse la
-     barra dejaba de ser vidrio para volverse una banda maciza.
-
-     El brillo interior del borde superior es lo que termina de venderlo como
-     un canto de vidrio y no como un rectángulo translúcido. */
-  .navbar-pill,
-  .navbar-theme {
-    background-color: color-mix(
-      in srgb,
-      var(--color-brand-50) 72%,
-      transparent
-    );
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.6);
-    transition:
-      background-color 0.28s ease,
-      box-shadow 0.28s ease;
-  }
-
-  :global(.dark) .navbar-pill,
-  :global(.dark) .navbar-theme {
-    background-color: color-mix(
-      in srgb,
-      var(--color-neutral-800) 72%,
-      transparent
-    );
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12);
-  }
-
-  /* Y lo mismo con el menú de móvil desplegado. Al pasar la barra a `fixed`,
-     ese menú dejó de empujar la página y se abre ENCIMA de ella: translúcido,
-     los enlaces se leerían sobre la foto del hero. Preline marca el desplegable
-     abierto con `.open`. */
-  /* Sin `:global()` dentro de `:has()`: Astro lo deja tal cual en la hoja de
-     estilos, el selector queda inválido y la regla no llega a aplicarse nunca.
-     El desplegable está en esta misma plantilla, así que el alcance del
-     componente ya lo alcanza. */
-  .navbar.is-scrolled .navbar-pill,
-  .navbar.is-scrolled .navbar-theme {
-    background-color: color-mix(
-      in srgb,
-      var(--color-brand-50) 88%,
-      transparent
-    );
-    box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.6),
-      0 10px 30px -12px rgb(0 51 92 / 0.35);
-  }
-
-  :global(.dark) .navbar.is-scrolled .navbar-pill,
-  :global(.dark) .navbar.is-scrolled .navbar-theme {
-    background-color: color-mix(
-      in srgb,
-      var(--color-neutral-800) 88%,
-      transparent
-    );
-    box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.12),
-      0 10px 30px -12px rgb(0 0 0 / 0.55);
-  }
-
-  /* La excepción es el menú de móvil desplegado: ahí el vidrio deja de ser un
-     detalle y pasa a ser ocho enlaces leyéndose sobre una fotografía. */
-  .navbar-pill:has(.hs-collapse.open) {
-    background-color: color-mix(
-      in srgb,
-      var(--color-brand-50) 94%,
-      transparent
-    );
-    box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.6),
-      0 10px 30px -12px rgb(0 51 92 / 0.35);
-  }
-
-  :global(.dark) .navbar-pill:has(.hs-collapse.open) {
-    background-color: color-mix(
-      in srgb,
-      var(--color-neutral-800) 94%,
-      transparent
-    );
-    box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.12),
-      0 10px 30px -12px rgb(0 0 0 / 0.55);
-  }
+     Lo único que cambia al desplazarse es el TAMAÑO: la separación con el
+     borde, el ancho del logo y el alto de los enlaces. */
 
   .navbar.is-scrolled .navbar-logo > :global(span) {
     width: 4.5rem;
