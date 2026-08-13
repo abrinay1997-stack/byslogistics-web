@@ -7,7 +7,11 @@ import { SITE } from '@data/constants';
 
 const pageTitle = `Preguntas frecuentes | ${SITE.title}`;
 const metaDescription =
-  'Respuestas a las preguntas más frecuentes sobre precintos de seguridad, cotizaciones, sectores atendidos y cobertura de B&S Logistics.';
+  'Respuestas a las preguntas más frecuentes sobre precintos de seguridad, personalización, cotizaciones, sectores atendidos y cobertura de B&S Logistics.';
+
+// El FAQPage se publica en plano: las categorías ordenan la página, pero el
+// buscador solo entiende una lista de preguntas y respuestas.
+const todasLasPreguntas = faqs.categories.flatMap(categoria => categoria.faqs);
 
 // Datos estructurados de FAQ, para que las respuestas puedan mostrarse
 // directamente en los resultados de búsqueda.
@@ -18,7 +22,7 @@ const faqStructuredData = {
   url: `${SITE.url}/faq`,
   name: pageTitle,
   inLanguage: 'es-CO',
-  mainEntity: faqs.faqs.map(faq => ({
+  mainEntity: todasLasPreguntas.map(faq => ({
     '@type': 'Question',
     name: faq.question,
     acceptedAnswer: {

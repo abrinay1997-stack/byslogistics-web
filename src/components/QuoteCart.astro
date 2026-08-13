@@ -8,10 +8,21 @@
  * vive en la barra de navegación (QuoteButton.astro), que es donde se busca un
  * carrito.
  *
- * El panel es una pieza FLOTANTE, no un cajón pegado al borde: mismos bordes
- * redondeados, mismo desenfoque y misma sombra que la píldora de la barra, y
- * separado de los bordes de la pantalla. Antes era un cajón a sangre con
- * fondo plano, y parecía de otro sitio.
+ * OCUPA CASI TODA LA PANTALLA, Y NO UN CAJÓN AL BORDE DERECHO.
+ *
+ * Era una columna de 27 rem arrimada a la derecha: con quince referencias
+ * dentro, cada una con su casilla de cantidad, revisar el pedido consistía en
+ * bajar por un tubo. Ahora es una pieza ancha y centrada, con las referencias
+ * en rejilla a la izquierda y los datos de contacto a la derecha, así que el
+ * pedido entero se ve de una vez. Sigue siendo una pieza FLOTANTE —bordes
+ * redondeados, desenfoque y separación de los bordes de la pantalla—, no una
+ * página nueva.
+ *
+ * EL SCROLL. Dentro del panel hay que desactivar el desplazamiento suave de
+ * Lenis con `data-lenis-prevent`: Lenis captura la rueda en toda la ventana y,
+ * sin ese aviso, la lista de referencias no se movía y lo que se desplazaba
+ * era la página de detrás. Y al abrir, `quoteCart.js` para Lenis del todo,
+ * porque `overflow: hidden` en el body no lo detiene.
  */
 import { CONTACT } from '@data/constants';
 ---
@@ -32,21 +43,14 @@ import { CONTACT } from '@data/constants';
   >
   </div>
 
-  {
-    /*
-      En pantallas anchas cuelga de debajo de la barra, arrimado a la derecha,
-      justo donde está el botón que lo abre. En el móvil ocupa casi todo, pero
-      conserva su margen: es lo que lo hace leer como algo que flota encima y
-      no como una pantalla nueva.
-    */
-  }
   <div
     data-quote-drawer
     data-open="false"
-    class="absolute inset-x-3 top-3 bottom-3 flex translate-y-3 scale-[0.98] flex-col overflow-hidden rounded-[28px] border border-white/60 bg-white/85 shadow-[0_30px_80px_-20px_rgb(0_51_92/0.45)] backdrop-blur-xl transition duration-300 data-[open=true]:translate-y-0 data-[open=true]:scale-100 sm:inset-x-auto sm:top-24 sm:right-6 sm:bottom-6 sm:w-[27rem] dark:border-white/10 dark:bg-neutral-900/85"
+    data-lenis-prevent
+    class="absolute inset-3 mx-auto flex max-w-[78rem] translate-y-3 scale-[0.98] flex-col overflow-hidden rounded-[28px] border border-white/60 bg-white/90 shadow-[0_30px_80px_-20px_rgb(0_51_92/0.45)] backdrop-blur-xl transition duration-300 data-[open=true]:translate-y-0 data-[open=true]:scale-100 sm:inset-6 lg:inset-10 dark:border-white/10 dark:bg-neutral-900/90"
   >
     <div
-      class="flex items-center justify-between gap-3 border-b border-neutral-900/10 px-5 py-4 dark:border-white/10"
+      class="flex shrink-0 items-center justify-between gap-3 border-b border-neutral-900/10 px-5 py-4 sm:px-8 dark:border-white/10"
     >
       <div class="flex items-center gap-x-3">
         <span
@@ -72,7 +76,7 @@ import { CONTACT } from '@data/constants';
         </span>
         <div>
           <h2
-            class="text-base font-bold text-neutral-800 dark:text-neutral-100"
+            class="text-base font-bold text-neutral-800 sm:text-lg dark:text-neutral-100"
           >
             Su cotización
           </h2>
@@ -87,7 +91,7 @@ import { CONTACT } from '@data/constants';
         type="button"
         data-quote-close
         aria-label="Cerrar la cotización"
-        class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-neutral-900/5 text-neutral-600 outline-hidden transition hover:bg-neutral-900/10 hover:text-neutral-800 focus-visible:ring-3 dark:bg-white/10 dark:text-neutral-300 dark:hover:bg-white/20 dark:hover:text-white"
+        class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-neutral-900/5 text-neutral-600 outline-hidden transition hover:bg-neutral-900/10 hover:text-neutral-800 focus-visible:ring-3 dark:bg-white/10 dark:text-neutral-300 dark:hover:bg-white/20 dark:hover:text-white"
       >
         <svg
           class="h-4 w-4"
@@ -103,98 +107,181 @@ import { CONTACT } from '@data/constants';
       </button>
     </div>
 
-    <div class="grow overflow-y-auto px-5 py-5">
-      <div data-quote-empty class="py-8 text-center">
-        <p class="text-sm text-neutral-600 dark:text-neutral-400">
-          Todavía no ha agregado referencias. Búsquelas en el catálogo y pulse
-          «Añadir».
-        </p>
-        <a
-          href="/catalogo"
-          class="border-brand-300 text-brand-700 hover:bg-brand-50 dark:text-brand-300 mt-4 inline-flex items-center rounded-full border px-4 py-2 text-sm font-bold transition dark:border-white/20 dark:hover:bg-white/10"
-        >
-          Ir al catálogo
-        </a>
+    {
+      /* En móvil todo el cuerpo es un único carril de desplazamiento; a partir
+        de lg son dos columnas que se desplazan por separado. Dos barras de
+        scroll en una pantalla estrecha estorban más de lo que ordenan. */
+    }
+    <div class="cotizador-cuerpo">
+      {/* Columna de referencias */}
+      <div class="cotizador-columna cotizador-columna-lista">
+        <div data-quote-empty class="py-10 text-center">
+          <p class="text-sm text-neutral-600 dark:text-neutral-400">
+            Todavía no ha agregado referencias. Búsquelas en el catálogo y pulse
+            «Añadir».
+          </p>
+          <a
+            href="/catalogo"
+            class="border-brand-300 text-brand-700 hover:bg-brand-50 dark:text-brand-300 mt-4 inline-flex items-center rounded-full border px-4 py-2 text-sm font-bold transition dark:border-white/20 dark:hover:bg-white/10"
+          >
+            Ir al catálogo
+          </a>
+        </div>
+
+        <div data-quote-filled hidden>
+          <ul data-quote-list class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          </ul>
+
+          <p class="mt-5 text-xs text-neutral-600 dark:text-neutral-400">
+            Las cantidades son orientativas: al cotizar le confirmamos
+            disponibilidad y condiciones.
+          </p>
+        </div>
       </div>
 
-      <div data-quote-filled hidden>
-        <ul data-quote-list class="grid gap-2"></ul>
+      {/* Columna de datos y envío */}
+      <div data-quote-filled hidden class="cotizador-lateral">
+        <div class="cotizador-columna">
+          <h3
+            class="text-xs font-bold tracking-wide text-neutral-700 uppercase dark:text-neutral-300"
+          >
+            Sus datos
+          </h3>
+          <p class="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+            Opcionales, pero nos ahorran una pregunta al responderle.
+          </p>
 
-        <p class="mt-5 text-xs text-neutral-600 dark:text-neutral-400">
-          Las cantidades son orientativas: al cotizar le confirmamos
-          disponibilidad y condiciones.
-        </p>
+          <div class="mt-4 grid gap-3">
+            <label class="grid gap-1.5">
+              <span
+                class="text-xs font-bold tracking-wide text-neutral-700 uppercase dark:text-neutral-300"
+                >Nombre</span
+              >
+              <input
+                type="text"
+                data-quote-field="name"
+                autocomplete="name"
+                placeholder="Su nombre"
+                class="focus:border-brand-500 focus:ring-brand-200 rounded-xl border border-neutral-300 bg-white/70 px-3.5 py-2.5 text-sm text-neutral-800 outline-hidden focus:ring-3 dark:border-neutral-600 dark:bg-neutral-800/70 dark:text-neutral-100"
+              />
+            </label>
+            <label class="grid gap-1.5">
+              <span
+                class="text-xs font-bold tracking-wide text-neutral-700 uppercase dark:text-neutral-300"
+                >Empresa</span
+              >
+              <input
+                type="text"
+                data-quote-field="company"
+                autocomplete="organization"
+                placeholder="Razón social"
+                class="focus:border-brand-500 focus:ring-brand-200 rounded-xl border border-neutral-300 bg-white/70 px-3.5 py-2.5 text-sm text-neutral-800 outline-hidden focus:ring-3 dark:border-neutral-600 dark:bg-neutral-800/70 dark:text-neutral-100"
+              />
+            </label>
+            <label class="grid gap-1.5">
+              <span
+                class="text-xs font-bold tracking-wide text-neutral-700 uppercase dark:text-neutral-300"
+                >Observaciones</span
+              >
+              <textarea
+                rows="4"
+                data-quote-field="notes"
+                placeholder="Ciudad de entrega, personalización, plazos…"
+                class="focus:border-brand-500 focus:ring-brand-200 rounded-xl border border-neutral-300 bg-white/70 px-3.5 py-2.5 text-sm text-neutral-800 outline-hidden focus:ring-3 dark:border-neutral-600 dark:bg-neutral-800/70 dark:text-neutral-100"
+              ></textarea>
+            </label>
+          </div>
+        </div>
 
-        <div class="mt-5 grid gap-3">
-          <label class="grid gap-1.5">
-            <span
-              class="text-xs font-bold tracking-wide text-neutral-700 uppercase dark:text-neutral-300"
-              >Nombre</span
+        <div
+          class="shrink-0 border-t border-neutral-900/10 px-5 py-4 sm:px-8 dark:border-white/10"
+        >
+          <button
+            type="button"
+            data-quote-send
+            class="inline-flex w-full items-center justify-center gap-x-2 rounded-full bg-[#25D366] px-5 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#25D366]/25 ring-zinc-500 outline-hidden transition duration-300 hover:bg-[#1eb457] focus-visible:ring-3"
+          >
+            <svg
+              class="h-4.5 w-4.5 fill-current"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
             >
-            <input
-              type="text"
-              data-quote-field="name"
-              autocomplete="name"
-              placeholder="Su nombre"
-              class="focus:border-brand-500 focus:ring-brand-200 rounded-xl border border-neutral-300 bg-white/70 px-3.5 py-2.5 text-sm text-neutral-800 outline-hidden focus:ring-3 dark:border-neutral-600 dark:bg-neutral-800/70 dark:text-neutral-100"
-            />
-          </label>
-          <label class="grid gap-1.5">
-            <span
-              class="text-xs font-bold tracking-wide text-neutral-700 uppercase dark:text-neutral-300"
-              >Empresa</span
-            >
-            <input
-              type="text"
-              data-quote-field="company"
-              autocomplete="organization"
-              placeholder="Razón social"
-              class="focus:border-brand-500 focus:ring-brand-200 rounded-xl border border-neutral-300 bg-white/70 px-3.5 py-2.5 text-sm text-neutral-800 outline-hidden focus:ring-3 dark:border-neutral-600 dark:bg-neutral-800/70 dark:text-neutral-100"
-            />
-          </label>
-          <label class="grid gap-1.5">
-            <span
-              class="text-xs font-bold tracking-wide text-neutral-700 uppercase dark:text-neutral-300"
-              >Observaciones</span
-            >
-            <textarea
-              rows="3"
-              data-quote-field="notes"
-              placeholder="Ciudad de entrega, personalización, plazos…"
-              class="focus:border-brand-500 focus:ring-brand-200 rounded-xl border border-neutral-300 bg-white/70 px-3.5 py-2.5 text-sm text-neutral-800 outline-hidden focus:ring-3 dark:border-neutral-600 dark:bg-neutral-800/70 dark:text-neutral-100"
-            ></textarea>
-          </label>
+              <path
+                d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.174.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884a9.82 9.82 0 0 1 6.988 2.898 9.83 9.83 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.8 11.8 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.9 11.9 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.82 11.82 0 0 0-3.48-8.413"
+              ></path>
+            </svg>
+            Enviar por WhatsApp
+          </button>
+          <p
+            class="mt-2.5 text-center text-xs text-neutral-600 dark:text-neutral-400"
+          >
+            Se abre WhatsApp con el listado ya escrito. Puede revisarlo antes de
+            enviarlo.
+          </p>
         </div>
       </div>
     </div>
-
-    <div
-      class="border-t border-neutral-900/10 px-5 py-4 dark:border-white/10"
-      data-quote-filled
-      hidden
-    >
-      <button
-        type="button"
-        data-quote-send
-        class="inline-flex w-full items-center justify-center gap-x-2 rounded-full bg-[#25D366] px-5 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#25D366]/25 ring-zinc-500 outline-hidden transition duration-300 hover:bg-[#1eb457] focus-visible:ring-3"
-      >
-        <svg
-          class="h-4.5 w-4.5 fill-current"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <path
-            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.174.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884a9.82 9.82 0 0 1 6.988 2.898 9.83 9.83 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.8 11.8 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.9 11.9 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.82 11.82 0 0 0-3.48-8.413"
-          ></path>
-        </svg>
-        Enviar por WhatsApp
-      </button>
-      <p
-        class="mt-2.5 text-center text-xs text-neutral-600 dark:text-neutral-400"
-      >
-        Se abre WhatsApp con el listado ya escrito. Puede revisarlo antes de
-        enviarlo.
-      </p>
-    </div>
   </div>
 </div>
+
+<style>
+  /* `min-height: 0` en toda la cadena: sin él, un hijo con contenido alto
+     estira al padre flexible en vez de desplazarse dentro, y el panel crece
+     por debajo del borde de la pantalla llevándose el botón de enviar. */
+  .cotizador-cuerpo {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+    flex-direction: column;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .cotizador-columna {
+    padding: 1.25rem;
+  }
+
+  .cotizador-lateral {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+    border-top: 1px solid rgb(0 0 0 / 0.1);
+  }
+
+  :global(.dark) .cotizador-lateral {
+    border-color: rgb(255 255 255 / 0.1);
+  }
+
+  @media (min-width: 640px) {
+    .cotizador-columna {
+      padding: 1.5rem 2rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .cotizador-cuerpo {
+      flex-direction: row;
+      overflow: hidden;
+    }
+
+    .cotizador-columna-lista {
+      flex: 1 1 auto;
+      min-width: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+
+    .cotizador-lateral {
+      flex: 0 0 24rem;
+      border-top: none;
+      border-left: 1px solid rgb(0 0 0 / 0.1);
+    }
+
+    .cotizador-lateral > .cotizador-columna {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+  }
+</style>

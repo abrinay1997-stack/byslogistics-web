@@ -95,6 +95,7 @@ const sugerencias = [
     <div
       class="chat-log"
       data-chat-log
+      data-lenis-prevent
       role="log"
       aria-live="polite"
       aria-atomic="false"
@@ -377,6 +378,86 @@ const sugerencias = [
   .chat-launcher:hover {
     background: var(--color-brand-700);
     transform: translateY(-2px);
+  }
+
+  /*
+   * LLAMADA DE ATENCIÓN CADA 18 SEGUNDOS.
+   *
+   * El asistente es lo más útil de la página para quien llega con una duda
+   * concreta, y quieto en una esquina pasa desapercibido. Cada 18 segundos se
+   * mueve un instante: el icono saluda y el botón suelta un anillo.
+   *
+   * Va con un ciclo largo y un gesto corto (~0,9 s de 18) en lugar de con un
+   * temporizador en JavaScript: el navegador lo detiene solo cuando la pestaña
+   * está en segundo plano y no hay nada que sincronizar.
+   *
+   * El gesto va en el ICONO y el anillo en la sombra del botón, no los dos en
+   * el botón: `transform` ya lo usa el hover para levantarlo, y animarlo desde
+   * dos sitios deja el botón torcido a medio recorrido.
+   */
+  .chat-launcher {
+    animation: chat-anillo 18s ease-out infinite;
+  }
+
+  .chat-launcher-icon {
+    transform-origin: 50% 65%;
+    animation: chat-saludo 18s ease-in-out infinite;
+  }
+
+  /* Con el panel abierto, o con el puntero encima, ya hay atención: insistir
+     sobra. */
+  .chat.is-open .chat-launcher,
+  .chat.is-open .chat-launcher-icon,
+  .chat-launcher:hover,
+  .chat-launcher:hover .chat-launcher-icon {
+    animation: none;
+  }
+
+  @keyframes chat-saludo {
+    0%,
+    92%,
+    100% {
+      transform: none;
+    }
+    93% {
+      transform: rotate(-14deg) scale(1.12);
+    }
+    95% {
+      transform: rotate(12deg) scale(1.12);
+    }
+    97% {
+      transform: rotate(-8deg) scale(1.06);
+    }
+    99% {
+      transform: rotate(4deg) scale(1.02);
+    }
+  }
+
+  @keyframes chat-anillo {
+    0%,
+    92%,
+    100% {
+      box-shadow:
+        0 10px 25px -8px rgb(0 51 92 / 0.55),
+        0 0 0 0 rgb(0 96 168 / 0);
+    }
+    93% {
+      box-shadow:
+        0 10px 25px -8px rgb(0 51 92 / 0.55),
+        0 0 0 0 rgb(0 96 168 / 0.5);
+    }
+    99% {
+      box-shadow:
+        0 10px 25px -8px rgb(0 51 92 / 0.55),
+        0 0 0 1.25rem rgb(0 96 168 / 0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chat-launcher,
+    .chat-launcher-icon {
+      animation: none;
+    }
   }
 
   .chat-launcher:focus-visible {

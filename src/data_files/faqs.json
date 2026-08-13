@@ -1,25 +1,157 @@
 {
   "subTitle": "Resolvemos las dudas más frecuentes sobre nuestros elementos de seguridad preventiva. Si necesita algo puntual, escríbanos.",
-  "faqs": [
+  "categories": [
     {
-      "question": "¿Qué es un precinto de seguridad y para qué sirve?",
-      "answer": "Es un elemento diseñado para custodiar bienes y activos: evidencia cualquier intento de manipulación durante su uso y no puede retirarse sin dejar rastro. Se emplea para garantizar la trazabilidad y la cadena de custodia en operaciones de transporte y almacenamiento."
+      "id": "productos",
+      "name": "Productos y líneas",
+      "faqs": [
+        {
+          "question": "¿Qué es un precinto de seguridad y para qué sirve?",
+          "answer": "Es un elemento diseñado para custodiar bienes y activos: evidencia cualquier intento de manipulación durante su uso y no puede retirarse sin dejar rastro. Se emplea para garantizar la trazabilidad y la cadena de custodia en operaciones de transporte y almacenamiento."
+        },
+        {
+          "question": "¿Qué tipos de productos manejan?",
+          "answer": "Distribuimos y comercializamos seis líneas: precintos de seguridad, etiquetas y cintas de seguridad, tulas y bolsas de seguridad, cajas de seguridad, embalaje protector (bolsas inflables, absorbentes de humedad e infladoras) y rastreo satelital. En el catálogo puede filtrarlas y buscar cualquier referencia por nombre."
+        },
+        {
+          "question": "¿Qué diferencia hay entre un precinto plástico y uno metálico?",
+          "answer": "El plástico es más económico y se instala más rápido, así que es el habitual para volumen: canastillas, estibas, bolsas y despachos frecuentes. El metálico resiste mucho más el corte y la intemperie, y es el que corresponde en válvulas, tapas de tanque, puertas de contenedor y cualquier punto donde el riesgo justifique el costo."
+        },
+        {
+          "question": "¿Para qué sirven las etiquetas y cintas de seguridad?",
+          "answer": "Para asegurar superficies que no tienen un cierre mecánico donde poner un precinto: cajas, empaques, equipos o puertas de armario. Dejan evidencia visible ante cualquier intento de remoción —la leyenda VOID u OPENED queda impresa— y funcionan como sello de garantía o control de inventarios."
+        },
+        {
+          "question": "¿Qué son las tulas y bolsas de seguridad?",
+          "answer": "Son empaques de cierre inviolable para transportar valores, documentos y elementos que no admiten dudas sobre su integridad. Una vez selladas no pueden abrirse y volver a cerrarse sin que quede registro. Las bolsas courier, además, están pensadas para mensajería y comercio electrónico, donde hace falta un empaque resistente para el trayecto."
+        },
+        {
+          "question": "¿Ofrecen rastreo satelital?",
+          "answer": "Sí. Manejamos equipos de rastreo satelital con servicio de plataforma, disponibles en venta o en alquiler, con planes de 6 o 12 meses, para hacerle seguimiento a la carga mientras está en ruta."
+        }
+      ]
     },
     {
-      "question": "¿Qué tipos de productos manejan?",
-      "answer": "Distribuimos y comercializamos precintos de seguridad, etiquetas y cintas de seguridad, tulas y bolsas de seguridad, y cajas de seguridad. Contamos con una completa gama de productos a precios competitivos enfocados a soluciones logísticas en transporte y control de activos."
+      "id": "elegir",
+      "name": "Cómo elegir el producto",
+      "faqs": [
+        {
+          "question": "¿Cuál es el precinto más seguro?",
+          "answer": "No hay uno que sea el mejor para todo: hay uno que corresponde a cada punto. Los de cuerpo metálico —botella, rotor, guaya— resisten más que los plásticos y son los indicados donde el riesgo es alto; los plásticos de correa dentada resuelven mejor el control por volumen, porque se instalan más rápido y cuestan menos por unidad. La seguridad real la da la combinación de precinto adecuado, numeración registrada y verificación al recibir."
+        },
+        {
+          "question": "¿Cómo sé cuál necesito para mi operación?",
+          "answer": "Empiece por el punto que va a asegurar, no por el catálogo: manijas de una puerta contigua piden correa dentada, tubular o candado; dos puntos separados entre sí, guaya en la longitud que cubra la distancia; una válvula o boca de descarga, precinto de botella; una tapa de tanque o una forma irregular, rotor con guaya; una caja de cartón, precinto de ancla. En la guía «Cómo elegir un precinto de seguridad» está la tabla completa, y si nos describe su operación le asesoramos."
+        },
+        {
+          "question": "¿Un precinto impide que roben la carga?",
+          "answer": "No, y conviene tenerlo claro. Un precinto no es un candado: no resiste una herramienta decidida. Lo que hace es garantizar que esa apertura sea imposible de ocultar, y por eso su valor depende de que alguien verifique el número al recibir. Un precinto que nadie revisa no protege nada."
+        },
+        {
+          "question": "¿Cómo calculo cuántos necesito?",
+          "answer": "Cuente los puntos que hay que asegurar por despacho y multiplique por los despachos del período, añadiendo un margen por instalaciones fallidas y por verificaciones. Si nos cuenta su operación le ayudamos a estimarlo antes de cotizar."
+        },
+        {
+          "question": "¿Los precintos son de un solo uso?",
+          "answer": "Sí. Su cierre no admite recierre: para retirarlos hay que cortarlos o romperlos, y una vez retirados no vuelven a instalarse. Eso es justamente lo que los hace servir como evidencia."
+        }
+      ]
     },
     {
-      "question": "¿A qué sectores atienden?",
-      "answer": "Suministramos a líderes de industria en sectores como financiero, transportes, combustibles e hidrocarburos, minería y carbón, alimentos, cárnicos, apuestas y farmacéuticos, entre otros."
+      "id": "personalizacion",
+      "name": "Numeración y personalización",
+      "faqs": [
+        {
+          "question": "¿Los precintos se pueden personalizar con el logo de mi empresa?",
+          "answer": "Sí. Los precintos se marcan con la razón social o el logotipo de su empresa junto con la numeración. La superficie disponible cambia según la referencia —los precintos planos son los que más espacio ofrecen—, así que al cotizar le confirmamos qué cabe en la que le interesa."
+        },
+        {
+          "question": "¿Por qué los precintos llevan numeración consecutiva?",
+          "answer": "Porque sin un número único el precinto no prueba nada: cualquier otro precinto igual podría ocupar su lugar sin que se note. La numeración convierte una pieza intercambiable en una evidencia asociada a un despacho concreto."
+        },
+        {
+          "question": "¿Pueden imprimir código de barras?",
+          "answer": "Sí, y en operaciones con volumen lo recomendamos: anotar a mano un consecutivo de seis dígitos, en un patio y con prisa, falla más de lo que parece, y un dígito mal copiado invalida la verificación. Con código de barras el número se lee con escáner y entra directo al registro."
+        },
+        {
+          "question": "¿Puedo elegir el color?",
+          "answer": "Varias de nuestras referencias plásticas se manejan en distintos colores, que muchas operaciones usan para distinguir rutas, turnos o tipos de despacho. Consúltenos por la referencia que necesita y le confirmamos los colores disponibles y las cantidades para cada uno."
+        },
+        {
+          "question": "¿Qué hago si el número no coincide al recibir?",
+          "answer": "No abra la carga y documente el hallazgo antes de descargar: número esperado, número encontrado, estado del precinto y fotografías. Si el precinto se corta antes de dejar constancia, se destruye la única evidencia de la manipulación."
+        }
+      ]
     },
     {
-      "question": "¿Cómo solicito una cotización?",
-      "answer": "Escríbanos por el formulario de contacto, al correo ventas@precintosdeseguridad.co, a nuestro P.B.X. en Bogotá (601) 469 9575 o a cualquiera de nuestros celulares. Descríbanos su necesidad y le asesoramos sobre el producto ideal para su empresa."
+      "id": "cotizaciones",
+      "name": "Cotizaciones y pedidos",
+      "faqs": [
+        {
+          "question": "¿Cómo solicito una cotización?",
+          "answer": "Tiene tres caminos. Desde el catálogo de esta página puede ir añadiendo referencias con su cantidad y enviarnos el listado por WhatsApp de un clic. También puede escribirnos por el formulario de contacto o al correo ventas@precintosdeseguridad.co. Y si prefiere hablar, llame a nuestro P.B.X. en Bogotá (601) 469 9575 o a cualquiera de nuestros celulares."
+        },
+        {
+          "question": "¿Por qué los precios no aparecen publicados?",
+          "answer": "Porque dependen de la cantidad, de la referencia y de la personalización que necesite: publicar un precio único daría una cifra que casi nunca sería la suya. Cuéntenos qué necesita y le enviamos una cotización ajustada a su operación."
+        },
+        {
+          "question": "¿Hay cantidad mínima de pedido?",
+          "answer": "Depende de la referencia, sobre todo cuando lleva personalización, porque la marcación se hace por lote. Escríbanos con lo que necesita y le confirmamos el mínimo de esa referencia junto con el precio."
+        },
+        {
+          "question": "¿En cuánto tiempo responden?",
+          "answer": "Los mensajes que llegan por el formulario de contacto se responden en un plazo de 1 a 2 días hábiles. Si el asunto es urgente, la vía más rápida es el WhatsApp o el teléfono."
+        },
+        {
+          "question": "¿Puedo pedir una muestra antes de comprar?",
+          "answer": "Cuéntenos qué referencia está evaluando y para qué punto de su operación. Según el producto y el volumen que maneje, coordinamos con usted la mejor forma de que la pruebe antes de decidir."
+        }
+      ]
     },
     {
-      "question": "¿Atienden operaciones fuera de Colombia?",
-      "answer": "Sí. Además de nuestras líneas en Bogotá, contamos con atención en Panamá a través del celular (507) 6302 0175."
+      "id": "cobertura",
+      "name": "Cobertura y despachos",
+      "faqs": [
+        {
+          "question": "¿A qué ciudades despachan?",
+          "answer": "Operamos desde Bogotá y atendemos todo el país. Cuéntenos a dónde necesita el despacho y lo coordinamos al cotizar."
+        },
+        {
+          "question": "¿Atienden operaciones fuera de Colombia?",
+          "answer": "Sí. Además de nuestras líneas en Bogotá, contamos con atención en Panamá a través del celular (507) 6302 0175."
+        },
+        {
+          "question": "¿A qué sectores atienden?",
+          "answer": "Suministramos a líderes de industria en sectores como financiero, transportes, combustibles e hidrocarburos, minería y carbón, alimentos, cárnicos, apuestas y farmacéuticos, entre otros."
+        },
+        {
+          "question": "¿Manejan suministros recurrentes?",
+          "answer": "Sí. Si nos comparte su consumo estimado por período, coordinamos entregas programadas para que no se quede sin material entre despachos."
+        }
+      ]
+    },
+    {
+      "id": "empresa",
+      "name": "Sobre la empresa",
+      "faqs": [
+        {
+          "question": "¿Quiénes son B&S Logistics?",
+          "answer": "Business & Supplies Logistics S.A.S. es una empresa especializada en la distribución y comercialización de elementos de seguridad preventiva. Ofrecemos productos de óptima calidad que permiten garantizar la trazabilidad y la custodia de bienes y activos a lo largo de la cadena logística."
+        },
+        {
+          "question": "¿Fabrican o distribuyen?",
+          "answer": "Nos dedicamos a la distribución y comercialización, con una gama completa de referencias a precios competitivos enfocada a soluciones logísticas en transporte y control de activos. Eso nos permite recomendarle el producto que corresponde a su operación y no el único que tendríamos para vender."
+        },
+        {
+          "question": "¿Asesoran en la elección del producto?",
+          "answer": "Sí, y es parte de lo que hacemos. Descríbanos qué necesita asegurar y contra qué riesgo, y le indicamos qué referencia corresponde, en qué cantidad y con qué numeración."
+        },
+        {
+          "question": "¿Cómo tratan mis datos personales?",
+          "answer": "Los datos que nos deja en el formulario se usan únicamente para atender su solicitud, conforme a la Ley 1581 de 2012. Puede consultar el detalle en nuestra Política de Tratamiento de Datos Personales, enlazada en el pie de página."
+        }
+      ]
     }
   ]
 }

@@ -11,43 +11,54 @@ interface Props {
 
 {
   /*
-Re-usable link component for navigation bar. Highlights the active link
-by comparing the current URL with the href of each link.
-We assign an ID matching the URL for easy reference in our script.
-If URL is '/' (home page), assign ID as 'home' 
+Enlace reutilizable de la barra de navegación. El destino viaja en un
+`data-nav-url` en lugar de en un `id` derivado de la ruta: el marcado ya trae
+el href, y así el script no tiene que reconstruir identificadores.
 */
 }
 <a
-  id={url === '/' ? 'home' : url.replace('/', '')}
+  data-nav-url={url}
   href={url}
   data-astro-prefetch
-  class="rounded-lg text-base font-medium text-neutral-600 ring-zinc-500 outline-hidden hover:text-neutral-800 focus-visible:ring-3 md:py-3 md:text-sm 2xl:text-base dark:text-neutral-400 dark:ring-zinc-200 dark:hover:text-neutral-200 dark:focus:outline-hidden"
+  class="nav-link rounded-lg text-base font-medium text-neutral-600 ring-zinc-500 outline-hidden hover:text-neutral-800 focus-visible:ring-3 lg:py-3 lg:text-sm xl:text-base dark:text-neutral-400 dark:ring-zinc-200 dark:hover:text-neutral-200 dark:focus:outline-hidden"
 >
   {name}
 </a>
 
+<style>
+  /* El destacado va por CSS y no quitando clases desde el script: la lista de
+     clases que había que retirar se desincronizaba con la del marcado, y
+     `classList.remove` reventaba en cuanto una de ellas traía un espacio. */
+  .nav-link[aria-current='page'] {
+    color: var(--color-brand-600);
+    font-weight: 700;
+  }
+
+  :global(.dark) .nav-link[aria-current='page'] {
+    color: var(--color-brand-300);
+  }
+</style>
+
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    let url = window.location.pathname;
-    let navId;
+  function marcarEnlaceActivo() {
+    const ruta = window.location.pathname.replace(/\/+$/, '') || '/';
 
-    if (url === '/') {
-      navId = 'home';
-    } else {
-      navId = url.replace('/', '');
+    for (const enlace of document.querySelectorAll<HTMLAnchorElement>(
+      '[data-nav-url]'
+    )) {
+      const destino = enlace.dataset.navUrl ?? '';
+      // Una subpágina destaca su sección: /precintos/de-guaya marca «Precintos».
+      // La portada es la excepción, porque si no sería prefijo de todo.
+      const activo =
+        destino === '/'
+          ? ruta === '/'
+          : ruta === destino || ruta.startsWith(`${destino}/`);
+
+      if (activo) enlace.setAttribute('aria-current', 'page');
+      else enlace.removeAttribute('aria-current');
     }
+  }
 
-    let nav = document.getElementById(navId);
-
-    if (nav) {
-      nav.classList.remove(
-        'text-neutral-600',
-        'dark:text-neutral-400',
-        'hover:text-neutral-800 dark:hover:text-neutral-200',
-        'dark:hover:text-neutral-200'
-      );
-      nav.classList.add('text-brand-400', 'dark:text-brand-300');
-      nav.setAttribute('aria-current', 'page');
-    }
-  });
+  marcarEnlaceActivo();
+  document.addEventListener('astro:page-load', marcarEnlaceActivo);
 </script>

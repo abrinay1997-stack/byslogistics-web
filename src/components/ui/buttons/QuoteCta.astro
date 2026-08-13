@@ -1,0 +1,51 @@
+---
+/**
+ * CTA «Cotizar» de la barra de navegación.
+ *
+ * Va en el extremo derecho, siempre visible, y lleva al catálogo: es la vía de
+ * entrada para quien llega sin nada acumulado todavía. No hay que confundirlo
+ * con QuoteButton, que abre el panel con lo YA acumulado y solo aparece cuando
+ * hay algo dentro. Uno invita a empezar, el otro a terminar.
+ *
+ * Por eso este va sólido (color de marca) y el del carrito queda como icono
+ * con contador: dos botones con el mismo peso, uno al lado del otro, se leen
+ * como una duplicación.
+ */
+interface Props {
+  /** Clases del contenedor, para colocarlo en cada fila de la barra. */
+  class?: string;
+  /** Sin etiqueta: solo el icono. Para el hueco estrecho del móvil. */
+  compact?: boolean;
+}
+
+const { class: className, compact = false } = Astro.props;
+---
+
+<a
+  href="/catalogo"
+  data-astro-prefetch
+  aria-label="Cotizar: ir al catálogo"
+  class:list={[
+    'bg-brand-600 hover:bg-brand-700 shadow-brand-900/20 group inline-flex shrink-0 items-center justify-center gap-x-2 rounded-full text-sm font-bold text-white shadow-md ring-zinc-500 outline-hidden transition duration-300 hover:shadow-lg focus-visible:ring-3',
+    compact ? 'h-11 w-11' : 'px-4 py-2.5',
+    className,
+  ]}
+>
+  <svg
+    class="h-4 w-4 shrink-0"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.9"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    {/* Etiqueta de precio: es lo que se pide, no lo que ya se tiene. */}
+    <path
+      d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0l-7.2-7.2A2 2 0 0 1 3 12V5a2 2 0 0 1 2-2h7a2 2 0 0 1 1.4.6l7.2 7.2a2 2 0 0 1 0 2.6Z"
+    ></path>
+    <path d="M7.5 7.5h.01"></path>
+  </svg>
+  {!compact && <span>Cotizar</span>}
+</a>

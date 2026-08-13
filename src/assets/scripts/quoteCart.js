@@ -186,6 +186,11 @@ function openPanel(open) {
   panel.setAttribute('aria-modal', open ? 'true' : 'false');
   document.body.style.overflow = open ? 'hidden' : '';
 
+  // Lenis desplaza la página por su cuenta y `overflow: hidden` no lo detiene:
+  // sin esto, la rueda dentro del panel movía la página de detrás.
+  if (open) window.lenis?.stop();
+  else window.lenis?.start();
+
   if (open) {
     lastFocused = document.activeElement;
     panel.querySelector('[data-quote-close]')?.focus();

@@ -18,6 +18,18 @@ export interface CatalogItem {
   group: string;
   groupId: string;
   url: string;
+  /**
+   * Fotografía de la referencia.
+   *
+   * Las fotos que existen son una por tipo de producto, no una por medida: las
+   * nueve bolsas courier se diferencian en centímetros, y fotografiar cada una
+   * daría nueve veces la misma imagen. Por eso, cuando la referencia no trae
+   * foto propia, hereda la de SU grupo o categoría —que sí la retrata— y nunca
+   * la de la familia entera, que enseñaría una tula en la ficha de un
+   * protector de guía.
+   */
+  image?: ImageMetadata;
+  imageAlt?: string;
   /** Nombre y descripción normalizados (sin tildes, en minúscula) para buscar */
   search: string;
 }
@@ -68,6 +80,11 @@ export async function getCatalog(): Promise<CatalogItem[]> {
         group: categoria.data.title,
         groupId: categoria.id,
         url: `/precintos/${categoria.id}`,
+        image: product.image ?? categoria.data.cardImage,
+        imageAlt:
+          product.imageAlt ??
+          categoria.data.cardImageAlt ??
+          categoria.data.title,
       });
     }
   }
@@ -83,6 +100,8 @@ export async function getCatalog(): Promise<CatalogItem[]> {
           group: group.name,
           groupId: `${familia.id}--${slugify(group.name)}`,
           url: `/productos/${familia.id}`,
+          image: group.image,
+          imageAlt: group.imageAlt ?? group.name,
         });
       }
     }

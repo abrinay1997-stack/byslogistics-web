@@ -2,14 +2,14 @@ import ogImageSrc from '@images/social.png';
 
 export const SITE = {
   title: 'B&S Logistics',
-  legalName: 'Business & Supplies Logistics Ltda.',
+  legalName: 'Business & Supplies Logistics S.A.S.',
   tagline: 'Líderes en Seguridad Preventiva',
   description:
     'En B&S LOGISTICS nos especializamos en la distribución y comercialización de elementos de seguridad preventiva. Ofrecemos productos de óptima calidad que permiten garantizar la trazabilidad y custodia de bienes y activos.',
   description_short:
     'Distribución y comercialización de elementos de seguridad preventiva para la cadena de custodia y logística.',
   url: 'https://byslogistics.com.co',
-  author: 'Business & Supplies Logistics Ltda.',
+  author: 'Business & Supplies Logistics S.A.S.',
 };
 
 /**
