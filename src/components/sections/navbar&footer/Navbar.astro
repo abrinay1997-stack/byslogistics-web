@@ -39,7 +39,7 @@ import { SITE } from '@/data_files/constants';
        son ocho enlaces más el logo y dos botones, y en 768 px eso se apelmaza. */
   }
   <nav
-    class="navbar-pill border-brand-100/40 relative w-full min-w-0 grow rounded-[36px] border px-4 py-3 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-center lg:gap-x-4 lg:px-6 lg:py-0 xl:px-8 dark:border-neutral-700/40"
+    class="navbar-pill border-brand-100/40 relative w-full min-w-0 grow rounded-[36px] border px-4 py-3 backdrop-blur-lg backdrop-saturate-150 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-center lg:gap-x-4 lg:px-6 lg:py-0 xl:px-8 dark:border-neutral-700/40"
     aria-label="Global"
   >
     <div class="flex items-center justify-between gap-x-2">
@@ -135,7 +135,7 @@ import { SITE } from '@/data_files/constants';
        que se lea como parte del mismo conjunto. */
   }
   <div
-    class="navbar-theme border-brand-100/40 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border dark:border-neutral-700/40"
+    class="navbar-theme border-brand-100/40 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border backdrop-blur-lg backdrop-saturate-150 dark:border-neutral-700/40"
   >
     <ThemeIcon />
   </div>
@@ -176,37 +176,33 @@ import { SITE } from '@/data_files/constants';
     top: 0.5rem;
   }
 
-  /* LA BARRA ES DE VIDRIO, Y LO SIGUE SIENDO AL DESPLAZARSE.
+  /* EL VIDRIO DE LA BARRA.
 
-     El velo se queda en un 68% en reposo —por detrás se ve pasar el precinto
-     del hero, que es la gracia— y sube a un 88% al desplazarse. Antes eran un
-     85% y un 100%: arriba pesaba de más y abajo dejaba de ser vidrio para
-     volverse una banda maciza.
+     Aquí va solo el VELO, que es lo que cambia al desplazarse. El desenfoque
+     se queda en el marcado, con las utilidades `backdrop-blur-*` de Tailwind,
+     y no aquí: escrito a mano con su pareja `-webkit-`, lightningcss —que ya
+     se encarga él de prefijar según los navegadores de destino— se quedaba
+     solo con la versión prefijada y tiraba la estándar. La barra salía con su
+     velo de color pero SIN desenfoque: transparente y plana, que es
+     exactamente lo contrario de vidrio.
 
-     Sube al desplazarse porque por debajo empieza a pasar TEXTO, y con el velo
-     de reposo los renglones blancos del hero se cruzaban con los enlaces y no
-     se leía ni una cosa ni la otra. Quieta sobre el fondo de la página, esa
-     colisión no existe.
+     El velo va al 72% en reposo y sube al 88% al desplazarse. Sube porque por
+     debajo empieza a pasar TEXTO: con el velo de reposo los renglones blancos
+     del hero se cruzaban con los enlaces y no se leía ni una cosa ni la otra.
+     Quieta sobre el fondo de la página esa colisión no existe, y por eso
+     arriba puede ir más ligera. Antes eran 85% y 100%, y al desplazarse la
+     barra dejaba de ser vidrio para volverse una banda maciza.
 
-     Lo que sostiene la legibilidad del logo —de letras negras— sobre la foto
-     oscura del hero no es la opacidad sino el desenfoque y la saturación:
-     emborronar y avivar lo de detrás aplana el contraste local, así que el
-     texto se recorta contra un fondo uniforme aunque se siga viendo a través.
-     Por eso el desenfoque es de 26 px y no de los 12 de `backdrop-blur-md`:
-     es lo que compra el velo que se ha quitado.
-
-     Bajar más el velo se probó y no sale: por debajo del 65% el logo empieza a
-     desaparecer sobre el azul oscuro del hero, y ni el desenfoque ni la
-     saturación lo recuperan. */
+     El brillo interior del borde superior es lo que termina de venderlo como
+     un canto de vidrio y no como un rectángulo translúcido. */
   .navbar-pill,
   .navbar-theme {
     background-color: color-mix(
       in srgb,
-      var(--color-brand-50) 68%,
+      var(--color-brand-50) 72%,
       transparent
     );
-    backdrop-filter: blur(26px) saturate(1.8);
-    -webkit-backdrop-filter: blur(26px) saturate(1.8);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.6);
     transition:
       background-color 0.28s ease,
       box-shadow 0.28s ease;
@@ -216,9 +212,10 @@ import { SITE } from '@/data_files/constants';
   :global(.dark) .navbar-theme {
     background-color: color-mix(
       in srgb,
-      var(--color-neutral-800) 68%,
+      var(--color-neutral-800) 72%,
       transparent
     );
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12);
   }
 
   /* Y lo mismo con el menú de móvil desplegado. Al pasar la barra a `fixed`,
@@ -236,7 +233,9 @@ import { SITE } from '@/data_files/constants';
       var(--color-brand-50) 88%,
       transparent
     );
-    box-shadow: 0 10px 30px -12px rgb(0 51 92 / 0.35);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.6),
+      0 10px 30px -12px rgb(0 51 92 / 0.35);
   }
 
   :global(.dark) .navbar.is-scrolled .navbar-pill,
@@ -246,7 +245,9 @@ import { SITE } from '@/data_files/constants';
       var(--color-neutral-800) 88%,
       transparent
     );
-    box-shadow: 0 10px 30px -12px rgb(0 0 0 / 0.55);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.12),
+      0 10px 30px -12px rgb(0 0 0 / 0.55);
   }
 
   /* La excepción es el menú de móvil desplegado: ahí el vidrio deja de ser un
@@ -257,7 +258,9 @@ import { SITE } from '@/data_files/constants';
       var(--color-brand-50) 94%,
       transparent
     );
-    box-shadow: 0 10px 30px -12px rgb(0 51 92 / 0.35);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.6),
+      0 10px 30px -12px rgb(0 51 92 / 0.35);
   }
 
   :global(.dark) .navbar-pill:has(.hs-collapse.open) {
@@ -266,7 +269,9 @@ import { SITE } from '@/data_files/constants';
       var(--color-neutral-800) 94%,
       transparent
     );
-    box-shadow: 0 10px 30px -12px rgb(0 0 0 / 0.55);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.12),
+      0 10px 30px -12px rgb(0 0 0 / 0.55);
   }
 
   .navbar.is-scrolled .navbar-logo > :global(span) {
