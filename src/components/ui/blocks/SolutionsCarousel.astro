@@ -46,6 +46,22 @@ interface Props {
 
 const { soluciones, intervalo = 6500 } = Astro.props;
 const total = soluciones.length;
+
+/**
+ * Un acento por diapositiva, recorriendo la rampa de marca.
+ *
+ * No es decoración: es lo que hace que pasar de una a otra se NOTE. Con el
+ * mismo azul en las seis, el cambio solo se percibía en el titular, y a media
+ * pantalla de distancia parecía que el carrusel estaba parado.
+ */
+const ACENTOS = [
+  'var(--color-brand-300)',
+  'var(--color-brand-400)',
+  'var(--color-brand-200)',
+  'var(--color-brand-500)',
+  'var(--color-brand-300)',
+  'var(--color-brand-400)',
+];
 ---
 
 <section
@@ -62,13 +78,28 @@ const total = soluciones.length;
       {
         soluciones.map((solucion, i) => (
           <div
-            class:list={['slide', i === 0 && 'is-activa']}
+            class:list={[
+              'slide',
+              // Las diapositivas impares invierten la composición: la foto pasa
+              // a la izquierda y el texto a la derecha. Seis pantallas idénticas
+              // seguidas se leen como una sola repetida.
+              i % 2 === 1 && 'slide--invertida',
+              i === 0 && 'is-activa',
+            ]}
+            style={`--acento:${ACENTOS[i % ACENTOS.length]}; --giro:${(i % 3) * 24 - 24}deg`}
             data-slide
             role="group"
             aria-roledescription="diapositiva"
             aria-label={`${i + 1} de ${total}: ${solucion.title}`}
             aria-hidden={i === 0 ? 'false' : 'true'}
           >
+            {/* Capas de fondo: el resplandor que deriva y el número gigante.
+                Ambas decorativas, ambas fuera del árbol de accesibilidad. */}
+            <div class="slide-resplandor" aria-hidden="true" />
+            <span class="slide-fantasma" aria-hidden="true">
+              {String(i + 1).padStart(2, '0')}
+            </span>
+
             <div class="slide-texto">
               <p class="slide-orden anim">
                 <span class="slide-orden-num">
@@ -94,6 +125,7 @@ const total = soluciones.length;
 
             <div class="slide-media">
               <div class="slide-plano">
+                <span class="slide-halo" aria-hidden="true" />
                 {solucion.image && (
                   <Image
                     src={solucion.image}
@@ -313,28 +345,81 @@ const total = soluciones.length;
       else if (event.key === 'ArrowRight') ir(actual + 1, 1);
     });
 
-    // Arrastre en táctil. Se mira solo el gesto horizontal: uno vertical es
-    // alguien bajando por la página, no cambiando de diapositiva.
+    // Arrastre. Se mira solo el gesto horizontal: uno vertical es alguien
+    // bajando por la página, no cambiando de diapositiva. Con eventos de
+    // puntero, así vale igual para el dedo, el ratón y el lápiz.
     let inicioX = 0;
     let inicioY = 0;
+    let arrastrando = false;
+
+    marco.addEventListener('pointerdown', event => {
+      // Solo el botón principal, y nunca desde un control: arrastrar por
+      // encima de una flecha no debe contar como gesto.
+      if (event.button !== 0) return;
+      if ((event.target as HTMLElement | null)?.closest('button, a')) return;
+      arrastrando = true;
+      inicioX = event.clientX;
+      inicioY = event.clientY;
+    });
+
+    marco.addEventListener('pointerup', event => {
+      if (!arrastrando) return;
+      arrastrando = false;
+      const dx = event.clientX - inicioX;
+      const dy = event.clientY - inicioY;
+      if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy)) return;
+      ir(actual + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
+    });
+
+    marco.addEventListener('pointercancel', () => {
+      arrastrando = false;
+    });
+
+    /*
+     * PARALAJE DEL PRODUCTO.
+     *
+     * La foto se desplaza un poco hacia donde está el puntero. Es lo que
+     * convierte una fotografía pegada al fondo en un objeto que ocupa espacio:
+     * el movimiento es de catorce píxeles como mucho, y aun así se nota.
+     *
+     * Se escribe en dos variables CSS y no se toca el estilo directamente, y
+     * se hace dentro de un `requestAnimationFrame`: `pointermove` dispara
+     * decenas de veces por segundo y no hace falta escribir en cada una.
+     */
+    let pendiente = false;
+    let ultimoEvento: PointerEvent | null = null;
+
     marco.addEventListener(
-      'touchstart',
+      'pointermove',
       event => {
-        inicioX = event.changedTouches[0].clientX;
-        inicioY = event.changedTouches[0].clientY;
+        if (quieto.matches) return;
+        ultimoEvento = event;
+        if (pendiente) return;
+        pendiente = true;
+        requestAnimationFrame(() => {
+          pendiente = false;
+          const caja = marco.getBoundingClientRect();
+          if (!ultimoEvento) return;
+          const x = (ultimoEvento.clientX - caja.left) / caja.width - 0.5;
+          const y = (ultimoEvento.clientY - caja.top) / caja.height - 0.5;
+          root!.style.setProperty(
+            '--px',
+            String(Math.max(-1, Math.min(1, x * 2)))
+          );
+          root!.style.setProperty(
+            '--py',
+            String(Math.max(-1, Math.min(1, y * 2)))
+          );
+        });
       },
       { passive: true }
     );
-    marco.addEventListener(
-      'touchend',
-      event => {
-        const dx = event.changedTouches[0].clientX - inicioX;
-        const dy = event.changedTouches[0].clientY - inicioY;
-        if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy)) return;
-        ir(actual + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
-      },
-      { passive: true }
-    );
+
+    // Al salir, la foto vuelve a su sitio en lugar de quedarse descentrada.
+    marco.addEventListener('pointerleave', () => {
+      root!.style.setProperty('--px', '0');
+      root!.style.setProperty('--py', '0');
+    });
 
     quieto.addEventListener('change', programar);
     reiniciarReloj();
@@ -370,6 +455,24 @@ const total = soluciones.length;
         var(--color-brand-800) 55%,
         var(--color-brand-950) 100%
       );
+  }
+
+  /* Trama de puntos por encima del degradado. Es lo que le quita el aspecto de
+     fondo plano de plantilla: da textura sin competir con nada, porque a este
+     tamaño no se lee como dibujo sino como grano. */
+  .slider-marco::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.5;
+    background-image: radial-gradient(
+      rgb(255 255 255 / 0.09) 1px,
+      transparent 1px
+    );
+    background-size: 22px 22px;
+    mask-image: radial-gradient(120% 90% at 50% 0%, #000 0%, transparent 75%);
   }
 
   .slider-pista {
@@ -416,10 +519,106 @@ const total = soluciones.length;
       grid-template-columns: 1fr 1fr;
       align-items: stretch;
     }
+
+    /* La composición se invierte en las impares. Se hace con `order` y no
+       cambiando el marcado: el orden de lectura —titular, frase, enlace y
+       luego la foto— tiene que seguir siendo el mismo para quien navega con
+       teclado o lector de pantalla. */
+    .slide--invertida .slide-texto {
+      order: 2;
+      padding: 4rem clamp(2.5rem, 7vw, 8rem) 4rem 4rem;
+    }
+
+    .slide--invertida .slide-media {
+      order: 1;
+      padding: 2.5rem 0 2.5rem 2.5rem;
+    }
+  }
+
+  /* Resplandor del color de la diapositiva. Deriva despacio y en bucle: es el
+     movimiento de fondo que hace que la pantalla nunca esté del todo quieta,
+     y el que más se nota con el rabillo del ojo. */
+  .slide-resplandor {
+    position: absolute;
+    top: -25%;
+    right: -15%;
+    width: 70%;
+    height: 120%;
+    pointer-events: none;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle at 50% 50%,
+      color-mix(in srgb, var(--acento) 38%, transparent) 0%,
+      transparent 65%
+    );
+    filter: blur(40px);
+    opacity: 0;
+    transition: opacity 1.2s ease;
+  }
+
+  .slide--invertida .slide-resplandor {
+    right: auto;
+    left: -15%;
+  }
+
+  .slide.is-activa .slide-resplandor {
+    opacity: 1;
+    animation: slide-deriva 16s ease-in-out infinite alternate;
+  }
+
+  @keyframes slide-deriva {
+    from {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    to {
+      transform: translate3d(-6%, 5%, 0) scale(1.18);
+    }
+  }
+
+  /* El número gigante. Marca en qué punto del recorrido va sin tener que
+     contar los puntos de abajo, y le da profundidad a la composición. */
+  .slide-fantasma {
+    position: absolute;
+    top: 50%;
+    left: -0.08em;
+    z-index: 0;
+    font-size: clamp(14rem, 34vw, 30rem);
+    font-weight: 800;
+    line-height: 0.75;
+    letter-spacing: -0.06em;
+    color: rgb(255 255 255 / 0.045);
+    pointer-events: none;
+    user-select: none;
+    transform: translate3d(0, -50%, 0) rotate(var(--giro, 0deg));
+    transform-origin: left center;
+  }
+
+  .slide--invertida .slide-fantasma {
+    left: auto;
+    right: -0.08em;
+    transform-origin: right center;
+  }
+
+  .slide.is-activa .slide-fantasma {
+    animation: slide-fantasma-entra 1.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes slide-fantasma-entra {
+    from {
+      opacity: 0;
+      transform: translate3d(-3rem, -50%, 0) rotate(var(--giro, 0deg))
+        scale(1.1);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, -50%, 0) rotate(var(--giro, 0deg)) scale(1);
+    }
   }
 
   /* ---------- TEXTO ---------- */
   .slide-texto {
+    position: relative;
+    z-index: 2;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -451,7 +650,7 @@ const total = soluciones.length;
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--color-brand-200);
+    color: var(--acento, var(--color-brand-200));
   }
 
   .slide-orden-num {
@@ -462,8 +661,22 @@ const total = soluciones.length;
     display: block;
     width: 2.5rem;
     height: 1px;
-    background: currentColor;
-    opacity: 0.55;
+    background: linear-gradient(to right, currentColor, transparent);
+  }
+
+  /* La línea del epígrafe se dibuja sola al entrar: es el primer movimiento
+     que ve quien llega a la diapositiva, antes incluso que el titular. */
+  .slide.is-activa .slide-orden-sep {
+    animation: slide-raya 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+  }
+
+  @keyframes slide-raya {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
   }
 
   .slide-titulo {
@@ -523,6 +736,7 @@ const total = soluciones.length;
   /* ---------- FOTO ---------- */
   .slide-media {
     position: relative;
+    z-index: 2;
     order: 1;
     min-height: 0;
     padding: 4.5rem 1.5rem 0;
@@ -555,7 +769,20 @@ const total = soluciones.length;
     box-shadow: 0 40px 80px -40px rgb(0 32 58 / 0.75);
   }
 
+  .slide-halo {
+    position: absolute;
+    inset: 12%;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle at 50% 55%,
+      color-mix(in srgb, var(--acento) 30%, transparent) 0%,
+      transparent 70%
+    );
+    filter: blur(30px);
+  }
+
   .slide-foto {
+    position: relative;
     max-height: 100%;
     max-width: 100%;
     width: auto;
@@ -563,12 +790,27 @@ const total = soluciones.length;
     object-fit: contain;
     padding: 1.5rem;
     transform-origin: center;
+    /* El desplazamiento del puntero lo escribe el script en estas dos
+       variables. Con `transform` y no con `margin`: se resuelve en el
+       compositor y no obliga a recalcular la maquetación en cada movimiento
+       del ratón. */
+    transform: translate3d(
+      calc(var(--px, 0) * 14px),
+      calc(var(--py, 0) * 14px),
+      0
+    );
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  /* Acercamiento lento mientras la diapositiva está a la vista: es lo que
-     distingue una portada viva de una captura de pantalla. */
+  /* Flotación continua del producto y acercamiento lento del plano. Son dos
+     elementos distintos a propósito: encadenar dos animaciones de `transform`
+     en el mismo nodo obliga a elegir una, y aquí hacen falta las dos. */
+  .slide.is-activa .slide-plano {
+    animation: slide-zoom 11s ease-out both;
+  }
+
   .slide.is-activa .slide-foto {
-    animation: slide-zoom 9s ease-out both;
+    animation: slide-flota 7s ease-in-out 1s infinite alternate;
   }
 
   @keyframes slide-zoom {
@@ -576,7 +818,24 @@ const total = soluciones.length;
       transform: scale(1);
     }
     to {
-      transform: scale(1.07);
+      transform: scale(1.06);
+    }
+  }
+
+  @keyframes slide-flota {
+    from {
+      transform: translate3d(
+        calc(var(--px, 0) * 14px),
+        calc(var(--py, 0) * 14px - 0.5rem),
+        0
+      );
+    }
+    to {
+      transform: translate3d(
+        calc(var(--px, 0) * 14px),
+        calc(var(--py, 0) * 14px + 0.5rem),
+        0
+      );
     }
   }
 
@@ -710,6 +969,7 @@ const total = soluciones.length;
     display: block;
     border-radius: 999px;
     background: #fff;
+    box-shadow: 0 0 12px rgb(255 255 255 / 0.5);
     transform: scaleX(0);
     transform-origin: left;
   }
@@ -735,6 +995,10 @@ const total = soluciones.length;
     .slide,
     .slide.is-activa .anim,
     .slide.is-activa .slide-foto,
+    .slide.is-activa .slide-plano,
+    .slide.is-activa .slide-resplandor,
+    .slide.is-activa .slide-fantasma,
+    .slide.is-activa .slide-orden-sep,
     .slider-punto,
     .slide-cta {
       transition: none;

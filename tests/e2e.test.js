@@ -839,3 +839,204 @@ describe('cotizador en la barra', { skip: skip() }, () => {
     await page.close();
   });
 });
+
+/**
+ * EL VIDRIO DE LA BARRA ES INAMOVIBLE.
+ *
+ * Este bloque existe porque el glassmorphism de la barra se ha roto dos veces,
+ * de dos maneras distintas, y ninguna se veía en el código:
+ *
+ * 1. Subiendo el velo al desplazarse «para ganar contraste», hasta dejarla
+ *    opaca del todo. La barra pasaba a ser una banda maciza en cuanto se
+ *    bajaba un dedo de rueda.
+ * 2. Escribiendo `backdrop-filter` a mano junto con su pareja `-webkit-`.
+ *    lightningcss prefija él según los navegadores de destino, y ante las dos
+ *    declaraciones se quedó con la prefijada y tiró la estándar: en el
+ *    navegador el desenfoque calculaba `none` y la barra salía transparente y
+ *    PLANA. El marcado y el CSS fuente se veían perfectos.
+ *
+ * De ahí que esto mida el estilo CALCULADO sobre la página YA CONSTRUIDA, y no
+ * las clases del componente: es el único sitio donde los dos fallos se ven.
+ *
+ * Los valores son los de siempre —`bg-brand-50/60` y `backdrop-blur-md`, con
+ * `dark:bg-neutral-800/80`— y no son negociables al vuelo: si alguna vez hay
+ * que cambiarlos, se cambian aquí a la vez, con la decisión tomada a
+ * propósito y no como efecto colateral de otra cosa.
+ */
+describe('el vidrio de la barra de navegación', { skip: skip() }, () => {
+  const VELO_CLARO = 0.6;
+  const VELO_OSCURO = 0.8;
+  const DESENFOQUE_PX = 12;
+
+  /**
+   * Lee el velo y el desenfoque tal y como los resuelve el navegador.
+   *
+   * La opacidad se saca de la cadena calculada porque Chrome devuelve el color
+   * en el espacio en el que se declaró —`oklab(... / 0.6)`, no `rgba()`—, así
+   * que no vale con partir por comas.
+   */
+  const leerVidrio = (page, selector) =>
+    page.evaluate(sel => {
+      const el = document.querySelector(sel);
+      if (!el) return null;
+      const estilo = getComputedStyle(el);
+      const fondo = estilo.backgroundColor;
+      const alfa = fondo.match(/\/\s*([\d.]+)\s*\)/);
+      return {
+        fondo,
+        // Sin barra de alfa en la cadena, el color es opaco.
+        opacidad: alfa ? Number(alfa[1]) : 1,
+        desenfoque: estilo.backdropFilter,
+      };
+    }, selector);
+
+  test('la píldora es translúcida y lleva desenfoque', async () => {
+    const page = await browser.newPage({
+      viewport: { width: 1280, height: 800 },
+    });
+    await page.goto(base + '/', { waitUntil: 'networkidle' });
+    await page.waitForTimeout(300);
+
+    const vidrio = await leerVidrio(page, '.navbar-pill');
+    assert.equal(
+      vidrio.opacidad,
+      VELO_CLARO,
+      `el velo de la barra debe ser ${VELO_CLARO} (leído: ${vidrio.fondo})`
+    );
+    assert.ok(
+      vidrio.desenfoque.includes(`blur(${DESENFOQUE_PX}px)`),
+      `falta el desenfoque del vidrio (leído: "${vidrio.desenfoque}")`
+    );
+    await page.close();
+  });
+
+  test('sigue igual de translúcida al desplazarse', async () => {
+    const page = await browser.newPage({
+      viewport: { width: 1280, height: 800 },
+    });
+    await page.goto(base + '/', { waitUntil: 'networkidle' });
+
+    const reposo = await leerVidrio(page, '.navbar-pill');
+    await page.evaluate(() => window.scrollTo(0, 900));
+    await page.waitForTimeout(700);
+    const bajando = await leerVidrio(page, '.navbar-pill');
+
+    assert.equal(
+      bajando.opacidad,
+      reposo.opacidad,
+      'el velo NO puede cambiar al desplazarse: es lo que la convierte en una banda maciza'
+    );
+    assert.ok(
+      bajando.desenfoque.includes(`blur(${DESENFOQUE_PX}px)`),
+      `el desenfoque se pierde al desplazarse (leído: "${bajando.desenfoque}")`
+    );
+    await page.close();
+  });
+
+  test('el interruptor de tema lleva el mismo vidrio', async () => {
+    const page = await browser.newPage({
+      viewport: { width: 1280, height: 800 },
+    });
+    await page.goto(base + '/', { waitUntil: 'networkidle' });
+    await page.waitForTimeout(300);
+
+    const vidrio = await leerVidrio(page, '.navbar-theme');
+    assert.equal(vidrio.opacidad, VELO_CLARO);
+    assert.ok(vidrio.desenfoque.includes(`blur(${DESENFOQUE_PX}px)`));
+    await page.close();
+  });
+
+  test('en modo oscuro también', async () => {
+    const page = await browser.newPage({
+      viewport: { width: 1280, height: 800 },
+    });
+    await page.goto(base + '/', { waitUntil: 'networkidle' });
+    await page.evaluate(() => localStorage.setItem('hs_theme', 'dark'));
+    await page.reload({ waitUntil: 'networkidle' });
+    await page.waitForTimeout(300);
+
+    const vidrio = await leerVidrio(page, '.navbar-pill');
+    assert.equal(
+      vidrio.opacidad,
+      VELO_OSCURO,
+      `el velo en oscuro debe ser ${VELO_OSCURO} (leído: ${vidrio.fondo})`
+    );
+    assert.ok(vidrio.desenfoque.includes(`blur(${DESENFOQUE_PX}px)`));
+    await page.close();
+  });
+
+  test('el vidrio se ve igual en todas las páginas', async () => {
+    const page = await browser.newPage({
+      viewport: { width: 1280, height: 800 },
+    });
+    for (const ruta of ['/', '/catalogo/', '/faq/', '/contacto/']) {
+      await page.goto(base + ruta, { waitUntil: 'networkidle' });
+      await page.waitForTimeout(200);
+      const vidrio = await leerVidrio(page, '.navbar-pill');
+      assert.equal(vidrio.opacidad, VELO_CLARO, `velo distinto en ${ruta}`);
+      assert.ok(
+        vidrio.desenfoque.includes(`blur(${DESENFOQUE_PX}px)`),
+        `falta el desenfoque en ${ruta}`
+      );
+    }
+    await page.close();
+  });
+});
+
+/**
+ * El asistente tiene que MOVERSE cada pocos segundos. Se pide expresamente que
+ * llame la atención, y una animación tan sutil que no se nota es lo mismo que
+ * no tenerla: la primera versión giraba solo el icono de 20 px cada 18
+ * segundos y en la práctica era invisible.
+ *
+ * Se mide el recorrido real del botón en pantalla, no la propiedad CSS: una
+ * animación declarada cuyos fotogramas no mueven nada pasaría igual.
+ */
+describe('la burbuja del asistente llama la atención', { skip: skip() }, () => {
+  test('se sacude sola a los pocos segundos', async () => {
+    const page = await browser.newPage({
+      viewport: { width: 1280, height: 800 },
+    });
+    await page.goto(base + '/', { waitUntil: 'networkidle' });
+
+    const alturas = [];
+    const inicio = Date.now();
+    // El gesto entra a los 5 s y dura poco más de uno; se muestrea hasta los 7.
+    while (Date.now() - inicio < 7000) {
+      alturas.push(
+        await page.evaluate(
+          () =>
+            document.querySelector('.chat-launcher').getBoundingClientRect().y
+        )
+      );
+      await page.waitForTimeout(100);
+    }
+
+    const recorrido = Math.max(...alturas) - Math.min(...alturas);
+    assert.ok(
+      recorrido > 3,
+      `la burbuja apenas se movió (${recorrido.toFixed(1)} px de recorrido)`
+    );
+    await page.close();
+  });
+
+  test('se queda quieta con el asistente abierto', async () => {
+    const page = await browser.newPage({
+      viewport: { width: 1280, height: 800 },
+    });
+    await page.goto(base + '/', { waitUntil: 'networkidle' });
+    await page.click('[data-chat-toggle]');
+    await page.waitForTimeout(300);
+
+    const animacion = await page.evaluate(
+      () =>
+        getComputedStyle(document.querySelector('.chat-llamada')).animationName
+    );
+    assert.equal(
+      animacion,
+      'none',
+      'con el panel abierto ya no hay que insistir'
+    );
+    await page.close();
+  });
+});

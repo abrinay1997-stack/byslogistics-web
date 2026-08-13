@@ -133,10 +133,15 @@ import { SITE } from '@/data_files/constants';
     /* El interruptor de tema vive FUERA de la píldora, en la esquina superior
        derecha de la pantalla: es un ajuste del sitio, no un destino, así que no
        compite con los enlaces ni con el CTA. Repite el vidrio de la barra para
-       que se lea como parte del mismo conjunto. */
+       que se lea como parte del mismo conjunto.
+
+       Va pequeño (36 px) y con margen derecho negativo, que le come parte del
+       relleno del contenedor y lo arrima al canto de la pantalla. Sigue dentro
+       del `flex` de la cabecera y no suelto en `fixed` porque así RESERVA su
+       sitio: suelto, entre 1280 y 1536 px se montaba encima de la píldora. */
   }
   <div
-    class="navbar-theme border-brand-100/40 bg-brand-50/60 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border backdrop-blur-md dark:border-neutral-700/40 dark:bg-neutral-800/80 dark:backdrop-blur-md"
+    class="navbar-theme border-brand-100/40 bg-brand-50/60 -mr-1 flex h-9 w-9 shrink-0 items-center justify-center self-center rounded-full border backdrop-blur-md sm:-mr-3 lg:-mr-5 dark:border-neutral-700/40 dark:bg-neutral-800/80 dark:backdrop-blur-md"
   >
     <ThemeIcon />
   </div>

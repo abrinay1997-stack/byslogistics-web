@@ -37,29 +37,39 @@ const sugerencias = [
 ---
 
 <div class="chat" data-chat>
-  <button
-    class="chat-launcher"
-    type="button"
-    data-chat-toggle
-    aria-expanded="false"
-    aria-controls="chat-panel"
-  >
-    <span class="chat-launcher-icon" aria-hidden="true">
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.8"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <path
-          d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z"
-        ></path>
-      </svg>
-    </span>
-    <span class="chat-launcher-label">Asistente</span>
-  </button>
+  {
+    /* El botón va envuelto en su propio contenedor porque la llamada de
+       atención lo MUEVE: si el `transform` de la sacudida y el del `:hover`
+       viven en el mismo elemento, el que llega segundo pisa al primero y el
+       botón se queda torcido a medio camino. El envoltorio se sacude, el
+       botón conserva su hover. */
+  }
+  <div class="chat-llamada">
+    <span class="chat-pulso" aria-hidden="true"></span>
+    <button
+      class="chat-launcher"
+      type="button"
+      data-chat-toggle
+      aria-expanded="false"
+      aria-controls="chat-panel"
+    >
+      <span class="chat-launcher-icon" aria-hidden="true">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z"
+          ></path>
+        </svg>
+      </span>
+      <span class="chat-launcher-label">Asistente</span>
+    </button>
+  </div>
 
   <section
     class="chat-panel"
@@ -381,104 +391,122 @@ const sugerencias = [
   }
 
   /*
-   * LLAMADA DE ATENCIÓN CADA 18 SEGUNDOS.
+   * LLAMADA DE ATENCIÓN CADA 15 SEGUNDOS.
    *
    * El asistente es lo más útil de la página para quien llega con una duda
-   * concreta, y quieto en una esquina pasa desapercibido. Cada 18 segundos se
-   * mueve un instante: el icono saluda y el botón suelta un anillo.
+   * concreta, y quieto en una esquina pasa desapercibido.
    *
-   * Va con un ciclo largo y un gesto corto (~0,9 s de 18) en lugar de con un
-   * temporizador en JavaScript: el navegador lo detiene solo cuando la pestaña
-   * está en segundo plano y no hay nada que sincronizar.
+   * Son tres gestos a la vez, porque de uno solo no se entera nadie: el botón
+   * entero se sacude —no solo el icono—, el icono además pega un salto, y por
+   * detrás sale un anillo que se expande y se apaga. Duran poco más de un
+   * segundo de cada quince.
    *
-   * El gesto va en el ICONO y el anillo en la sombra del botón, no los dos en
-   * el botón: `transform` ya lo usa el hover para levantarlo, y animarlo desde
-   * dos sitios deja el botón torcido a medio recorrido.
+   * Va con un ciclo largo y un gesto corto en lugar de con un temporizador en
+   * JavaScript: el navegador lo detiene solo cuando la pestaña está en segundo
+   * plano y no hay nada que sincronizar. El `animation-delay` negativo NO se
+   * usa aquí a propósito: el primer aviso llega a los 5 segundos, cuando ya
+   * ha dado tiempo a leer la página, y no en plena carga.
    */
-  .chat-launcher {
-    animation: chat-anillo 18s ease-out infinite;
+  .chat-llamada {
+    position: relative;
+    display: inline-flex;
+    /* Sin esto, el `z-index: -1` del anillo lo manda detrás de la PÁGINA en
+       lugar de detrás del botón, y desaparece. */
+    isolation: isolate;
+    animation: chat-sacudida 15s ease-in-out 5s infinite;
+  }
+
+  /* El anillo que sale de debajo del botón. Es un elemento propio y no una
+     sombra: una sombra no puede escalar, y lo que se lee como "llamada" es
+     justo que el círculo CREZCA. */
+  .chat-pulso {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: 999px;
+    background: var(--color-brand-500);
+    opacity: 0;
+    animation: chat-anillo 15s ease-out 5s infinite;
   }
 
   .chat-launcher-icon {
-    transform-origin: 50% 65%;
-    animation: chat-saludo 18s ease-in-out infinite;
+    animation: chat-saludo 15s ease-in-out 5s infinite;
   }
 
   /* Con el panel abierto, o con el puntero encima, ya hay atención: insistir
      sobra. */
-  .chat.is-open .chat-launcher,
+  .chat.is-open .chat-llamada,
+  .chat.is-open .chat-pulso,
   .chat.is-open .chat-launcher-icon,
-  .chat-launcher:hover,
-  .chat-launcher:hover .chat-launcher-icon {
+  .chat-llamada:hover,
+  .chat-llamada:hover .chat-pulso,
+  .chat-llamada:hover .chat-launcher-icon {
     animation: none;
+  }
+
+  /* 0-8% de 15 s son 1,2 s de gesto. El resto del ciclo está quieto. */
+  @keyframes chat-sacudida {
+    0%,
+    8%,
+    100% {
+      transform: none;
+    }
+    1% {
+      transform: translate3d(0, -6px, 0) rotate(-4deg);
+    }
+    2.5% {
+      transform: translate3d(0, 0, 0) rotate(4deg);
+    }
+    4% {
+      transform: translate3d(0, -4px, 0) rotate(-3deg);
+    }
+    5.5% {
+      transform: translate3d(0, 0, 0) rotate(2deg);
+    }
+    7% {
+      transform: translate3d(0, -1px, 0) rotate(-1deg);
+    }
   }
 
   @keyframes chat-saludo {
     0%,
-    92%,
+    8%,
     100% {
       transform: none;
     }
-    93% {
-      transform: rotate(-14deg) scale(1.12);
+    2% {
+      transform: scale(1.25) rotate(-12deg);
     }
-    95% {
-      transform: rotate(12deg) scale(1.12);
+    4% {
+      transform: scale(1.15) rotate(10deg);
     }
-    97% {
-      transform: rotate(-8deg) scale(1.06);
-    }
-    99% {
-      transform: rotate(4deg) scale(1.02);
+    6% {
+      transform: scale(1.08) rotate(-5deg);
     }
   }
 
   @keyframes chat-anillo {
-    0%,
-    92%,
+    0% {
+      opacity: 0.55;
+      transform: scale(1);
+    }
+    8% {
+      opacity: 0;
+      transform: scale(1.6);
+    }
+    8.01%,
     100% {
-      box-shadow:
-        0 10px 25px -8px rgb(0 51 92 / 0.55),
-        0 0 0 0 rgb(0 96 168 / 0);
-    }
-    93% {
-      box-shadow:
-        0 10px 25px -8px rgb(0 51 92 / 0.55),
-        0 0 0 0 rgb(0 96 168 / 0.5);
-    }
-    99% {
-      box-shadow:
-        0 10px 25px -8px rgb(0 51 92 / 0.55),
-        0 0 0 1.25rem rgb(0 96 168 / 0);
+      opacity: 0;
+      transform: scale(1);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .chat-launcher,
+    .chat-llamada,
+    .chat-pulso,
     .chat-launcher-icon {
       animation: none;
     }
-  }
-
-  .chat-launcher:focus-visible {
-    outline: 3px solid var(--color-brand-300);
-    outline-offset: 2px;
-  }
-
-  .chat-launcher-icon {
-    display: inline-flex;
-    width: 1.25rem;
-    height: 1.25rem;
-  }
-
-  .chat-launcher-icon svg {
-    width: 100%;
-    height: 100%;
-  }
-
-  .chat.is-open .chat-launcher {
-    opacity: 0;
-    pointer-events: none;
   }
 
   /* ---------- PANEL ---------- */
