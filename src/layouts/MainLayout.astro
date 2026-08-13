@@ -17,6 +17,7 @@ const {
   customDescription = null,
   customOgTitle = null,
   hideFooter = false,
+  heroASangre = false,
 } = Astro.props;
 
 // Interface to type-check the properties
@@ -28,6 +29,13 @@ interface Props {
   customDescription?: string | null;
   customOgTitle?: string | null;
   hideFooter?: boolean;
+  /**
+   * La página empieza con un bloque que debe llegar hasta el borde superior de
+   * la pantalla, por debajo de la barra de navegación (hoy: el hero de la
+   * portada). Quita el relleno que separa el contenido de la barra; el bloque
+   * se encarga él mismo de que su contenido no quede tapado.
+   */
+  heroASangre?: boolean;
 }
 ---
 
@@ -102,7 +110,19 @@ interface Props {
       */
     }
     <Navbar />
-    <main id="main-content" class="w-full grow">
+    {
+      /*
+        La barra va `fixed` y no ocupa sitio en el flujo, así que el contenido
+        empieza pegado al borde superior. Estas páginas recuperan ese espacio
+        con un relleno equivalente al alto de la barra más su separación del
+        borde (unos 76 px); las que traen un hero a sangre lo dejan pasar por
+        debajo a propósito.
+      */
+    }
+    <main
+      id="main-content"
+      class:list={['w-full grow', !heroASangre && 'pt-[4.75rem]']}
+    >
       <slot />
     </main>
     {!hideFooter && <FooterSection />}

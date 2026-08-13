@@ -1,0 +1,57 @@
+---
+/**
+ * Botón del cotizador para la barra de navegación.
+ *
+ * Vivía flotando abajo a la derecha, junto al de WhatsApp. Subió aquí porque
+ * es donde se busca un carrito, y porque abajo competía por el mismo rincón
+ * con el asistente y con WhatsApp: tres cosas flotando en la misma esquina y
+ * ninguna se pulsa bien.
+ *
+ * Nace oculto y lo muestra `quoteCart.js` en cuanto hay una referencia
+ * acumulada: un botón de cotización con la cotización vacía no lleva a
+ * ninguna parte.
+ *
+ * Se renderiza dos veces —una en la fila del logo para el móvil, otra en la de
+ * los enlaces para el escritorio—, y por eso no lleva `id`. El script escucha
+ * por `[data-quote-toggle]` en plural, así que los dos abren el mismo panel.
+ */
+interface Props {
+  /** Clases del contenedor, para colocarlo en cada fila de la barra. */
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<button
+  type="button"
+  data-quote-toggle
+  hidden
+  class:list={[
+    'bg-brand-600 hover:bg-brand-700 group shadow-brand-900/20 inline-flex items-center gap-x-2 rounded-full px-4 py-2.5 text-sm font-bold text-white shadow-md ring-zinc-500 outline-hidden transition duration-300 hover:shadow-lg focus-visible:ring-3',
+    className,
+  ]}
+>
+  <svg
+    class="h-4 w-4 shrink-0"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.9"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    {/* Hoja de cotización: documento con renglones y su esquina doblada. */}
+    <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"
+    ></path>
+    <path d="M14 3v5h5"></path>
+    <path d="M9 13h6"></path>
+    <path d="M9 17h4"></path>
+  </svg>
+  <span>Cotización</span>
+  <span
+    class="text-brand-700 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-white px-1.5 text-xs font-bold tabular-nums"
+    data-quote-count>0</span
+  >
+</button>

@@ -1,8 +1,8 @@
 ---
 // Import the necessary dependencies
+import { Image } from 'astro:assets';
 import PrimaryCTA from '@components/ui/buttons/PrimaryCTA.astro';
 import SecondaryCTA from '@components/ui/buttons/SecondaryCTA.astro';
-import HeroSeal from '@components/ui/blocks/HeroSeal.astro';
 
 // Define props from Astro
 const {
@@ -12,6 +12,8 @@ const {
   primaryBtnURL,
   secondaryBtn,
   secondaryBtnURL,
+  src,
+  nextSection,
 } = Astro.props;
 
 // Define TypeScript interface for props
@@ -22,87 +24,164 @@ interface Props {
   primaryBtnURL?: string;
   secondaryBtn?: string;
   secondaryBtnURL?: string;
+  /** Fotografía de fondo, a pantalla completa. */
+  src: ImageMetadata;
+  /** Ancla de la sección siguiente, para la señal de "sigue hacia abajo". */
+  nextSection?: string;
 }
 ---
 
 {
   /*
-    Hero de la home: un bloque de azul de marca, a sangre, con el texto en
-    blanco.
+    Hero de la portada: la fotografía ocupa la pantalla entera y el texto va
+    encima.
 
-    El azul es el mismo en tema claro y en oscuro. No es un descuido: es el
-    color del logo y la primera cosa que se ve del sitio, así que cambiarlo
-    según el tema del visitante haría que la marca se presentara de dos formas
-    distintas. El resto de la página sí respeta el tema.
+    Tres decisiones:
 
-    Antes había una foto de fondo con máscara lateral. Se quitó a propósito:
-    con el azul lleno detrás, cualquier imagen o bien queda tapada por el color
-    o bien le abre un agujero por un lado, y en los dos casos el bloque deja de
-    leerse como una sola pieza.
+    · **Alto de pantalla completa** (`min-h-svh`, no `100vh`): en el móvil,
+      `vh` cuenta la barra de direcciones del navegador aunque esté visible, y
+      el hero acababa unos 100 px por debajo del borde real. `svh` mide lo que
+      de verdad se ve.
+
+    · **Empieza en el borde superior.** La barra de navegación va `fixed` y
+      pasa por encima, así que aquí no hay franja del fondo de la página sobre
+      la foto. Lo que separa el titular de la barra es el relleno de arriba de
+      este bloque, no un hueco.
+
+    · **El velo no es decoración.** Sobre una fotografía, el texto blanco se
+      lee o no según lo que caiga detrás de cada línea, y eso cambia con el
+      ancho de la pantalla. El degradado azul —opaco del lado del texto, casi
+      transparente del lado del producto— garantiza el contraste en cualquier
+      recorte sin tapar la foto.
   */
 }
-<section class="bg-brand-700 relative overflow-hidden">
+<section class="relative isolate flex min-h-svh items-center overflow-hidden">
+  <Image
+    src={src}
+    alt=""
+    class="absolute inset-0 -z-20 h-full w-full object-cover"
+    widths={[640, 1024, 1440, 1920]}
+    sizes="100vw"
+    loading="eager"
+    fetchpriority="high"
+    decoding="async"
+    draggable={false}
+  />
+
+  {
+    /* Velo de marca: horizontal para el contraste del texto, vertical para que
+      la barra de navegación y la señal de abajo tengan dónde apoyarse. */
+  }
   <div
-    class="relative mx-auto max-w-[85rem] px-10 py-20 sm:px-14 lg:px-20 lg:py-32"
+    class="from-brand-950/90 via-brand-950/55 absolute inset-0 -z-10 bg-gradient-to-r to-transparent"
+    aria-hidden="true"
   >
-    <div class="lg:grid lg:grid-cols-12 lg:items-center lg:gap-12">
-      {/* Title and description */}
-      <div class="lg:col-span-7 xl:col-span-6">
+  </div>
+  <div
+    class="from-brand-950/55 absolute inset-x-0 top-0 -z-10 h-40 bg-gradient-to-b to-transparent"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div
+    class="relative mx-auto w-full max-w-[85rem] px-10 pt-32 pb-28 sm:px-14 lg:px-20 lg:pt-40 lg:pb-32"
+  >
+    <div class="max-w-2xl">
+      {
+        /* About Fragment: https://docs.astro.build/en/basics/astro-syntax/#fragments */
+      }
+      <h1
+        class="block text-4xl font-bold tracking-tight text-balance text-white drop-shadow-sm sm:text-5xl lg:text-6xl xl:text-7xl"
+      >
+        <Fragment set:html={title} />
+      </h1>
+      {
+        subTitle && (
+          <p class="text-brand-50 mt-6 max-w-prose text-lg leading-relaxed text-pretty lg:text-xl">
+            {subTitle}
+          </p>
+        )
+      }
+      {
+        /* Action Button Section: This section includes two CTAs with their own styles and URL */
+      }
+      <div class="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
         {
-          /* Each h1 and p tag renders a portion of the title and subTitle defined above */
-        }
-        <h1
-          class="block text-4xl font-bold tracking-tight text-balance text-white sm:text-5xl lg:text-6xl xl:text-7xl"
-        >
-          {
-            /* About Fragment: https://docs.astro.build/en/basics/astro-syntax/#fragments */
-          }
-          <Fragment set:html={title} />
-        </h1>
-        {
-          subTitle && (
-            <p class="text-brand-50 mt-6 max-w-prose text-lg leading-relaxed text-pretty lg:text-xl">
-              {subTitle}
-            </p>
+          primaryBtn && (
+            <PrimaryCTA
+              title={primaryBtn}
+              url={primaryBtnURL}
+              size="lg"
+              tone="onBrand"
+            />
           )
         }
         {
-          /* Action Button Section: This section includes two CTAs with their own styles and URL */
+          secondaryBtn && (
+            <SecondaryCTA
+              title={secondaryBtn}
+              url={secondaryBtnURL}
+              size="lg"
+              tone="onBrand"
+            />
+          )
         }
-        <div class="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
-          {
-            primaryBtn && (
-              <PrimaryCTA
-                title={primaryBtn}
-                url={primaryBtnURL}
-                size="lg"
-                tone="onBrand"
-              />
-            )
-          }
-          {
-            secondaryBtn && (
-              <SecondaryCTA
-                title={secondaryBtn}
-                url={secondaryBtnURL}
-                size="lg"
-                tone="onBrand"
-              />
-            )
-          }
-        </div>
-      </div>
-
-      {
-        /*
-          El detalle gráfico del lado derecho. Por debajo de `lg` no se
-          renderiza: ahí el texto ocupa el ancho completo y el dibujo solo
-          alargaría la portada antes de llegar a los botones.
-        */
-      }
-      <div class="hidden lg:col-span-5 lg:block xl:col-span-6">
-        <HeroSeal />
       </div>
     </div>
   </div>
+
+  {
+    /*
+      La señal de que la página sigue. Un bloque que ocupa la pantalla entera
+      no deja ver que hay más abajo, y en un catálogo eso cuesta visitas a los
+      productos. Es un enlace de verdad, no un adorno: funciona con el teclado
+      y lleva al mismo sitio que mirando hacia abajo.
+    */
+  }
+  {
+    nextSection && (
+      <a
+        href={`#${nextSection}`}
+        class="text-brand-100 absolute inset-x-0 bottom-8 mx-auto flex w-fit flex-col items-center gap-y-1 rounded-full px-4 py-2 text-xs font-medium ring-white outline-hidden transition hover:text-white focus-visible:ring-3"
+      >
+        <span>Nuestras soluciones</span>
+        <svg
+          class="hero-cue h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </a>
+    )
+  }
 </section>
+
+<style>
+  /* Un vaivén corto y lento: lo justo para que se lea como "sigue bajando" sin
+     convertirse en el elemento que más se mueve de la portada. */
+  .hero-cue {
+    animation: hero-cue 2.4s ease-in-out infinite;
+  }
+
+  @keyframes hero-cue {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(3px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-cue {
+      animation: none;
+    }
+  }
+</style>

@@ -6,6 +6,7 @@ import HeroSectionAlt from '@components/sections/landing/HeroSectionAlt.astro';
 import ClientsSection from '@components/sections/landing/ClientsSection.astro';
 import TestimonialsSection from '@components/sections/testimonials/TestimonialsSection.astro';
 import ProductCard from '@components/ui/cards/ProductCard.astro';
+import heroImage from '@images/backgrounds/precinto-tecnologia.jpg';
 import testimonialsBackdrop from '@images/backgrounds/precintos-estudio.jpg';
 import { partnersData } from '@/data_files/constants';
 
@@ -23,7 +24,7 @@ const soluciones = (await getCollection('soluciones')).sort(
 );
 ---
 
-<MainLayout>
+<MainLayout heroASangre={true}>
   <HeroSection
     title=`<span class="text-brand-200">B&S</span>, Líderes en Seguridad Preventiva`
     subTitle="En B&S LOGISTICS nos especializamos en la distribución y comercialización de elementos de Seguridad preventiva. Estamos comprometidos en ofrecer productos de óptima calidad que permitan garantizar la trazabilidad y custodia de bienes y activos."
@@ -31,6 +32,8 @@ const soluciones = (await getCollection('soluciones')).sort(
     primaryBtnURL="/productos"
     secondaryBtn="Contáctenos"
     secondaryBtnURL="/contacto"
+    src={heroImage}
+    nextSection="soluciones"
   />
 
   {
@@ -43,8 +46,14 @@ const soluciones = (await getCollection('soluciones')).sort(
     )
   }
 
-  {/* Resumen de soluciones: cada tarjeta lleva a su propia página */}
-  <section class="mx-auto max-w-[85rem] px-10 py-16 sm:px-14 lg:px-20 lg:py-24">
+  {
+    /* Resumen de soluciones: cada tarjeta lleva a su propia página.
+      El `id` es el destino de la señal de "sigue hacia abajo" del hero. */
+  }
+  <section
+    id="soluciones"
+    class="mx-auto max-w-[85rem] px-10 py-16 sm:px-14 lg:px-20 lg:py-24"
+  >
     <div class="max-w-2xl">
       <h2
         class="text-3xl font-bold text-balance text-neutral-800 lg:text-5xl dark:text-neutral-100"

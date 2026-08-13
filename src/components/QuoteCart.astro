@@ -1,57 +1,21 @@
 ---
 /**
- * Cotizador flotante: botón con el número de referencias acumuladas y el panel
- * lateral desde donde se ajustan cantidades y se envía el pedido por WhatsApp.
+ * Panel del cotizador: desde aquí se ajustan cantidades, se dejan los datos de
+ * contacto y se envía el pedido por WhatsApp.
  *
  * Va en MainLayout, así que está disponible en todas las páginas. La lógica
- * está en @scripts/quoteCart.js; aquí solo el marcado.
+ * está en @scripts/quoteCart.js; aquí solo el marcado. El botón que lo abre
+ * vive en la barra de navegación (QuoteButton.astro), que es donde se busca un
+ * carrito.
+ *
+ * El panel es una pieza FLOTANTE, no un cajón pegado al borde: mismos bordes
+ * redondeados, mismo desenfoque y misma sombra que la píldora de la barra, y
+ * separado de los bordes de la pantalla. Antes era un cajón a sangre con
+ * fondo plano, y parecía de otro sitio.
  */
 import { CONTACT } from '@data/constants';
 ---
 
-{
-  /* Botones flotantes: WhatsApp directo y cotización acumulada.
-     Va en un <aside> para que su contenido quede dentro de una región con
-     nombre y no flote fuera de los landmarks de la página. */
-}
-<aside
-  aria-label="Acciones rápidas de contacto"
-  class="fixed right-4 bottom-4 z-60 flex flex-col items-end gap-3 sm:right-6 sm:bottom-6"
->
-  <button
-    type="button"
-    data-quote-toggle
-    hidden
-    class="bg-brand-600 hover:bg-brand-700 inline-flex items-center gap-x-2 rounded-full px-5 py-3 text-sm font-bold text-neutral-50 shadow-lg ring-zinc-500 outline-hidden transition duration-300 focus-visible:ring-3"
-  >
-    Cotización
-    <span
-      class="text-brand-700 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-white px-1.5 text-xs font-bold"
-      data-quote-count>0</span
-    >
-  </button>
-
-  <a
-    href={CONTACT.whatsapp}
-    target="_blank"
-    rel="noopener noreferrer"
-    aria-label="Escribir por WhatsApp"
-    class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg ring-zinc-500 outline-hidden transition duration-300 hover:bg-[#1eb457] focus-visible:ring-3"
-  >
-    <svg
-      class="h-7 w-7 fill-current"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <path
-        d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.174.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884a9.82 9.82 0 0 1 6.988 2.898 9.83 9.83 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.8 11.8 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.9 11.9 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.82 11.82 0 0 0-3.48-8.413"
-      ></path>
-    </svg>
-  </a>
-</aside>
-
-{/* Panel del cotizador */}
 <div
   data-quote-panel
   data-open="false"
@@ -61,83 +25,143 @@ import { CONTACT } from '@data/constants';
   role="dialog"
   class="pointer-events-none fixed inset-0 z-70 opacity-0 transition-opacity duration-300 data-[open=true]:pointer-events-auto data-[open=true]:opacity-100"
 >
+  {/* El fondo desenfocado: separa el panel de la página sin ocultarla. */}
   <div
     data-quote-backdrop
-    class="absolute inset-0 bg-neutral-900/50 backdrop-blur-sm"
+    class="absolute inset-0 bg-neutral-950/40 backdrop-blur-md"
   >
   </div>
 
+  {
+    /*
+      En pantallas anchas cuelga de debajo de la barra, arrimado a la derecha,
+      justo donde está el botón que lo abre. En el móvil ocupa casi todo, pero
+      conserva su margen: es lo que lo hace leer como algo que flota encima y
+      no como una pantalla nueva.
+    */
+  }
   <div
-    class="absolute inset-y-0 right-0 flex w-full max-w-md translate-x-full flex-col bg-neutral-100 shadow-2xl transition-transform duration-300 data-[open=true]:translate-x-0 dark:bg-neutral-900"
     data-quote-drawer
     data-open="false"
+    class="absolute inset-x-3 top-3 bottom-3 flex translate-y-3 scale-[0.98] flex-col overflow-hidden rounded-[28px] border border-white/60 bg-white/85 shadow-[0_30px_80px_-20px_rgb(0_51_92/0.45)] backdrop-blur-xl transition duration-300 data-[open=true]:translate-y-0 data-[open=true]:scale-100 sm:inset-x-auto sm:top-24 sm:right-6 sm:bottom-6 sm:w-[27rem] dark:border-white/10 dark:bg-neutral-900/85"
   >
     <div
-      class="flex items-center justify-between border-b border-neutral-200 px-5 py-4 dark:border-neutral-700"
+      class="flex items-center justify-between gap-3 border-b border-neutral-900/10 px-5 py-4 dark:border-white/10"
     >
-      <h2 class="text-lg font-bold text-neutral-800 dark:text-neutral-200">
-        Tu cotización
-      </h2>
+      <div class="flex items-center gap-x-3">
+        <span
+          class="bg-brand-600 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white"
+          aria-hidden="true"
+        >
+          <svg
+            class="h-4.5 w-4.5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.9"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"
+            ></path>
+            <path d="M14 3v5h5"></path>
+            <path d="M9 13h6"></path>
+            <path d="M9 17h4"></path>
+          </svg>
+        </span>
+        <div>
+          <h2
+            class="text-base font-bold text-neutral-800 dark:text-neutral-100"
+          >
+            Su cotización
+          </h2>
+          <p class="text-xs text-neutral-600 dark:text-neutral-400">
+            <span data-quote-count>0</span> referencias · <span data-quote-total
+              >0</span
+            > unidades
+          </p>
+        </div>
+      </div>
       <button
         type="button"
         data-quote-close
         aria-label="Cerrar la cotización"
-        class="flex h-11 w-11 items-center justify-center rounded-lg text-2xl leading-none text-neutral-600 outline-hidden transition hover:text-neutral-800 focus-visible:ring-3 dark:text-neutral-400 dark:hover:text-neutral-200"
-        >&times;</button
+        class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-neutral-900/5 text-neutral-600 outline-hidden transition hover:bg-neutral-900/10 hover:text-neutral-800 focus-visible:ring-3 dark:bg-white/10 dark:text-neutral-300 dark:hover:bg-white/20 dark:hover:text-white"
       >
+        <svg
+          class="h-4 w-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path d="M18 6 6 18M6 6l12 12"></path>
+        </svg>
+      </button>
     </div>
 
-    <div class="grow overflow-y-auto px-5 py-4">
-      <p
-        data-quote-empty
-        class="text-sm text-neutral-600 dark:text-neutral-400"
-      >
-        Aún no has agregado referencias. Búscalas en el catálogo y pulsa
-        «Añadir».
-      </p>
+    <div class="grow overflow-y-auto px-5 py-5">
+      <div data-quote-empty class="py-8 text-center">
+        <p class="text-sm text-neutral-600 dark:text-neutral-400">
+          Todavía no ha agregado referencias. Búsquelas en el catálogo y pulse
+          «Añadir».
+        </p>
+        <a
+          href="/catalogo"
+          class="border-brand-300 text-brand-700 hover:bg-brand-50 dark:text-brand-300 mt-4 inline-flex items-center rounded-full border px-4 py-2 text-sm font-bold transition dark:border-white/20 dark:hover:bg-white/10"
+        >
+          Ir al catálogo
+        </a>
+      </div>
 
       <div data-quote-filled hidden>
-        <ul data-quote-list class="grid"></ul>
+        <ul data-quote-list class="grid gap-2"></ul>
 
-        <p class="mt-4 text-sm text-neutral-600 dark:text-neutral-400">
-          Total: <span data-quote-total class="font-bold">0</span> unidades. Ajusta
-          las cantidades antes de enviar.
+        <p class="mt-5 text-xs text-neutral-600 dark:text-neutral-400">
+          Las cantidades son orientativas: al cotizar le confirmamos
+          disponibilidad y condiciones.
         </p>
 
-        <div class="mt-6 grid gap-3">
-          <label class="grid gap-1">
+        <div class="mt-5 grid gap-3">
+          <label class="grid gap-1.5">
             <span
-              class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
+              class="text-xs font-bold tracking-wide text-neutral-700 uppercase dark:text-neutral-300"
               >Nombre</span
             >
             <input
               type="text"
               data-quote-field="name"
               autocomplete="name"
-              class="focus:border-brand-500 focus:ring-brand-500 rounded-lg border border-neutral-300 bg-neutral-50 px-3 py-2 text-sm text-neutral-800 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-200"
+              placeholder="Su nombre"
+              class="focus:border-brand-500 focus:ring-brand-200 rounded-xl border border-neutral-300 bg-white/70 px-3.5 py-2.5 text-sm text-neutral-800 outline-hidden focus:ring-3 dark:border-neutral-600 dark:bg-neutral-800/70 dark:text-neutral-100"
             />
           </label>
-          <label class="grid gap-1">
+          <label class="grid gap-1.5">
             <span
-              class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
+              class="text-xs font-bold tracking-wide text-neutral-700 uppercase dark:text-neutral-300"
               >Empresa</span
             >
             <input
               type="text"
               data-quote-field="company"
               autocomplete="organization"
-              class="focus:border-brand-500 focus:ring-brand-500 rounded-lg border border-neutral-300 bg-neutral-50 px-3 py-2 text-sm text-neutral-800 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-200"
+              placeholder="Razón social"
+              class="focus:border-brand-500 focus:ring-brand-200 rounded-xl border border-neutral-300 bg-white/70 px-3.5 py-2.5 text-sm text-neutral-800 outline-hidden focus:ring-3 dark:border-neutral-600 dark:bg-neutral-800/70 dark:text-neutral-100"
             />
           </label>
-          <label class="grid gap-1">
+          <label class="grid gap-1.5">
             <span
-              class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
+              class="text-xs font-bold tracking-wide text-neutral-700 uppercase dark:text-neutral-300"
               >Observaciones</span
             >
             <textarea
               rows="3"
               data-quote-field="notes"
-              class="focus:border-brand-500 focus:ring-brand-500 rounded-lg border border-neutral-300 bg-neutral-50 px-3 py-2 text-sm text-neutral-800 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-200"
+              placeholder="Ciudad de entrega, personalización, plazos…"
+              class="focus:border-brand-500 focus:ring-brand-200 rounded-xl border border-neutral-300 bg-white/70 px-3.5 py-2.5 text-sm text-neutral-800 outline-hidden focus:ring-3 dark:border-neutral-600 dark:bg-neutral-800/70 dark:text-neutral-100"
             ></textarea>
           </label>
         </div>
@@ -145,21 +169,30 @@ import { CONTACT } from '@data/constants';
     </div>
 
     <div
-      class="border-t border-neutral-200 px-5 py-4 dark:border-neutral-700"
+      class="border-t border-neutral-900/10 px-5 py-4 dark:border-white/10"
       data-quote-filled
       hidden
     >
       <button
         type="button"
         data-quote-send
-        class="inline-flex w-full items-center justify-center gap-x-2 rounded-lg bg-[#25D366] px-5 py-3 text-sm font-bold text-white ring-zinc-500 outline-hidden transition duration-300 hover:bg-[#1eb457] focus-visible:ring-3"
+        class="inline-flex w-full items-center justify-center gap-x-2 rounded-full bg-[#25D366] px-5 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#25D366]/25 ring-zinc-500 outline-hidden transition duration-300 hover:bg-[#1eb457] focus-visible:ring-3"
       >
+        <svg
+          class="h-4.5 w-4.5 fill-current"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.174.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884a9.82 9.82 0 0 1 6.988 2.898 9.83 9.83 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.8 11.8 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.9 11.9 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.82 11.82 0 0 0-3.48-8.413"
+          ></path>
+        </svg>
         Enviar por WhatsApp
       </button>
       <p
-        class="mt-2 text-center text-xs text-neutral-600 dark:text-neutral-400"
+        class="mt-2.5 text-center text-xs text-neutral-600 dark:text-neutral-400"
       >
-        Se abre WhatsApp con el listado ya escrito. Puedes revisarlo antes de
+        Se abre WhatsApp con el listado ya escrito. Puede revisarlo antes de
         enviarlo.
       </p>
     </div>

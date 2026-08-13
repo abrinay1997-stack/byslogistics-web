@@ -38,8 +38,8 @@ src/
 │   └── styles/global.css     Tema de Tailwind. Aquí vive la paleta de marca
 ├── components/
 │   ├── BrandLogo.astro       Logo oficial
-│   ├── ChatWidget.astro      Burbuja del asistente (abajo a la izquierda)
-│   ├── QuoteCart.astro       Botones flotantes y panel del cotizador
+│   ├── ChatWidget.astro      Burbuja del asistente (abajo a la derecha)
+│   ├── QuoteCart.astro       Panel del cotizador (el botón está en la barra)
 │   ├── sections/             Bloques grandes de página
 │   └── ui/                   Piezas reutilizables
 ├── content/
@@ -201,12 +201,16 @@ La usan los encabezados de página (`MainSection`, props `backdrop` y
 La sección contenedora debe ser `relative overflow-hidden` y su contenido ir en
 un `div` `relative`.
 
-El hero de la portada no lo usa: va sobre azul de marca lleno (`bg-brand-700`)
-con el texto en blanco, sin foto. Con el color detrás, una imagen o queda tapada
-o abre un hueco por un lado, y en los dos casos el bloque deja de leerse como
-una sola pieza. Ese azul es el mismo en tema claro y en oscuro, a propósito: es
-lo primero que se ve del sitio y la marca no debería presentarse de dos formas
-distintas según la configuración del visitante.
+El hero de la portada no lo usa: la fotografía ocupa el bloque entero y el
+texto va encima, con un velo azul en degradado que garantiza el contraste sin
+tapar la foto. Ese velo no es decoración: sobre una imagen, el texto blanco se
+lee o no según lo que caiga detrás de cada línea, y eso cambia con el ancho de
+la pantalla.
+
+El hero mide `min-h-svh` —la pantalla completa— y empieza en el borde superior,
+por debajo de la barra de navegación, que va flotando por encima. `svh` y no
+`vh`: en el móvil, `vh` cuenta la barra de direcciones del navegador aunque
+esté a la vista, y el bloque se pasaba de largo.
 
 ---
 
@@ -247,6 +251,34 @@ Lo acumulado vive en `localStorage`, de modo que sobrevive a la navegación entr
 páginas. Al enviar, se abre WhatsApp con el listado, las cantidades y los datos
 de contacto ya escritos. **No se envía nada a ningún servidor** hasta que la
 persona pulsa enviar.
+
+El botón que lo abre vive en la barra de navegación, arriba a la derecha
+(`QuoteButton.astro`), que es donde se busca un carrito. Nace oculto y aparece
+en cuanto hay una referencia acumulada: un botón de cotización con la
+cotización vacía no lleva a ninguna parte. Se renderiza dos veces —una para el
+móvil, junto al logo, y otra para el escritorio, al final de los enlaces—
+porque dentro del menú plegable quedaría escondido justo cuando hay algo que
+enviar.
+
+El panel es una pieza flotante, con los mismos bordes redondeados, el mismo
+desenfoque y la misma sombra que la píldora de la barra. Antes era un cajón
+pegado al borde con fondo plano, y parecía de otro sitio.
+
+### Los tres rincones
+
+Tres cosas compiten por la atención en una página de catálogo, y cada una tiene
+su sitio:
+
+| Pieza      | Dónde                      | Por qué                                       |
+| ---------- | -------------------------- | --------------------------------------------- |
+| Cotización | Barra, arriba a la derecha | Es donde se busca un carrito                  |
+| Asistente  | Abajo a la derecha         | El rincón de la ayuda                         |
+| WhatsApp   | Dentro del asistente       | En el saludo, en el pie y cuando no sabe algo |
+
+El botón flotante de WhatsApp se retiró de esa esquina: tres cosas flotando en
+el mismo rincón se tapan entre ellas y ninguna se pulsa bien. La vía directa
+con una persona no se perdió —está a la vista al abrir la burbuja, y también en
+el pie de página, en la página de contacto y en el cierre de cada página.
 
 ---
 
@@ -345,8 +377,9 @@ Qué cubren, en resumen:
 - **Navegador:** los filtros del catálogo, el buscador sin tildes, el cotizador
   completo (acumular, no duplicar, quitar, mensaje de WhatsApp, foco atrapado,
   cerrar con Escape), el envío del formulario con su alternativa por WhatsApp,
-  el menú móvil, el encogido de la barra al bajar, la burbuja del asistente y
-  que ninguna página desborde horizontalmente.
+  el menú móvil, el encogido de la barra al bajar, el hero a pantalla completa,
+  el cotizador desde la barra, la burbuja del asistente y que ninguna página
+  desborde horizontalmente.
 - **Accesibilidad:** axe sobre nueve páginas, exigiendo cero violaciones serias
   o críticas de WCAG 2.1 AA.
 

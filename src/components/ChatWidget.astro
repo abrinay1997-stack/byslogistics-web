@@ -7,9 +7,11 @@ import { SITE, CONTACT } from '@data/constants';
  *
  * Tres decisiones que no son de estilo:
  *
- * 1. **Va abajo a la IZQUIERDA.** La esquina derecha ya la ocupan el botón de
- *    WhatsApp y el del cotizador (ver QuoteCart.astro). Tres cosas flotando en
- *    el mismo rincón se tapan entre ellas y ninguna se pulsa bien.
+ * 1. **Va abajo a la DERECHA, donde estaba el botón de WhatsApp.** Es el sitio
+ *    donde se busca la ayuda, y ahora está libre: el cotizador se subió a la
+ *    barra de navegación y el atajo a WhatsApp vive dentro de esta burbuja
+ *    —en el saludo, en el pie y en cuanto el asistente no sabe algo—, así que
+ *    no se pierde la vía directa con una persona, se gana una antes.
  *
  * 2. **Las sugerencias iniciales no son decorado.** Dirigen la conversación
  *    hacia preguntas que la base de conocimiento responde bien. Con un modelo
@@ -102,6 +104,18 @@ const sugerencias = [
           Pregúnteme lo que necesite sobre precintos, tulas, cajas de seguridad
           o cómo cotizar. Si no lo sé, le paso con una persona del equipo.
         </p>
+        {
+          /* El atajo a WhatsApp desde el primer mensaje: quien entra buscando
+             hablar con alguien no tiene que leerse una respuesta antes. */
+        }
+        <div class="chat-actions">
+          <a
+            class="chat-action"
+            href={CONTACT.whatsapp}
+            target="_blank"
+            rel="noopener noreferrer">Escribir por WhatsApp</a
+          >
+        </div>
       </div>
       <div class="chat-suggestions" data-chat-suggestions>
         {
@@ -145,11 +159,16 @@ const sugerencias = [
       </button>
     </form>
 
+    {
+      /* El espacio antes del enlace va explícito: el minificador del build
+         colapsa el salto de línea entre el texto y la etiqueta, y quedaba
+         "sitio.Hablar con una persona" todo junto. */
+    }
     <p class="chat-foot">
-      Respuestas generadas con la información publicada en el sitio.
-      <a href={CONTACT.whatsapp} target="_blank" rel="noopener noreferrer">
-        Hablar con una persona
-      </a>
+      Respuestas generadas con la información publicada en el sitio.{' '}
+      <a href={CONTACT.whatsapp} target="_blank" rel="noopener noreferrer"
+        >Hablar con una persona</a
+      >
     </p>
   </section>
 </div>
@@ -321,7 +340,7 @@ const sugerencias = [
   .chat {
     position: fixed;
     bottom: 1rem;
-    left: 1rem;
+    right: 1rem;
     /* Por debajo del panel del cotizador (z-70) y del backdrop, por encima del
        resto de la página. */
     z-index: 60;
@@ -331,7 +350,7 @@ const sugerencias = [
   @media (min-width: 640px) {
     .chat {
       bottom: 1.5rem;
-      left: 1.5rem;
+      right: 1.5rem;
     }
   }
 
@@ -384,7 +403,7 @@ const sugerencias = [
   /* ---------- PANEL ---------- */
   .chat-panel {
     position: absolute;
-    left: 0;
+    right: 0;
     bottom: 0;
     display: flex;
     flex-direction: column;

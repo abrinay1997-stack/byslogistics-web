@@ -4,20 +4,34 @@ import ThemeIcon from '@components/ThemeIcon.astro';
 import NavLink from '@components/ui/links/NavLink.astro';
 import strings from '@utils/navigation.ts';
 import BrandLogo from '@components/BrandLogo.astro';
+import QuoteButton from '@components/ui/buttons/QuoteButton.astro';
 import { SITE } from '@/data_files/constants';
 ---
 
 {
   /* Main header component. La píldora queda contenida y separada de los bordes;
-     el resto de la página va a sangre (ver MainLayout). */
+     el resto de la página va a sangre (ver MainLayout).
+
+     Va `fixed` y no `sticky`: así deja de ocupar sitio en el flujo y el
+     contenido puede pasarle por debajo, que es lo que permite un hero a
+     pantalla completa empezando en el borde superior. Antes la barra empujaba
+     la página hacia abajo y quedaba una franja del fondo del cuerpo por encima
+     del hero. Las páginas que no llevan hero a sangre recuperan ese espacio
+     con el relleno que les pone MainLayout. */
 }
 <header
   data-navbar
-  class="navbar sticky inset-x-0 top-4 z-50 mx-auto flex w-full max-w-(--breakpoint-2xl) flex-wrap px-4 text-sm sm:px-6 md:flex-nowrap md:justify-start lg:px-8"
+  class="navbar fixed inset-x-0 top-4 z-50 mx-auto flex w-full max-w-(--breakpoint-2xl) flex-wrap px-4 text-sm sm:px-6 md:flex-nowrap md:justify-start lg:px-8"
 >
-  {/* Navigation container */}
+  {
+    /* Navigation container.
+
+       La píldora es translúcida, pero no tanto: sobre la foto oscura del hero,
+       con un 60% de opacidad el logo —de letras negras— se leía a media asta.
+       Con 85% conserva el vidrio y recupera el contraste. */
+  }
   <nav
-    class="navbar-pill border-brand-100/40 bg-brand-50/60 relative mx-2 w-full rounded-[36px] border px-4 py-3 backdrop-blur-md md:flex md:items-center md:justify-between md:px-6 md:py-0 lg:px-8 xl:mx-auto dark:border-neutral-700/40 dark:bg-neutral-800/80 dark:backdrop-blur-md"
+    class="navbar-pill border-brand-100/40 bg-brand-50/85 relative mx-2 w-full rounded-[36px] border px-4 py-3 backdrop-blur-md md:flex md:items-center md:justify-between md:px-6 md:py-0 lg:px-8 xl:mx-auto dark:border-neutral-700/40 dark:bg-neutral-800/85 dark:backdrop-blur-md"
     aria-label="Global"
   >
     <div class="flex items-center justify-between">
@@ -29,8 +43,14 @@ import { SITE } from '@/data_files/constants';
       >
         <BrandLogo class="h-auto w-24" />
       </a>
+      {
+        /* En móvil el cotizador acompaña al logo: dentro del menú plegable
+          quedaría escondido justo cuando hay algo que enviar. */
+      }
+      <QuoteButton class="ml-auto md:hidden" />
+
       {/* Collapse toggle for smaller screens */}
-      <div class="mr-5 ml-auto md:hidden">
+      <div class="mr-5 ml-3 md:hidden">
         <button
           type="button"
           class="hs-collapse-toggle flex h-11 w-11 items-center justify-center rounded-full text-sm font-bold text-neutral-600 transition duration-300 hover:bg-neutral-200 disabled:pointer-events-none disabled:opacity-50 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:focus:outline-hidden"
@@ -94,6 +114,8 @@ import { SITE } from '@/data_files/constants';
         <span class="hidden md:inline-block">
           <ThemeIcon />
         </span>
+
+        <QuoteButton class="hidden md:inline-flex" />
       </div>
     </div>
   </nav>
@@ -144,12 +166,22 @@ import { SITE } from '@/data_files/constants';
       box-shadow 0.28s ease;
   }
 
-  .navbar.is-scrolled .navbar-pill {
+  /* Y lo mismo con el menú de móvil desplegado. Al pasar la barra a `fixed`,
+     ese menú dejó de empujar la página y se abre ENCIMA de ella: translúcido,
+     los enlaces se leerían sobre la foto del hero. Preline marca el desplegable
+     abierto con `.open`. */
+  /* Sin `:global()` dentro de `:has()`: Astro lo deja tal cual en la hoja de
+     estilos, el selector queda inválido y la regla no llega a aplicarse nunca.
+     El desplegable está en esta misma plantilla, así que el alcance del
+     componente ya lo alcanza. */
+  .navbar.is-scrolled .navbar-pill,
+  .navbar-pill:has(.hs-collapse.open) {
     background-color: var(--color-brand-50);
     box-shadow: 0 10px 30px -12px rgb(0 51 92 / 0.35);
   }
 
-  :global(.dark) .navbar.is-scrolled .navbar-pill {
+  :global(.dark) .navbar.is-scrolled .navbar-pill,
+  :global(.dark) .navbar-pill:has(.hs-collapse.open) {
     background-color: var(--color-neutral-800);
     box-shadow: 0 10px 30px -12px rgb(0 0 0 / 0.55);
   }

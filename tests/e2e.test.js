@@ -84,6 +84,17 @@ after(async () => {
 
 const skip = () => (chromium ? false : 'playwright no está instalado');
 
+/**
+ * Abre el panel del cotizador.
+ *
+ * El botón está dos veces en la barra —uno para el móvil y otro para el
+ * escritorio, ver QuoteButton.astro—, así que hay que quedarse con el que se
+ * ve a este ancho: un selector a secas encuentra los dos y Playwright, en modo
+ * estricto, se planta.
+ */
+const abrirCotizacion = page =>
+  page.locator('[data-quote-toggle]:visible').first().click();
+
 describe('catálogo con filtros', { skip: skip() }, () => {
   test('filtra por línea de producto y acota las categorías', async () => {
     const page = await browser.newPage();
@@ -181,7 +192,7 @@ describe('cotizador', { skip: skip() }, () => {
     const page = await browser.newPage();
     await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
     await page.locator('[data-quote-add]').first().click();
-    await page.click('[data-quote-toggle]');
+    await abrirCotizacion(page);
     await page.waitForTimeout(400);
     await page.locator('[data-quote-qty]').first().fill('2500');
     await page.fill('[data-quote-field="name"]', 'Richard');
@@ -211,7 +222,7 @@ describe('cotizador', { skip: skip() }, () => {
     const page = await browser.newPage();
     await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
     await page.locator('[data-quote-add]').first().click();
-    await page.click('[data-quote-toggle]');
+    await abrirCotizacion(page);
     await page.waitForTimeout(400);
     await page.locator('[data-quote-remove]').first().click();
     await page.waitForTimeout(150);
@@ -223,7 +234,7 @@ describe('cotizador', { skip: skip() }, () => {
     const page = await browser.newPage();
     await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
     await page.locator('[data-quote-add]').first().click();
-    await page.click('[data-quote-toggle]');
+    await abrirCotizacion(page);
     await page.waitForTimeout(400);
     for (let i = 0; i < 12; i++) {
       await page.keyboard.press('Tab');
@@ -239,7 +250,7 @@ describe('cotizador', { skip: skip() }, () => {
     const page = await browser.newPage();
     await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
     await page.locator('[data-quote-add]').first().click();
-    await page.click('[data-quote-toggle]');
+    await abrirCotizacion(page);
     await page.waitForTimeout(400);
     await page.keyboard.press('Escape');
     await page.waitForTimeout(400);
@@ -633,19 +644,147 @@ describe('asistente del sitio', { skip: skip() }, () => {
     await page.close();
   });
 
-  test('la burbuja no tapa los botones de WhatsApp y cotización', async () => {
+  test('la burbuja ocupa el rincón, ahora sin competencia', async () => {
+    // El botón de WhatsApp se retiró de esa esquina y el del cotizador subió a
+    // la barra, así que la burbuja tiene que quedarse sola abajo a la derecha.
     const page = await browser.newPage({
       viewport: { width: 390, height: 844 },
     });
     await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+
     const chat = await page.locator('[data-chat-toggle]').boundingBox();
-    const whatsapp = await page
-      .locator('a[aria-label="Escribir por WhatsApp"]')
-      .boundingBox();
+    const { ancho, alto } = await page.evaluate(() => ({
+      ancho: window.innerWidth,
+      alto: window.innerHeight,
+    }));
     assert.ok(
-      chat.x + chat.width <= whatsapp.x,
-      'la burbuja del chat se solapa con el botón de WhatsApp'
+      chat.x + chat.width > ancho * 0.6 && chat.y > alto * 0.6,
+      `la burbuja no está abajo a la derecha (${chat.x}, ${chat.y})`
     );
+
+    assert.equal(
+      await page.locator('a[aria-label="Escribir por WhatsApp"]').count(),
+      0,
+      'volvió el botón flotante de WhatsApp a la esquina de la burbuja'
+    );
+
+    // Y WhatsApp sigue a un clic: el atajo está en el saludo del asistente.
+    await page.click('[data-chat-toggle]');
+    const atajo = page.locator('[data-chat-panel] a[href*="wa.me"]').first();
+    assert.ok(await atajo.isVisible(), 'no hay atajo a WhatsApp en el saludo');
+    await page.close();
+  });
+});
+
+describe('hero de la portada', { skip: skip() }, () => {
+  test('ocupa la pantalla completa, sin franjas arriba ni abajo', async () => {
+    const page = await browser.newPage({
+      viewport: { width: 1280, height: 800 },
+    });
+    await page.goto(base + '/', { waitUntil: 'networkidle' });
+
+    const medidas = await page.evaluate(() => {
+      const hero = document.querySelector('main section');
+      const r = hero.getBoundingClientRect();
+      return { top: r.top, alto: r.height, ventana: window.innerHeight };
+    });
+
+    assert.equal(
+      Math.round(medidas.top),
+      0,
+      'quedó una franja del fondo de la página por encima del hero'
+    );
+    assert.ok(
+      medidas.alto >= medidas.ventana - 1,
+      `el hero no llena la pantalla (${medidas.alto} de ${medidas.ventana})`
+    );
+    await page.close();
+  });
+
+  test('la barra flota por encima de la foto, no sobre un hueco', async () => {
+    const page = await browser.newPage({
+      viewport: { width: 1280, height: 800 },
+    });
+    await page.goto(base + '/', { waitUntil: 'networkidle' });
+    const solapa = await page.evaluate(() => {
+      const nav = document
+        .querySelector('[data-navbar] nav')
+        .getBoundingClientRect();
+      const hero = document
+        .querySelector('main section')
+        .getBoundingClientRect();
+      return nav.top >= hero.top && nav.bottom <= hero.bottom;
+    });
+    assert.ok(solapa, 'la barra dejó de ir por encima del hero');
+    await page.close();
+  });
+
+  test('la señal de continuar deja el destino a la vista, no bajo la barra', async () => {
+    // Es el único salto a un ancla del sitio, y el que justifica el colchón
+    // `scroll-pt` del layout.
+    const page = await browser.newPage({
+      viewport: { width: 1280, height: 800 },
+    });
+    await page.goto(base + '/', { waitUntil: 'networkidle' });
+    await page.click('a[href="#soluciones"]');
+    await page.waitForTimeout(700);
+
+    const { navBottom, destinoTop } = await page.evaluate(() => {
+      const nav = document
+        .querySelector('[data-navbar] nav')
+        .getBoundingClientRect();
+      const destino = document
+        .querySelector('#soluciones')
+        .getBoundingClientRect();
+      return { navBottom: nav.bottom, destinoTop: destino.top };
+    });
+    assert.ok(
+      destinoTop >= navBottom,
+      `la sección aterrizó debajo de la barra (${destinoTop} < ${navBottom})`
+    );
+    await page.close();
+  });
+});
+
+describe('cotizador en la barra', { skip: skip() }, () => {
+  test('aparece al acumular y abre el panel flotante', async () => {
+    const page = await browser.newPage({
+      viewport: { width: 1280, height: 800 },
+    });
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+
+    const boton = page.locator('[data-quote-toggle]:visible');
+    assert.equal(
+      await boton.count(),
+      0,
+      'con la cotización vacía el botón no lleva a ninguna parte'
+    );
+
+    await page.locator('[data-quote-add]').first().click();
+    await page.waitForTimeout(200);
+    assert.equal(await boton.count(), 1);
+
+    // Está en la barra, arriba a la derecha.
+    const caja = await boton.boundingBox();
+    const nav = await page.locator('[data-navbar] nav').boundingBox();
+    assert.ok(
+      caja.y >= nav.y && caja.y + caja.height <= nav.y + nav.height + 1,
+      'el botón del cotizador no está dentro de la barra'
+    );
+    assert.ok(
+      caja.x > 1280 * 0.6,
+      'el botón del cotizador no está a la derecha'
+    );
+
+    await abrirCotizacion(page);
+    await page.waitForTimeout(500);
+
+    // El panel flota: separado de los bordes por los cuatro costados.
+    const panel = await page.locator('[data-quote-drawer]').boundingBox();
+    assert.ok(panel.x > 0, 'el panel toca el borde izquierdo');
+    assert.ok(panel.y > 0, 'el panel toca el borde superior');
+    assert.ok(panel.x + panel.width < 1280, 'el panel toca el borde derecho');
+    assert.ok(panel.y + panel.height < 800, 'el panel toca el borde inferior');
     await page.close();
   });
 });
