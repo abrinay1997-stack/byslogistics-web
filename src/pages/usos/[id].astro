@@ -1,0 +1,266 @@
+---
+import type { GetStaticPaths } from 'astro';
+import type { CollectionEntry } from 'astro:content';
+import { getCollection, render } from 'astro:content';
+import { Image } from 'astro:assets';
+import MainLayout from '@/layouts/MainLayout.astro';
+import Breadcrumb from '@components/ui/blocks/Breadcrumb.astro';
+import HeroSectionAlt from '@components/sections/landing/HeroSectionAlt.astro';
+import Icon from '@components/ui/icons/Icon.astro';
+import { SITE } from '@data/constants';
+
+/**
+ * Guía de uso. Una por aplicación real de los productos.
+ *
+ * Estas páginas son la puerta de entrada del sitio por búsqueda orgánica: quien
+ * busca "cómo asegurar la puerta de un contenedor" no conoce todavía el nombre
+ * del producto, así que no va a llegar por la ficha de la categoría. Por eso
+ * cada guía termina en las referencias que corresponden, con su enlace al
+ * catálogo.
+ *
+ * Los datos estructurados se publican como un grafo con tres piezas: el
+ * artículo, la ruta de migas y —cuando la guía trae preguntas— el FAQPage, que
+ * es lo que permite que la respuesta salga directamente en el buscador.
+ */
+export const getStaticPaths: GetStaticPaths = async () => {
+  const usos = await getCollection('usos');
+  return usos.map(guia => ({ params: { id: guia.id }, props: { guia } }));
+};
+
+interface Props {
+  guia: CollectionEntry<'usos'>;
+}
+
+const { guia } = Astro.props;
+const { Content } = await render(guia);
+
+const url = `${SITE.url}/usos/${guia.id}`;
+const pageTitle = `${guia.data.title} | ${SITE.title}`;
+
+const todas = (await getCollection('usos')).sort(
+  (a, b) => a.data.order - b.data.order
+);
+const relacionadas = guia.data.relacionados
+  .map(id => todas.find(x => x.id === id))
+  .filter((x): x is CollectionEntry<'usos'> => Boolean(x));
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Article',
+      '@id': url,
+      headline: guia.data.title,
+      description: guia.data.description,
+      inLanguage: 'es-CO',
+      mainEntityOfPage: url,
+      about: guia.data.sector,
+      publisher: {
+        '@type': 'Organization',
+        name: SITE.legalName,
+        url: SITE.url,
+      },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Inicio', item: SITE.url },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Usos',
+          item: `${SITE.url}/usos`,
+        },
+        { '@type': 'ListItem', position: 3, name: guia.data.title, item: url },
+      ],
+    },
+    ...(guia.data.faq.length > 0
+      ? [
+          {
+            '@type': 'FAQPage',
+            mainEntity: guia.data.faq.map(item => ({
+              '@type': 'Question',
+              name: item.question,
+              acceptedAnswer: { '@type': 'Answer', text: item.answer },
+            })),
+          },
+        ]
+      : []),
+  ],
+};
+---
+
+<MainLayout
+  title={pageTitle}
+  customDescription={guia.data.description}
+  customOgTitle={guia.data.title}
+  structuredData={structuredData}
+>
+  <section class="mx-auto max-w-[85rem] px-10 pt-10 sm:px-14 lg:px-20">
+    <Breadcrumb
+      items={[
+        { name: 'Inicio', url: '/' },
+        { name: 'Usos', url: '/usos' },
+        { name: guia.data.title },
+      ]}
+    />
+  </section>
+
+  <section class="mx-auto max-w-[85rem] px-10 py-10 sm:px-14 lg:px-20 lg:py-14">
+    <div class="lg:grid lg:grid-cols-12 lg:gap-12">
+      <div class="lg:col-span-7">
+        <p
+          class="text-brand-700 dark:text-brand-400 text-sm font-bold tracking-wide uppercase"
+        >
+          {guia.data.sector}
+        </p>
+        <h1
+          class="mt-3 text-3xl font-bold text-balance text-neutral-800 lg:text-5xl dark:text-neutral-100"
+        >
+          {guia.data.title}
+        </h1>
+        <p
+          class="mt-5 max-w-prose text-lg leading-relaxed text-pretty text-neutral-600 dark:text-neutral-400"
+        >
+          {guia.data.description}
+        </p>
+      </div>
+
+      {
+        guia.data.heroImage && (
+          <div class="mt-8 lg:col-span-5 lg:mt-0">
+            <Image
+              class="aspect-[4/3] w-full rounded-2xl bg-white object-contain p-8"
+              src={guia.data.heroImage}
+              alt={guia.data.heroImageAlt ?? guia.data.title}
+              widths={[480, 720]}
+              sizes="(min-width: 1024px) 32rem, 90vw"
+              loading="eager"
+            />
+          </div>
+        )
+      }
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-[85rem] px-10 pb-16 sm:px-14 lg:px-20">
+    <div
+      class="prose prose-neutral dark:prose-invert prose-headings:font-bold prose-a:text-brand-700 dark:prose-a:text-brand-400 max-w-3xl"
+    >
+      <Content />
+    </div>
+  </section>
+
+  {
+    /* Las referencias que resuelven lo que acaba de leer. Es el puente entre la
+       búsqueda que trajo a la persona y el catálogo. */
+  }
+  {
+    guia.data.productos.length > 0 && (
+      <section class="border-t border-neutral-300 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900">
+        <div class="mx-auto max-w-[85rem] px-10 py-16 sm:px-14 lg:px-20">
+          <h2 class="text-2xl font-bold text-neutral-800 lg:text-3xl dark:text-neutral-100">
+            Productos para esta aplicación
+          </h2>
+
+          <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {guia.data.productos.map(producto => (
+              <a
+                href={producto.url}
+                class="group hover:border-brand-400 dark:hover:border-brand-400 flex flex-col overflow-hidden rounded-2xl border border-neutral-300 bg-neutral-50 ring-zinc-500 outline-hidden transition duration-300 hover:-translate-y-1 hover:shadow-xl focus-visible:ring-3 dark:border-neutral-700 dark:bg-neutral-950 dark:ring-zinc-200"
+              >
+                {producto.image && (
+                  <div class="flex aspect-[5/3] items-center justify-center bg-white">
+                    <Image
+                      src={producto.image}
+                      alt={producto.imageAlt ?? producto.name}
+                      class="h-full w-full object-contain p-5 transition-transform duration-500 group-hover:scale-105"
+                      widths={[320, 480]}
+                      sizes="(min-width: 1024px) 24rem, 90vw"
+                      loading="lazy"
+                    />
+                  </div>
+                )}
+                <div class="flex grow flex-col p-5">
+                  <h3 class="font-bold text-neutral-800 dark:text-neutral-100">
+                    {producto.name}
+                  </h3>
+                  {producto.note && (
+                    <p class="mt-2 grow text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                      {producto.note}
+                    </p>
+                  )}
+                  <span class="text-brand-600 dark:text-brand-400 mt-4 inline-flex items-center gap-x-2 text-sm font-bold">
+                    Ver referencias
+                    <span class="transition-transform duration-300 group-hover:translate-x-1">
+                      <Icon name="arrowRight" />
+                    </span>
+                  </span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    guia.data.faq.length > 0 && (
+      <section class="mx-auto max-w-[85rem] px-10 py-16 sm:px-14 lg:px-20">
+        <h2 class="text-2xl font-bold text-neutral-800 lg:text-3xl dark:text-neutral-100">
+          Preguntas frecuentes
+        </h2>
+        <div class="mt-8 grid max-w-3xl gap-4">
+          {guia.data.faq.map(item => (
+            <details class="group rounded-2xl border border-neutral-300 bg-neutral-100 p-5 dark:border-neutral-700 dark:bg-neutral-900">
+              <summary class="flex cursor-pointer items-center justify-between gap-4 font-bold text-neutral-800 dark:text-neutral-100">
+                {item.question}
+                <span
+                  class="text-brand-600 dark:text-brand-400 shrink-0 transition-transform duration-300 group-open:rotate-45"
+                  aria-hidden="true"
+                >
+                  +
+                </span>
+              </summary>
+              <p class="mt-3 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                {item.answer}
+              </p>
+            </details>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    relacionadas.length > 0 && (
+      <section class="mx-auto max-w-[85rem] px-10 pb-16 sm:px-14 lg:px-20">
+        <h2 class="text-2xl font-bold text-neutral-800 dark:text-neutral-100">
+          Siga leyendo
+        </h2>
+        <div class="mt-6 grid gap-4 sm:grid-cols-3">
+          {relacionadas.map(otra => (
+            <a
+              href={`/usos/${otra.id}`}
+              class="hover:border-brand-400 dark:hover:border-brand-400 rounded-2xl border border-neutral-300 p-5 ring-zinc-500 outline-hidden transition focus-visible:ring-3 dark:border-neutral-700 dark:ring-zinc-200"
+            >
+              <p class="text-brand-700 dark:text-brand-400 text-xs font-bold tracking-wide uppercase">
+                {otra.data.sector}
+              </p>
+              <p class="mt-2 font-bold text-neutral-800 dark:text-neutral-100">
+                {otra.data.title}
+              </p>
+            </a>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  <HeroSectionAlt
+    title="¿No sabe cuál corresponde a su operación?"
+    subTitle="Descríbanos qué punto necesita asegurar y le indicamos la referencia adecuada, con la cantidad estimada para su volumen."
+    url="/contacto"
+  />
+</MainLayout>

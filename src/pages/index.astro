@@ -5,7 +5,7 @@ import HeroSection from '@components/sections/landing/HeroSection.astro';
 import HeroSectionAlt from '@components/sections/landing/HeroSectionAlt.astro';
 import ClientsSection from '@components/sections/landing/ClientsSection.astro';
 import TestimonialsSection from '@components/sections/testimonials/TestimonialsSection.astro';
-import ProductCard from '@components/ui/cards/ProductCard.astro';
+import SolutionsCarousel from '@components/ui/blocks/SolutionsCarousel.astro';
 import heroImage from '@images/backgrounds/precinto-tecnologia.jpg';
 import testimonialsBackdrop from '@images/backgrounds/precintos-estudio.jpg';
 import { partnersData } from '@/data_files/constants';
@@ -69,19 +69,24 @@ const soluciones = (await getCollection('soluciones')).sort(
       </p>
     </div>
 
-    <div class="mt-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-      {
-        soluciones.map(solucion => (
-          <ProductCard
-            href={`/productos/${solucion.id}`}
-            title={solucion.data.title}
-            description={solucion.data.description}
-            image={solucion.data.cardImage}
-            imageAlt={solucion.data.cardImageAlt}
-            headingLevel="h3"
-          />
-        ))
-      }
+    {
+      /*
+        Carrusel y no la misma rejilla de /productos: quien baja por la portada
+        ya vio esas seis tarjetas si entró al listado, y repetirlas no le dice
+        nada nuevo. Aquí se recorren de lado, con la foto grande.
+      */
+    }
+    <div class="mt-6">
+      <SolutionsCarousel
+        soluciones={soluciones.map(solucion => ({
+          id: solucion.id,
+          title: solucion.data.title,
+          description: solucion.data.description,
+          image: solucion.data.cardImage,
+          imageAlt: solucion.data.cardImageAlt,
+          highlights: solucion.data.highlights,
+        }))}
+      />
     </div>
   </section>
 

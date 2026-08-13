@@ -159,9 +159,23 @@ const referenceCount = solucion.data.groups.reduce(
         <div class="mt-8 grid gap-10">
           {solucion.data.groups.map(group => (
             <div>
-              <h3 class="text-brand-700 dark:text-brand-400 text-sm font-bold tracking-wide uppercase">
-                {group.name}
-              </h3>
+              <div class="flex items-center gap-x-4">
+                {/* La foto es del tipo de producto, no de cada medida: las
+                    nueve bolsas courier se diferencian en centímetros. */}
+                {group.image && (
+                  <Image
+                    class="h-20 w-20 shrink-0 rounded-xl bg-white object-contain p-1.5"
+                    src={group.image}
+                    alt={group.imageAlt ?? group.name}
+                    widths={[160, 240]}
+                    sizes="5rem"
+                    loading="lazy"
+                  />
+                )}
+                <h3 class="text-brand-700 dark:text-brand-400 text-sm font-bold tracking-wide uppercase">
+                  {group.name}
+                </h3>
+              </div>
               <ul class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {group.products.map(product => (
                   <li class="flex flex-col rounded-lg border border-neutral-300 bg-neutral-100 px-4 py-3 dark:border-neutral-700 dark:bg-neutral-900">

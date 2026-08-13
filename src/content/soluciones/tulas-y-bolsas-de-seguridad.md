@@ -3,8 +3,8 @@ title: 'Tulas y Bolsas de Seguridad'
 description: 'Es la solución perfecta en seguridad para el transporte de valores y documentos. Están diseñadas para evidenciar cualquier intento de manipulación o apertura indebida.'
 order: 3
 icon: books
-cardImage: ../../images/productos/tula-de-seguridad.png
-cardImageAlt: 'Tula de seguridad azul con cierre y portadocumentos'
+cardImage: ../../images/productos/tula-seguridad-cremallera.jpg
+cardImageAlt: 'Tula de seguridad azul con cierre de cremallera'
 highlights:
   - 'Diseñadas para el transporte de valores y documentos'
   - 'Evidencian cualquier intento de apertura indebida'
@@ -12,10 +12,14 @@ highlights:
   - 'Disponibles en varias medidas'
 groups:
   - name: 'Tulas de seguridad'
+    image: ../../images/productos/tula-seguridad-cremallera.jpg
+    imageAlt: 'Tula de seguridad con cierre de cremallera'
     products:
       - name: 'Tula de Seguridad 30 x 40 cms'
         description: 'Azul.'
   - name: 'Bolsas de seguridad'
+    image: ../../images/productos/bolsa-de-seguridad.jpg
+    imageAlt: 'Bolsa de seguridad de un solo uso con numeración'
     products:
       - name: 'Bolsa de Seguridad 11 x 8,5 cms'
       - name: 'Bolsa de Seguridad 28 x 17 cms'
@@ -23,6 +27,8 @@ groups:
       - name: 'Bolsa de Seguridad 38 x 28 cms'
       - name: 'Bolsa de Seguridad 52 x 40 cms'
   - name: 'Bolsas courier'
+    image: ../../images/productos/bolsa-de-courier.jpg
+    imageAlt: 'Bolsa courier con solapa adhesiva y portaguía'
     products:
       - name: 'Bolsa Courier 25 x 19 cms'
       - name: 'Bolsa Courier 28 x 23 cms'

@@ -3,8 +3,8 @@ title: 'Etiquetas y Cintas de Seguridad'
 description: 'Permiten identificar manipulaciones no autorizadas dejando evidencia si hay un intento de remoción. Es ideal como sello de garantía o control de inventarios.'
 order: 2
 icon: frame
-cardImage: ../../images/productos/cinta-void-seguridad.png
-cardImageAlt: 'Cinta de seguridad azul con leyenda VOID al retirarla'
+cardImage: ../../images/productos/cinta-de-seguridad-en-rollo.jpg
+cardImageAlt: 'Rollo de cinta de seguridad con leyenda VOID'
 highlights:
   - 'Dejan evidencia visible ante cualquier intento de remoción'
   - 'Funcionan como sello de garantía'
@@ -12,10 +12,14 @@ highlights:
   - 'Disponibles en varias medidas, colores y acabados'
 groups:
   - name: 'Cintas de seguridad'
+    image: ../../images/productos/cinta-de-seguridad-en-rollo.jpg
+    imageAlt: 'Rollo de cinta de seguridad'
     products:
       - name: 'Cinta de Seguridad 50 x 3 cms'
       - name: 'Cinta de Seguridad 50 x 5 cms'
   - name: 'Etiquetas VOID'
+    image: ../../images/productos/etiqueta-void-no-transfer.jpg
+    imageAlt: 'Etiqueta VOID no transfer que deja la marca al retirarse'
     products:
       - name: 'Rollo VOID Troquelado 15 x 5 cms'
         description: 'Rojo.'
@@ -26,6 +30,8 @@ groups:
       - name: 'Etiqueta VOID No Transfer 5 cms'
       - name: 'Etiqueta No Transfer 5 x 3 cms'
   - name: 'Etiquetas OPENED'
+    image: ../../images/productos/etiqueta-de-seguridad-opened.jpg
+    imageAlt: 'Etiqueta de seguridad OPENED'
     products:
       - name: 'Etiqueta OPENED 2.2 x 1.5 cms'
         description: 'Azul claro.'
@@ -38,10 +44,14 @@ groups:
         description: 'Verde.'
       - name: 'Etiqueta OPENED 10 x 5 cms'
   - name: 'Etiquetas autodestructibles'
+    image: ../../images/productos/etiqueta-de-seguridad-autodestructible.jpg
+    imageAlt: 'Etiqueta de seguridad autodestructible'
     products:
       - name: 'Etiqueta Autodestructible 3.2 x 1.5 cms'
       - name: 'Etiqueta Autodestructible 5.0 x 2.5 cms'
   - name: 'Etiquetas holográficas'
+    image: ../../images/productos/etiqueta-en-holograma.jpg
+    imageAlt: 'Etiqueta holográfica de seguridad'
     products:
       - name: 'Etiqueta Holograma 1.3 x 1.0 cms'
         description: 'Plateado y dorado.'

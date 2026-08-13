@@ -75,6 +75,9 @@ export const GET: APIRoute = async () => {
   const precintos = (await getCollection('precintos')).sort(
     (a, b) => a.data.order - b.data.order
   );
+  const guias = (await getCollection('usos')).sort(
+    (a, b) => a.data.order - b.data.order
+  );
 
   const telefonos = enumerar([
     ...CONTACT.pbx.map(p => `P.B.X. ${p.label}`),
@@ -421,6 +424,39 @@ export const GET: APIRoute = async () => {
       text: faq.answer,
     });
   });
+
+  /* ---------------- Guías de uso ---------------- */
+
+  /*
+   * Las guías entran a la base con sus propias preguntas frecuentes, no solo
+   * con su título.
+   *
+   * El motivo: quien escribe al asistente pregunta igual que quien busca en
+   * Google —"¿qué precinto va en un carrotanque?"—, y esas respuestas ya están
+   * redactadas y revisadas en el frontmatter de cada guía. Reaprovecharlas es
+   * gratis y evita que el asistente conteste una cosa y la página otra.
+   */
+  for (const guia of guias) {
+    add({
+      id: `guia-${guia.id}`,
+      topic: 'usos',
+      q: [
+        guia.data.title.toLowerCase(),
+        guia.data.summary.toLowerCase(),
+        `como asegurar ${guia.data.sector.toLowerCase()}`,
+      ],
+      text: `${guia.data.title}: ${guia.data.description} Está explicado paso a paso en la guía de usos del sitio.`,
+    });
+
+    guia.data.faq.forEach((faq, i) => {
+      add({
+        id: `guia-${guia.id}-faq-${i + 1}`,
+        topic: 'usos',
+        q: [faq.question.toLowerCase().replace(/[¿?]/g, '').trim()],
+        text: faq.answer,
+      });
+    });
+  }
 
   /* ---------------- Cómo usar el sitio ---------------- */
 

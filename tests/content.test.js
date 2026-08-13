@@ -30,6 +30,62 @@ function listMd(dir) {
 const ICONS = readFileSync(P('src/components/ui/icons/icons.ts'), 'utf8');
 
 describe('colecciones de contenido', () => {
+  test('las guías de uso declaran lo que necesita cada página', () => {
+    const dir = join(ROOT, 'src/content/usos');
+    const archivos = readdirSync(dir).filter(f => f.endsWith('.md'));
+    assert.ok(archivos.length >= 6, 'la sección de usos quedó corta');
+
+    const ordenes = new Set();
+    for (const nombre of archivos) {
+      const raw = readFileSync(join(dir, nombre), 'utf8');
+      for (const campo of [
+        'title',
+        'description',
+        'order',
+        'sector',
+        'summary',
+      ]) {
+        assert.match(
+          raw,
+          new RegExp(`^${campo}:`, 'm'),
+          `${nombre} sin ${campo}`
+        );
+      }
+      // La descripción es la metadescripción de la página: si se pasa de 160
+      // el buscador la corta a media frase.
+      const descripcion = raw.match(/^description: '([^']+)'/m)?.[1] ?? '';
+      assert.ok(
+        descripcion.length > 60 && descripcion.length <= 165,
+        `${nombre}: la metadescripción mide ${descripcion.length} caracteres`
+      );
+      // Sin preguntas frecuentes no hay FAQPage, que es la mitad del motivo
+      // por el que estas páginas existen.
+      assert.match(raw, /^faq:/m, `${nombre} no trae preguntas frecuentes`);
+
+      const orden = raw.match(/^order: (\d+)/m)?.[1];
+      assert.ok(!ordenes.has(orden), `${nombre} repite el order ${orden}`);
+      ordenes.add(orden);
+    }
+  });
+
+  test('cada guía apunta a guías relacionadas que existen', () => {
+    const dir = join(ROOT, 'src/content/usos');
+    const ids = new Set(
+      readdirSync(dir)
+        .filter(f => f.endsWith('.md'))
+        .map(f => f.replace(/\.md$/, ''))
+    );
+    for (const nombre of readdirSync(dir).filter(f => f.endsWith('.md'))) {
+      const raw = readFileSync(join(dir, nombre), 'utf8');
+      const bloque =
+        raw.match(/^relacionados:\n((?:  - [^\n]+\n)+)/m)?.[1] ?? '';
+      for (const linea of bloque.split('\n').filter(Boolean)) {
+        const id = linea.replace('  - ', '').trim();
+        assert.ok(ids.has(id), `${nombre} apunta a ${id}, que no existe`);
+      }
+    }
+  });
+
   test('existen las dos colecciones con archivos', () => {
     assert.ok(listMd('soluciones').length >= 6, 'al menos 6 familias');
     assert.ok(listMd('precintos').length >= 11, 'al menos 11 categorías');

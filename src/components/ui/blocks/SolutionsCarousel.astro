@@ -1,0 +1,251 @@
+---
+import { Image } from 'astro:assets';
+import Icon from '@components/ui/icons/Icon.astro';
+
+/**
+ * Carrusel de soluciones para la portada.
+ *
+ * Antes la home repetía la misma rejilla de tarjetas que /productos, así que
+ * quien bajaba por la portada veía dos veces lo mismo y la segunda no aportaba
+ * nada. Aquí las seis líneas se recorren de lado, con la fotografía grande y
+ * los puntos fuertes de cada una: la portada resume y remite, el listado
+ * detalla.
+ *
+ * DECISIONES QUE NO SON DE ESTILO
+ *
+ * · **Es scroll nativo, no un carrusel con temporizador.** `scroll-snap` con
+ *   `overflow-x`, y las flechas solo empujan ese mismo scroll. Sale gratis en
+ *   táctil —arrastrar ya funciona—, respeta el teclado y la rueda, y no hay
+ *   nada que se mueva solo mientras alguien está leyendo. Un carrusel que
+ *   avanza cada cinco segundos es la forma más rápida de que se pierda de
+ *   vista justo la tarjeta que interesaba.
+ *
+ * · **Sin JavaScript sigue siendo utilizable.** Las flechas son un añadido:
+ *   si el script no llega, el carril se sigue arrastrando y las tarjetas
+ *   siguen siendo enlaces.
+ *
+ * · **Cada tarjeta es un enlace entero**, no una tarjeta con un enlace dentro:
+ *   el objetivo táctil es toda la superficie.
+ */
+interface Solucion {
+  id: string;
+  title: string;
+  description: string;
+  image?: ImageMetadata;
+  imageAlt?: string;
+  highlights: string[];
+}
+
+interface Props {
+  soluciones: Solucion[];
+}
+
+const { soluciones } = Astro.props;
+---
+
+<div class="carrusel" data-carrusel>
+  <div class="mb-4 flex items-center justify-end gap-x-2">
+    <button
+      type="button"
+      class="carrusel-flecha"
+      data-carrusel-prev
+      aria-label="Ver las soluciones anteriores"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="m15 18-6-6 6-6"></path>
+      </svg>
+    </button>
+    <button
+      type="button"
+      class="carrusel-flecha"
+      data-carrusel-next
+      aria-label="Ver las siguientes soluciones"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="m9 18 6-6-6-6"></path>
+      </svg>
+    </button>
+  </div>
+
+  <ul class="carrusel-carril" data-carrusel-carril>
+    {
+      soluciones.map(solucion => (
+        <li class="carrusel-item">
+          <a
+            href={`/productos/${solucion.id}`}
+            class="group hover:border-brand-400 dark:hover:border-brand-400 flex h-full flex-col overflow-hidden rounded-3xl border border-neutral-300 bg-neutral-100 ring-zinc-500 outline-hidden transition duration-300 hover:-translate-y-1 hover:shadow-xl focus-visible:ring-3 dark:border-neutral-700 dark:bg-neutral-900 dark:ring-zinc-200"
+          >
+            <div class="flex aspect-[4/3] items-center justify-center overflow-hidden bg-white">
+              {solucion.image && (
+                <Image
+                  src={solucion.image}
+                  alt={solucion.imageAlt ?? solucion.title}
+                  class="h-full w-full object-contain p-6 transition-transform duration-500 group-hover:scale-105"
+                  widths={[360, 540, 720]}
+                  sizes="(min-width: 1024px) 22rem, (min-width: 640px) 45vw, 80vw"
+                  loading="lazy"
+                  draggable={false}
+                />
+              )}
+            </div>
+
+            <div class="flex grow flex-col p-6">
+              <h3 class="text-lg font-bold text-neutral-800 dark:text-neutral-100">
+                {solucion.title}
+              </h3>
+              <p class="mt-2 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                {solucion.description}
+              </p>
+
+              {solucion.highlights.length > 0 && (
+                <ul class="mt-4 grid gap-y-1.5">
+                  {solucion.highlights.slice(0, 2).map(punto => (
+                    <li class="flex items-start gap-x-2 text-xs text-neutral-600 dark:text-neutral-400">
+                      <span class="text-brand-600 dark:text-brand-400 mt-px shrink-0">
+                        ✓
+                      </span>
+                      {punto}
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              <span class="text-brand-600 dark:text-brand-400 mt-auto inline-flex items-center gap-x-2 pt-5 text-sm font-bold">
+                Ver la línea
+                <span class="transition-transform duration-300 group-hover:translate-x-1">
+                  <Icon name="arrowRight" />
+                </span>
+              </span>
+            </div>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</div>
+
+<script is:inline>
+  (() => {
+    const root = document.querySelector('[data-carrusel]');
+    if (!root) return;
+    const carril = root.querySelector('[data-carrusel-carril]');
+    const prev = root.querySelector('[data-carrusel-prev]');
+    const next = root.querySelector('[data-carrusel-next]');
+
+    /** Un paso = una tarjeta, medida en vivo: cambia con el ancho de pantalla. */
+    const paso = () => {
+      const item = carril.querySelector('.carrusel-item');
+      if (!item) return carril.clientWidth;
+      const gap = parseFloat(getComputedStyle(carril).columnGap || '0');
+      return item.getBoundingClientRect().width + gap;
+    };
+
+    const mover = signo => {
+      // `smooth` respeta `prefers-reduced-motion` en los navegadores actuales;
+      // aquí solo se pide el desplazamiento.
+      carril.scrollBy({ left: signo * paso(), behavior: 'smooth' });
+    };
+
+    prev.addEventListener('click', () => mover(-1));
+    next.addEventListener('click', () => mover(1));
+
+    /**
+     * Las flechas se apagan en los extremos. Sin esto quedan dos botones que
+     * parecen funcionar y no hacen nada, que es peor que no tenerlos.
+     */
+    const sincronizar = () => {
+      const max = carril.scrollWidth - carril.clientWidth;
+      prev.disabled = carril.scrollLeft <= 1;
+      next.disabled = carril.scrollLeft >= max - 1;
+      // Si todo cabe en pantalla, el carrusel no es un carrusel.
+      root.dataset.completo = max <= 1 ? 'true' : 'false';
+    };
+
+    carril.addEventListener('scroll', sincronizar, { passive: true });
+    window.addEventListener('resize', sincronizar);
+    sincronizar();
+  })();
+</script>
+
+<style>
+  .carrusel-carril {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: min(80vw, 20rem);
+    gap: 1.5rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    /* Sitio para que la sombra y el desplazamiento del hover no se recorten
+       contra el borde del carril. */
+    padding: 0.5rem 0.25rem 1.5rem;
+    scrollbar-width: thin;
+  }
+
+  @media (min-width: 640px) {
+    .carrusel-carril {
+      grid-auto-columns: 22rem;
+    }
+  }
+
+  .carrusel-item {
+    scroll-snap-align: start;
+  }
+
+  .carrusel-flecha {
+    display: inline-flex;
+    width: 2.75rem;
+    height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-neutral-300);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--color-neutral-700);
+    cursor: pointer;
+    transition:
+      border-color 0.2s,
+      color 0.2s,
+      opacity 0.2s;
+  }
+
+  .carrusel-flecha svg {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+
+  .carrusel-flecha:hover:not(:disabled) {
+    border-color: var(--color-brand-600);
+    color: var(--color-brand-700);
+  }
+
+  .carrusel-flecha:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  :global(.dark) .carrusel-flecha {
+    border-color: var(--color-neutral-700);
+    color: var(--color-neutral-300);
+  }
+
+  /* Con todas las tarjetas a la vista las flechas sobran. */
+  .carrusel[data-completo='true'] .carrusel-flecha {
+    display: none;
+  }
+</style>

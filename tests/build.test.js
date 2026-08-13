@@ -54,6 +54,15 @@ const RUTAS_ESPERADAS = [
   '/productos/embalaje-protector/',
   '/productos/rastreo-satelital/',
   '/usos/',
+  '/usos/precintos-para-contenedores/',
+  '/usos/precintos-para-carrotanques/',
+  '/usos/tulas-para-transporte-de-valores/',
+  '/usos/etiquetas-void-sellos-de-garantia/',
+  '/usos/como-elegir-un-precinto-de-seguridad/',
+  '/usos/numeracion-y-trazabilidad/',
+  '/usos/precintos-para-canastillas-y-estibas/',
+  '/usos/precintos-para-medidores-y-activos/',
+  '/usos/embalaje-y-proteccion-de-carga/',
   '/faq/',
   '/nosotros/',
   '/contacto/',
@@ -403,6 +412,81 @@ describe('asistente del sitio', () => {
         `${p.route} filtra una clave`
       );
       assert.doesNotMatch(p.html, /sk-ant-/, `${p.route} filtra una clave`);
+    }
+  });
+});
+
+describe('guías de uso', () => {
+  const guias = () => pages().filter(p => /^\/usos\/.+/.test(p.route));
+
+  test('cada guía publica sus datos estructurados', () => {
+    for (const p of guias()) {
+      const bloques = [
+        ...p.html.matchAll(/type="application\/ld\+json">(.*?)<\/script>/gs),
+      ];
+      const grafos = bloques
+        .map(m => JSON.parse(m[1]))
+        .filter(d => Array.isArray(d['@graph']));
+      assert.equal(grafos.length, 1, `${p.route} no publica su grafo`);
+
+      const tipos = grafos[0]['@graph'].map(x => x['@type']);
+      assert.ok(tipos.includes('Article'), `${p.route} sin Article`);
+      assert.ok(tipos.includes('BreadcrumbList'), `${p.route} sin migas`);
+      // El FAQPage es lo que permite que la respuesta salga en el buscador
+      // sin que nadie entre a la página.
+      assert.ok(tipos.includes('FAQPage'), `${p.route} sin FAQPage`);
+    }
+  });
+
+  test('cada guía lleva a productos del catálogo', () => {
+    const rutas = new Set(pages().map(p => p.route));
+    for (const p of guias()) {
+      const enlaces = [
+        ...p.html.matchAll(
+          /href="(\/(?:precintos|productos|catalogo)[^"#?]*)"/g
+        ),
+      ].map(m => (m[1].endsWith('/') ? m[1] : m[1] + '/'));
+      assert.ok(
+        enlaces.length > 0,
+        `${p.route} no enlaza ninguna referencia: la guía no sirve de puerta de entrada`
+      );
+      for (const enlace of enlaces) {
+        assert.ok(
+          rutas.has(enlace),
+          `${p.route} enlaza a ${enlace}, que no existe`
+        );
+      }
+    }
+  });
+
+  test('ninguna guía publica precios', () => {
+    for (const p of guias()) {
+      assert.doesNotMatch(
+        p.html,
+        /\$\s?\d{3}|\d[\d.,]*\s*pesos/i,
+        `${p.route} publica un importe`
+      );
+    }
+  });
+
+  test('el índice de usos enlaza todas las guías', () => {
+    const indice = pages().find(p => p.route === '/usos/');
+    for (const guia of guias()) {
+      assert.match(
+        indice.html,
+        new RegExp(`href="${guia.route.replace(/\/$/, '')}"`),
+        `el índice no enlaza ${guia.route}`
+      );
+    }
+  });
+
+  test('cada guía entra en el sitemap', () => {
+    const sitemap = readFileSync(join(DIST, 'sitemap-0.xml'), 'utf8');
+    for (const guia of guias()) {
+      assert.ok(
+        sitemap.includes(`byslogistics.com.co${guia.route}`),
+        `${guia.route} no está en el sitemap`
+      );
     }
   });
 });

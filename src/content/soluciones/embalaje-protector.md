@@ -3,14 +3,16 @@ title: 'Embalaje Protector'
 description: 'Bolsas inflables, absorbentes de humedad e infladoras para proteger la carga durante el trayecto y aprovechar mejor el espacio del contenedor.'
 order: 5
 icon: puzzle
-cardImage: ../../images/productos/bolsa-inflable.png
-cardImageAlt: 'Bolsa inflable de embalaje para estibar carga'
+cardImage: ../../images/productos/air-bags-bolsas-inflables-para-carga.jpg
+cardImageAlt: 'Bolsa inflable para estibar carga dentro del contenedor'
 highlights:
   - 'Bolsas inflables para estibar y proteger la carga'
   - 'Absorbentes de humedad para contenedor'
   - 'Infladoras y accesorios para cada línea de bolsa'
 groups:
   - name: 'Bolsas inflables'
+    image: ../../images/productos/air-bags-bolsas-inflables-para-carga.jpg
+    imageAlt: 'Bolsa inflable para estibar carga en contenedor'
     products:
       - name: 'Bolsa Inflable Flex ECO 120 x 85 cms'
       - name: 'Bolsa Inflable Flex ECO 185 x 85 cms'
@@ -20,6 +22,8 @@ groups:
       - name: 'Bolsa Inflable ECO Striker 120 x 85 cms'
       - name: 'Bolsa Inflable ECO Striker 185 x 85 cms'
   - name: 'Absorbentes de humedad'
+    image: ../../images/productos/absorbente-de-humedad.jpg
+    imageAlt: 'Absorbente de humedad para contenedor'
     products:
       - name: 'Absorbente GK Gel 750 g'
       - name: 'Absorbente Dry Bag Hook 2.000 g'

@@ -44,7 +44,8 @@ src/
 │   └── ui/                   Piezas reutilizables
 ├── content/
 │   ├── soluciones/           Las 6 familias de producto (un .md cada una)
-│   └── precintos/            Las 11 categorías de precintos
+│   ├── precintos/            Las 11 categorías de precintos
+│   └── usos/                 Guías por aplicación (una página cada una)
 ├── data_files/
 │   ├── constants.ts          Datos de la empresa: contacto, SEO, formularios
 │   ├── empresa.ts            Reseña de /nosotros y sectores de /usos
@@ -76,7 +77,8 @@ netlify/functions/
 | `/precintos/<categoría>` | Referencias de una categoría                    |
 | `/productos`             | Índice de las 6 familias                        |
 | `/productos/<familia>`   | Familia con sus referencias agrupadas           |
-| `/usos`                  | Sectores atendidos                              |
+| `/usos`                  | Guías por aplicación y sectores atendidos       |
+| `/usos/<guía>`           | Guía de una aplicación concreta                 |
 | `/nosotros`              | Historia de la empresa                          |
 | `/faq`                   | Preguntas frecuentes                            |
 | `/contacto`              | Formulario, teléfonos y mapa                    |
@@ -113,6 +115,24 @@ La referencia aparece sola en la página de su categoría, en el catálogo con
 filtros y en el cotizador. **No se publican precios**: el listado de la empresa
 es administrativo y solo se traslada nombre y categoría.
 
+### Agregar una guía de uso
+
+Un archivo nuevo en `src/content/usos/`. El esquema está en
+`src/content.config.ts`; los campos que no son evidentes:
+
+- `description` es la **metadescripción** de la página. Hay un test que exige
+  entre 60 y 165 caracteres, porque el buscador corta lo que se pase.
+- `faq` se publica además como datos estructurados `FAQPage`. Es lo que permite
+  que la respuesta salga directamente en el buscador sin que nadie entre a la
+  página, así que conviene que cada respuesta se entienda suelta.
+- `productos` son las referencias que resuelven lo que explica la guía, con su
+  enlace al catálogo. Un test comprueba que esos enlaces existan: una guía que
+  no lleva a producto no cumple su función.
+- `relacionados` son ids de otras guías.
+
+La guía aparece sola en `/usos`, en el sitemap y en la base de conocimiento del
+asistente, que hereda su título y sus preguntas frecuentes.
+
 ### Agregar una categoría o una familia
 
 Crea un archivo nuevo en `src/content/precintos/` o `src/content/soluciones/`.
@@ -134,9 +154,15 @@ estructurados.
 
 ### Agregar fotografías
 
-Las fotos del catálogo van en `src/images/productos/` y se referencian con su
-ruta relativa desde el `.md`, en `cardImage` (familias y categorías) o `image`
-(referencias individuales). Mientras el campo esté vacío la ficha muestra el
+Las fotos del catálogo van en `src/images/productos/` —**no en `public/`**: lo
+que está en `public/` se sirve tal cual, sin comprimir y sin versiones para cada
+ancho de pantalla, y una foto de producto de 300 KB por tarjeta se nota. Desde
+`src/images/` Astro genera WebP y el juego de tamaños.
+
+Se referencian con su ruta relativa desde el `.md`, en `cardImage` (familias y
+categorías), `image` dentro de un grupo (subtipo, como "Bolsas courier") o
+`image` en una referencia individual. La foto de grupo existe porque así son las
+fotos reales: una por tipo de producto, no una por medida. Mientras el campo esté vacío la ficha muestra el
 logotipo atenuado en lugar de la foto, así que la rejilla no se desarma.
 
 ```yaml

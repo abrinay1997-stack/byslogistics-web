@@ -3,12 +3,16 @@ title: 'Rastreo Satelital'
 description: 'Equipos de rastreo satelital con servicio de plataforma, disponibles en venta o alquiler, para hacer seguimiento a la carga en ruta.'
 order: 6
 icon: earth
+cardImage: ../../images/productos/precinto-electronico-2.jpg
+cardImageAlt: 'Precinto electrónico con rastreo satelital'
 highlights:
   - 'Equipos disponibles en venta o en alquiler'
   - 'Servicio de plataforma por 6 o 12 meses'
   - 'Alquiler semanal, quincenal o mensual'
 groups:
   - name: 'Equipos'
+    image: ../../images/productos/precinto-electronico.jpg
+    imageAlt: 'Precinto electrónico con rastreo satelital'
     products:
       - name: 'JT701D'
       - name: 'JT709T'
