@@ -288,6 +288,25 @@ describe('hero de la home', () => {
     const h1 = p.html.match(/<h1[^>]*>/)[0];
     assert.match(h1, /text-white/, 'el titular del hero no va en blanco');
   });
+
+  test('el detalle gráfico es decoración, no información', () => {
+    const p = pages().find(x => x.route === '/');
+    const seal = p.html.match(/<div class="seal[^"]*"[^>]*>/)?.[0];
+    assert.ok(seal, 'el hero perdió su detalle gráfico');
+    // Lleva texto dentro (la marca y el consecutivo), así que sin aria-hidden
+    // un lector de pantalla leería "B&S 0042 178" como si fuera contenido.
+    assert.match(seal, /aria-hidden="true"/);
+  });
+
+  test('el detalle gráfico no se renderiza en pantallas estrechas', () => {
+    // Ahí el texto ocupa el ancho completo: el dibujo solo alargaría la
+    // portada antes de llegar a los botones.
+    const p = pages().find(x => x.route === '/');
+    const columna = p.html.match(/<div class="([^"]*lg:col-span-5[^"]*)"/)?.[1];
+    assert.ok(columna, 'no se encontró la columna del detalle gráfico');
+    assert.match(columna, /\bhidden\b/);
+    assert.match(columna, /lg:block/);
+  });
 });
 
 describe('asistente del sitio', () => {

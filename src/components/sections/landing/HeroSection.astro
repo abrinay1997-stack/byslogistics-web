@@ -2,6 +2,7 @@
 // Import the necessary dependencies
 import PrimaryCTA from '@components/ui/buttons/PrimaryCTA.astro';
 import SecondaryCTA from '@components/ui/buttons/SecondaryCTA.astro';
+import HeroSeal from '@components/ui/blocks/HeroSeal.astro';
 
 // Define props from Astro
 const {
@@ -90,6 +91,17 @@ interface Props {
             )
           }
         </div>
+      </div>
+
+      {
+        /*
+          El detalle gráfico del lado derecho. Por debajo de `lg` no se
+          renderiza: ahí el texto ocupa el ancho completo y el dibujo solo
+          alargaría la portada antes de llegar a los botones.
+        */
+      }
+      <div class="hidden lg:col-span-5 lg:block xl:col-span-6">
+        <HeroSeal />
       </div>
     </div>
   </div>
