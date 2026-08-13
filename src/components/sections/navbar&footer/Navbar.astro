@@ -12,17 +12,18 @@ import { SITE } from '@/data_files/constants';
      el resto de la página va a sangre (ver MainLayout). */
 }
 <header
-  class="sticky inset-x-0 top-4 z-50 mx-auto flex w-full max-w-(--breakpoint-2xl) flex-wrap px-4 text-sm sm:px-6 md:flex-nowrap md:justify-start lg:px-8"
+  data-navbar
+  class="navbar sticky inset-x-0 top-4 z-50 mx-auto flex w-full max-w-(--breakpoint-2xl) flex-wrap px-4 text-sm sm:px-6 md:flex-nowrap md:justify-start lg:px-8"
 >
   {/* Navigation container */}
   <nav
-    class="border-brand-100/40 bg-brand-50/60 relative mx-2 w-full rounded-[36px] border px-4 py-3 backdrop-blur-md md:flex md:items-center md:justify-between md:px-6 md:py-0 lg:px-8 xl:mx-auto dark:border-neutral-700/40 dark:bg-neutral-800/80 dark:backdrop-blur-md"
+    class="navbar-pill border-brand-100/40 bg-brand-50/60 relative mx-2 w-full rounded-[36px] border px-4 py-3 backdrop-blur-md md:flex md:items-center md:justify-between md:px-6 md:py-0 lg:px-8 xl:mx-auto dark:border-neutral-700/40 dark:bg-neutral-800/80 dark:backdrop-blur-md"
     aria-label="Global"
   >
     <div class="flex items-center justify-between">
       {/* Brand logo */}
       <a
-        class="flex-none rounded-lg text-xl font-bold ring-zinc-500 outline-hidden focus-visible:ring-3 dark:ring-zinc-200 dark:focus:outline-hidden"
+        class="navbar-logo flex-none rounded-lg text-xl font-bold ring-zinc-500 outline-hidden focus-visible:ring-3 dark:ring-zinc-200 dark:focus:outline-hidden"
         href="/"
         aria-label={SITE.title}
       >
@@ -80,7 +81,7 @@ import { SITE } from '@/data_files/constants';
     >
       {/* Navigation links container */}
       <div
-        class="mt-5 flex flex-col gap-x-0 gap-y-4 md:mt-0 md:flex-row md:items-center md:justify-end md:gap-x-4 md:gap-y-0 md:ps-7 lg:gap-x-7"
+        class="navbar-links mt-5 flex flex-col gap-x-0 gap-y-4 md:mt-0 md:flex-row md:items-center md:justify-end md:gap-x-4 md:gap-y-0 md:ps-7 lg:gap-x-7"
       >
         {/* Navigation links */}
         {
@@ -97,6 +98,149 @@ import { SITE } from '@/data_files/constants';
     </div>
   </nav>
 </header>
+
+{
+  /*
+    La barra se encoge al bajar y recupera su tamaño al volver al tope.
+
+    Lo que cambia es lo que ocupa sitio —el logo, el alto de los enlaces y la
+    separación con el borde superior—, no la forma ni el color: al desplazarse
+    la barra deja de presentarse y pasa a ser una herramienta, así que estorba
+    menos sin desaparecer.
+
+    La histéresis (encoge pasados 40 px, vuelve por debajo de 12) evita el
+    parpadeo cuando el scroll se queda oscilando justo en el umbral, que es lo
+    que pasa con un único punto de corte y una rueda de ratón lenta.
+  */
+}
+<style>
+  .navbar {
+    transition: top 0.28s ease;
+  }
+
+  .navbar-logo > :global(span) {
+    display: inline-block;
+    width: 6rem;
+    transition: width 0.28s ease;
+  }
+
+  .navbar-links :global(a) {
+    transition:
+      padding 0.28s ease,
+      color 0.3s;
+  }
+
+  .navbar.is-scrolled {
+    top: 0.5rem;
+  }
+
+  /* En reposo la píldora es translúcida y se apoya en el fondo de la página.
+     Al desplazarse pasa a tener contenido por debajo —empezando por el azul
+     del hero, donde el logo se leía a media asta—, así que se vuelve opaca y
+     levanta una sombra: deja de fundirse con lo que pasa por detrás. */
+  .navbar-pill {
+    transition:
+      background-color 0.28s ease,
+      box-shadow 0.28s ease;
+  }
+
+  .navbar.is-scrolled .navbar-pill {
+    background-color: var(--color-brand-50);
+    box-shadow: 0 10px 30px -12px rgb(0 51 92 / 0.35);
+  }
+
+  :global(.dark) .navbar.is-scrolled .navbar-pill {
+    background-color: var(--color-neutral-800);
+    box-shadow: 0 10px 30px -12px rgb(0 0 0 / 0.55);
+  }
+
+  .navbar.is-scrolled .navbar-logo > :global(span) {
+    width: 4.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .navbar.is-scrolled .navbar-links :global(a) {
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
+    }
+  }
+
+  /* Por debajo de md la píldora sí tiene relleno propio (py-3): ahí es lo que
+     hay que recortar, porque el menú va plegado y el logo manda solo. */
+  @media (max-width: 767px) {
+    .navbar-pill {
+      transition:
+        padding 0.28s ease,
+        background-color 0.28s ease,
+        box-shadow 0.28s ease;
+    }
+
+    .navbar.is-scrolled .navbar-pill {
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .navbar,
+    .navbar-pill,
+    .navbar-logo > :global(span),
+    .navbar-links :global(a) {
+      transition: none;
+    }
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    // Encoger deja de tener sentido si no hay recorrido: en una página que
+    // apenas pasa del alto de la ventana, el nav estaría cambiando de tamaño
+    // por 40 píxeles de scroll.
+    const RECORRIDO_MINIMO = 320;
+
+    function syncNavbarShrink() {
+      const header = document.querySelector('[data-navbar]');
+      if (!header) return;
+
+      const recorrido =
+        document.documentElement.scrollHeight - window.innerHeight;
+      if (recorrido < RECORRIDO_MINIMO) {
+        header.classList.remove('is-scrolled');
+        return;
+      }
+
+      const y = window.scrollY;
+      const encogido = header.classList.contains('is-scrolled');
+      if (!encogido && y > 40) header.classList.add('is-scrolled');
+      else if (encogido && y < 12) header.classList.remove('is-scrolled');
+    }
+
+    let pendiente = false;
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (pendiente) return;
+        pendiente = true;
+        requestAnimationFrame(() => {
+          pendiente = false;
+          syncNavbarShrink();
+        });
+      },
+      { passive: true }
+    );
+
+    // Al cargar el navegador puede restaurar la posición anterior, así que el
+    // estado inicial se evalúa en vez de darse por supuesto.
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', syncNavbarShrink, {
+        once: true,
+      });
+    } else {
+      syncNavbarShrink();
+    }
+  })();
+</script>
+
 {/* Theme Appearance script to manage light/dark modes */}
 <script is:inline>
   const HSThemeAppearance = {

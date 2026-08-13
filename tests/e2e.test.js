@@ -471,6 +471,10 @@ describe(
       await page.close();
     });
 
+    // La barra se acerca al borde al bajar (ver Navbar.astro), así que su
+    // distancia al tope no es la misma antes y después: lo que se comprueba
+    // aquí es que sigue pegada a la ventana —que no se va con el scroll— y que
+    // el acercamiento es un ajuste corto, no un salto.
     test('el menú sigue fijo al hacer scroll', async () => {
       const page = await browser.newPage({
         viewport: { width: ANCHO, height: 960 },
@@ -484,10 +488,13 @@ describe(
       const despues = await page.evaluate(
         () => document.querySelector('header').getBoundingClientRect().top
       );
-      assert.equal(
-        Math.round(despues),
-        Math.round(arriba),
-        'el menú dejó de quedarse fijo al sacarlo de su contenedor'
+      assert.ok(
+        despues >= 0 && despues <= arriba,
+        `el menú dejó de quedarse fijo al sacarlo de su contenedor (${arriba} → ${despues})`
+      );
+      assert.ok(
+        arriba - despues <= 12,
+        `el menú se movió demasiado al encoger (${arriba} → ${despues})`
       );
       await page.close();
     });
@@ -538,4 +545,107 @@ describe('accesibilidad (axe)', { skip: skip() }, () => {
       await page.close();
     });
   }
+});
+
+describe('la barra de navegación se encoge al bajar', { skip: skip() }, () => {
+  test('encoge, se pega al borde y vuelve al subir', async () => {
+    const page = await browser.newPage({
+      viewport: { width: 1280, height: 800 },
+    });
+    await page.goto(base + '/', { waitUntil: 'networkidle' });
+
+    const caja = () => page.locator('[data-navbar] nav').boundingBox();
+    const reposo = await caja();
+
+    await page.evaluate(() => window.scrollTo(0, 700));
+    await page.waitForTimeout(600);
+    const encogida = await caja();
+
+    assert.ok(
+      encogida.height < reposo.height - 5,
+      `la barra no encogió (${reposo.height} → ${encogida.height})`
+    );
+    assert.ok(
+      encogida.y < reposo.y,
+      'la barra debe acercarse al borde superior'
+    );
+
+    // Y sigue siendo utilizable: los enlaces no se recortan ni se salen.
+    assert.ok(
+      await page.locator('[data-navbar] a[href="/contacto"]').isVisible()
+    );
+
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForTimeout(600);
+    const vuelta = await caja();
+    assert.ok(
+      Math.abs(vuelta.height - reposo.height) < 2,
+      'al volver al tope la barra debe recuperar su tamaño'
+    );
+    await page.close();
+  });
+
+  test('no encoge en una página sin recorrido para hacerlo', async () => {
+    // Con la ventana muy alta, /contacto no da scroll suficiente: encoger ahí
+    // sería un cambio de tamaño gratuito.
+    const page = await browser.newPage({
+      viewport: { width: 1280, height: 2400 },
+    });
+    await page.goto(base + '/contacto/', { waitUntil: 'networkidle' });
+    await page.evaluate(() => window.scrollTo(0, 300));
+    await page.waitForTimeout(400);
+    const clase = await page.locator('[data-navbar]').getAttribute('class');
+    assert.ok(!clase.includes('is-scrolled'));
+    await page.close();
+  });
+});
+
+describe('asistente del sitio', { skip: skip() }, () => {
+  test('se abre, sugiere preguntas y deriva a una persona sin backend', async () => {
+    const page = await browser.newPage({
+      viewport: { width: 1280, height: 900 },
+    });
+    await page.goto(base + '/', { waitUntil: 'networkidle' });
+
+    const panel = page.locator('[data-chat-panel]');
+    assert.equal(await panel.isVisible(), false);
+
+    await page.click('[data-chat-toggle]');
+    assert.equal(await panel.isVisible(), true);
+    assert.ok(
+      (await page.locator('[data-chat-suggestion]').count()) >= 4,
+      'las sugerencias iniciales encauzan la conversación'
+    );
+
+    // El servidor de estos tests responde 200 a cualquier POST, así que
+    // /api/chat devuelve algo que no es JSON: el widget tiene que caer en el
+    // modo atajo en vez de quedarse colgado.
+    await page.locator('[data-chat-suggestion]').first().click();
+    await page.waitForSelector('.chat-action', { timeout: 5000 });
+    const atajos = await page.locator('.chat-action').allTextContents();
+    assert.ok(
+      atajos.some(t => /WhatsApp/i.test(t)),
+      `esperaba un atajo a WhatsApp, salió: ${atajos.join(' | ')}`
+    );
+
+    await page.keyboard.press('Escape');
+    assert.equal(await panel.isVisible(), false);
+    await page.close();
+  });
+
+  test('la burbuja no tapa los botones de WhatsApp y cotización', async () => {
+    const page = await browser.newPage({
+      viewport: { width: 390, height: 844 },
+    });
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+    const chat = await page.locator('[data-chat-toggle]').boundingBox();
+    const whatsapp = await page
+      .locator('a[aria-label="Escribir por WhatsApp"]')
+      .boundingBox();
+    assert.ok(
+      chat.x + chat.width <= whatsapp.x,
+      'la burbuja del chat se solapa con el botón de WhatsApp'
+    );
+    await page.close();
+  });
 });

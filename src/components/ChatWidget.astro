@@ -1,0 +1,709 @@
+---
+import { SITE, CONTACT } from '@data/constants';
+
+/**
+ * Asistente del sitio: burbuja flotante que responde con la información
+ * publicada en la propia página.
+ *
+ * Tres decisiones que no son de estilo:
+ *
+ * 1. **Va abajo a la IZQUIERDA.** La esquina derecha ya la ocupan el botón de
+ *    WhatsApp y el del cotizador (ver QuoteCart.astro). Tres cosas flotando en
+ *    el mismo rincón se tapan entre ellas y ninguna se pulsa bien.
+ *
+ * 2. **Las sugerencias iniciales no son decorado.** Dirigen la conversación
+ *    hacia preguntas que la base de conocimiento responde bien. Con un modelo
+ *    pequeño, encauzar la pregunta vale más que afinar el prompt.
+ *
+ * 3. **Degrada a persona, no a error.** Si `/api/chat` no existe (una preview
+ *    estática, la función sin desplegar) o falla, el widget lo detecta al
+ *    primer intento y se convierte en un atajo al WhatsApp y al formulario en
+ *    vez de quedarse roto.
+ *
+ * El backend está en netlify/functions/chat.mts y la base de conocimiento se
+ * genera en el build (src/pages/kb.json.ts). La clave del proveedor vive solo
+ * en las variables de entorno de Netlify: el navegador nunca la ve.
+ */
+
+const sugerencias = [
+  '¿Qué tipos de precintos manejan?',
+  '¿Cómo pido una cotización?',
+  '¿Los precintos se personalizan?',
+  '¿A qué sectores atienden?',
+  '¿Atienden fuera de Colombia?',
+];
+---
+
+<div class="chat" data-chat>
+  <button
+    class="chat-launcher"
+    type="button"
+    data-chat-toggle
+    aria-expanded="false"
+    aria-controls="chat-panel"
+  >
+    <span class="chat-launcher-icon" aria-hidden="true">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path
+          d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z"
+        ></path>
+      </svg>
+    </span>
+    <span class="chat-launcher-label">Asistente</span>
+  </button>
+
+  <section
+    class="chat-panel"
+    id="chat-panel"
+    data-chat-panel
+    hidden
+    aria-label={`Asistente de ${SITE.title}`}
+  >
+    <header class="chat-head">
+      <div>
+        <p class="chat-title">Asistente de {SITE.title}</p>
+        <p class="chat-sub">Resuelve dudas sobre productos y cotizaciones</p>
+      </div>
+      <button
+        class="chat-close"
+        type="button"
+        data-chat-close
+        aria-label="Cerrar el asistente"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path d="M18 6 6 18M6 6l12 12"></path>
+        </svg>
+      </button>
+    </header>
+
+    <div
+      class="chat-log"
+      data-chat-log
+      role="log"
+      aria-live="polite"
+      aria-atomic="false"
+    >
+      <div class="chat-msg is-bot">
+        <p>
+          Pregúnteme lo que necesite sobre precintos, tulas, cajas de seguridad
+          o cómo cotizar. Si no lo sé, le paso con una persona del equipo.
+        </p>
+      </div>
+      <div class="chat-suggestions" data-chat-suggestions>
+        {
+          sugerencias.map(s => (
+            <button type="button" class="chat-chip" data-chat-suggestion={s}>
+              {s}
+            </button>
+          ))
+        }
+      </div>
+    </div>
+
+    <form class="chat-form" data-chat-form>
+      <label class="sr-only" for="chat-input">Escriba su pregunta</label>
+      <input
+        id="chat-input"
+        type="text"
+        name="q"
+        placeholder="Escriba su pregunta…"
+        autocomplete="off"
+        maxlength="500"
+        data-chat-input
+      />
+      <button
+        type="submit"
+        class="chat-send"
+        data-chat-send
+        aria-label="Enviar pregunta"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.9"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m22 2-7 20-4-9-9-4 20-7Z"></path>
+        </svg>
+      </button>
+    </form>
+
+    <p class="chat-foot">
+      Respuestas generadas con la información publicada en el sitio.
+      <a href={CONTACT.whatsapp} target="_blank" rel="noopener noreferrer">
+        Hablar con una persona
+      </a>
+    </p>
+  </section>
+</div>
+
+<script
+  is:inline
+  define:vars={{ whatsapp: CONTACT.whatsapp, correo: CONTACT.email }}
+>
+  (() => {
+    const root = document.querySelector('[data-chat]');
+    if (!root || root.dataset.bound) return;
+    root.dataset.bound = 'true';
+
+    const panel = root.querySelector('[data-chat-panel]');
+    const toggle = root.querySelector('[data-chat-toggle]');
+    const closeBtn = root.querySelector('[data-chat-close]');
+    const log = root.querySelector('[data-chat-log]');
+    const form = root.querySelector('[data-chat-form]');
+    const input = root.querySelector('[data-chat-input]');
+    const send = root.querySelector('[data-chat-send]');
+    const suggestions = root.querySelector('[data-chat-suggestions]');
+
+    /** Historial que se manda al servidor. Corto: el backend re-recupera cada turno. */
+    const history = [];
+    let busy = false;
+    let endpointDown = false;
+
+    const open = () => {
+      panel.hidden = false;
+      toggle.setAttribute('aria-expanded', 'true');
+      root.classList.add('is-open');
+      input.focus();
+    };
+    const close = () => {
+      panel.hidden = true;
+      toggle.setAttribute('aria-expanded', 'false');
+      root.classList.remove('is-open');
+      toggle.focus();
+    };
+
+    toggle.addEventListener('click', () => {
+      if (panel.hidden) open();
+      else close();
+    });
+    closeBtn.addEventListener('click', close);
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && !panel.hidden) close();
+    });
+
+    function bubble(text, who, extraHtml) {
+      const el = document.createElement('div');
+      el.className = `chat-msg is-${who}`;
+      const p = document.createElement('p');
+      // textContent y no innerHTML: lo que llega del modelo se pinta como
+      // texto, nunca como marcado.
+      p.textContent = text;
+      el.appendChild(p);
+      if (extraHtml) {
+        const extra = document.createElement('div');
+        extra.className = 'chat-actions';
+        extra.innerHTML = extraHtml;
+        el.appendChild(extra);
+      }
+      log.appendChild(el);
+      log.scrollTop = log.scrollHeight;
+      return el;
+    }
+
+    function thinking() {
+      const el = document.createElement('div');
+      el.className = 'chat-msg is-bot is-thinking';
+      el.innerHTML = '<span></span><span></span><span></span>';
+      el.setAttribute('aria-label', 'Escribiendo');
+      log.appendChild(el);
+      log.scrollTop = log.scrollHeight;
+      return el;
+    }
+
+    /** Sin backend, el asistente se vuelve un atajo útil en lugar de un error. */
+    function offlineAnswer() {
+      return bubble(
+        'El asistente no está disponible en este momento. Le dejo las dos vías directas con el equipo:',
+        'bot',
+        `<a class="chat-action" href="${whatsapp}" target="_blank" rel="noopener noreferrer">Escribir por WhatsApp</a>` +
+          `<a class="chat-action" href="mailto:${correo}">Escribir a ${correo}</a>`
+      );
+    }
+
+    async function ask(text) {
+      if (busy || !text.trim()) return;
+      busy = true;
+      send.disabled = true;
+      suggestions?.remove();
+
+      bubble(text, 'user');
+      history.push({ role: 'user', content: text });
+      input.value = '';
+
+      if (endpointDown) {
+        offlineAnswer();
+        busy = false;
+        send.disabled = false;
+        return;
+      }
+
+      const dots = thinking();
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ messages: history.slice(-6) }),
+        });
+
+        // 404/405 = no hay función desplegada. 403 = el endpoint no reconoce
+        // este origen (un navegador que no manda ni Origin ni Referer). En los
+        // tres casos no hay nada que reintentar: se pasa a modo atajo.
+        if (res.status === 404 || res.status === 405 || res.status === 403) {
+          endpointDown = true;
+          dots.remove();
+          offlineAnswer();
+          return;
+        }
+
+        const data = await res.json();
+        dots.remove();
+        const reply = data.reply || 'No pude responder eso.';
+        history.push({ role: 'assistant', content: reply });
+
+        // Cuando la respuesta deriva a cotizar, se ofrece el atajo al
+        // catálogo, que es donde se arma la lista.
+        const wantsQuote = /cotiza|cotización|cotizacion/i.test(reply);
+        bubble(
+          reply,
+          'bot',
+          wantsQuote
+            ? '<a class="chat-action" href="/catalogo">Ver el catálogo</a>' +
+                '<a class="chat-action" href="/contacto">Ir a contacto</a>'
+            : ''
+        );
+      } catch {
+        endpointDown = true;
+        dots.remove();
+        offlineAnswer();
+      } finally {
+        busy = false;
+        send.disabled = false;
+        input.focus();
+      }
+    }
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      ask(input.value);
+    });
+
+    suggestions?.addEventListener('click', e => {
+      const chip = e.target.closest('[data-chat-suggestion]');
+      if (chip) ask(chip.dataset.chatSuggestion);
+    });
+  })();
+</script>
+
+<style>
+  /* El widget se escribe en CSS y no en clases de utilidad porque la mitad de
+     sus nodos —burbujas, atajos, puntos de "escribiendo"— los crea el script en
+     tiempo de ejecución, y un compilador que lee el marcado no puede ver esas
+     clases. Los colores salen del tema (@theme en global.css), así que la
+     paleta sigue siendo la misma que la del resto del sitio. */
+  .chat {
+    position: fixed;
+    bottom: 1rem;
+    left: 1rem;
+    /* Por debajo del panel del cotizador (z-70) y del backdrop, por encima del
+       resto de la página. */
+    z-index: 60;
+    font-size: 15px;
+  }
+
+  @media (min-width: 640px) {
+    .chat {
+      bottom: 1.5rem;
+      left: 1.5rem;
+    }
+  }
+
+  /* ---------- LANZADOR ---------- */
+  .chat-launcher {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.85rem 1.25rem 0.85rem 1rem;
+    border: none;
+    border-radius: 999px;
+    background: var(--color-brand-600);
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 10px 25px -8px rgb(0 51 92 / 0.55);
+    transition:
+      transform 0.3s,
+      background-color 0.3s;
+  }
+
+  .chat-launcher:hover {
+    background: var(--color-brand-700);
+    transform: translateY(-2px);
+  }
+
+  .chat-launcher:focus-visible {
+    outline: 3px solid var(--color-brand-300);
+    outline-offset: 2px;
+  }
+
+  .chat-launcher-icon {
+    display: inline-flex;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .chat-launcher-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .chat.is-open .chat-launcher {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* ---------- PANEL ---------- */
+  .chat-panel {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    width: min(380px, calc(100vw - 2rem));
+    height: min(560px, calc(100vh - 8rem));
+    border: 1px solid var(--color-brand-100);
+    border-radius: 1.25rem;
+    background: #fff;
+    box-shadow: 0 24px 60px -20px rgb(0 51 92 / 0.45);
+    overflow: hidden;
+  }
+
+  :global(.dark) .chat-panel {
+    border-color: var(--color-neutral-700);
+    background: var(--color-neutral-900);
+  }
+
+  .chat-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1rem 0.9rem;
+    background: var(--color-brand-700);
+    color: #fff;
+  }
+
+  .chat-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+
+  .chat-sub {
+    margin-top: 0.15rem;
+    font-size: 0.8rem;
+    color: var(--color-brand-100);
+  }
+
+  .chat-close {
+    flex-shrink: 0;
+    width: 1.9rem;
+    height: 1.9rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.12);
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .chat-close svg {
+    width: 0.95rem;
+    height: 0.95rem;
+  }
+
+  .chat-close:hover {
+    background: rgb(255 255 255 / 0.25);
+  }
+
+  .chat-log {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    scrollbar-width: thin;
+  }
+
+  /*
+    Las burbujas, los atajos y los puntos de "escribiendo" los crea el script,
+    así que nacen sin el atributo de alcance de este componente y una regla con
+    scope no los alcanza. Se cuelgan de `.chat-log`, que sí está en la
+    plantilla, para que el alcance siga acotado al widget.
+  */
+  .chat-log :global(.chat-msg) {
+    max-width: 88%;
+    padding: 0.7rem 0.9rem;
+    border-radius: 1rem;
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  .chat-log :global(.chat-msg.is-bot) {
+    align-self: flex-start;
+    background: var(--color-brand-50);
+    color: var(--color-neutral-800);
+    border-bottom-left-radius: 0.3rem;
+  }
+
+  :global(.dark) .chat-log :global(.chat-msg.is-bot) {
+    background: var(--color-neutral-800);
+    color: var(--color-neutral-200);
+  }
+
+  .chat-log :global(.chat-msg.is-user) {
+    align-self: flex-end;
+    background: var(--color-brand-600);
+    color: #fff;
+    border-bottom-right-radius: 0.3rem;
+  }
+
+  .chat-log :global(.chat-actions) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  .chat-log :global(.chat-action) {
+    display: inline-block;
+    padding: 0.45rem 0.85rem;
+    border: 1px solid var(--color-brand-300);
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--color-brand-700);
+  }
+
+  .chat-log :global(.chat-action:hover) {
+    background: var(--color-brand-100);
+  }
+
+  :global(.dark) .chat-log :global(.chat-action) {
+    border-color: var(--color-brand-500);
+    color: var(--color-brand-300);
+  }
+
+  .chat-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .chat-chip {
+    padding: 0.5rem 0.8rem;
+    border: 1px solid var(--color-neutral-300);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--color-neutral-600);
+    font-family: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition:
+      border-color 0.2s,
+      color 0.2s;
+  }
+
+  .chat-chip:hover {
+    border-color: var(--color-brand-500);
+    color: var(--color-brand-700);
+  }
+
+  :global(.dark) .chat-chip {
+    border-color: var(--color-neutral-700);
+    color: var(--color-neutral-400);
+  }
+
+  :global(.dark) .chat-chip:hover {
+    border-color: var(--color-brand-500);
+    color: var(--color-brand-300);
+  }
+
+  .chat-log :global(.chat-msg.is-thinking) {
+    display: flex;
+    gap: 0.3rem;
+    align-items: center;
+    padding: 0.9rem;
+  }
+
+  .chat-log :global(.chat-msg.is-thinking span) {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-brand-500);
+    animation: chat-dot 1.2s ease-in-out infinite;
+  }
+
+  .chat-log :global(.chat-msg.is-thinking span:nth-child(2)) {
+    animation-delay: 0.15s;
+  }
+
+  .chat-log :global(.chat-msg.is-thinking span:nth-child(3)) {
+    animation-delay: 0.3s;
+  }
+
+  @keyframes chat-dot {
+    0%,
+    60%,
+    100% {
+      opacity: 0.3;
+      transform: translateY(0);
+    }
+    30% {
+      opacity: 1;
+      transform: translateY(-3px);
+    }
+  }
+
+  .chat-form {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.75rem 0.85rem;
+    border-top: 1px solid var(--color-neutral-200);
+  }
+
+  :global(.dark) .chat-form {
+    border-color: var(--color-neutral-700);
+  }
+
+  .chat-form input {
+    flex: 1;
+    min-width: 0;
+    padding: 0.7rem 0.85rem;
+    border: 1px solid var(--color-neutral-300);
+    border-radius: 0.75rem;
+    background: #fff;
+    color: var(--color-neutral-800);
+    font-family: inherit;
+    font-size: 0.9rem;
+  }
+
+  .chat-form input:focus {
+    outline: none;
+    border-color: var(--color-brand-500);
+    box-shadow: 0 0 0 3px var(--color-brand-100);
+  }
+
+  :global(.dark) .chat-form input {
+    border-color: var(--color-neutral-700);
+    background: var(--color-neutral-800);
+    color: var(--color-neutral-100);
+  }
+
+  .chat-send {
+    flex-shrink: 0;
+    width: 2.75rem;
+    border: none;
+    border-radius: 0.75rem;
+    background: var(--color-brand-600);
+    color: #fff;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .chat-send:hover {
+    background: var(--color-brand-700);
+  }
+
+  .chat-send svg {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+
+  .chat-send:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .chat-foot {
+    padding: 0 1rem 0.9rem;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: var(--color-neutral-500);
+  }
+
+  .chat-foot a {
+    color: var(--color-brand-700);
+    font-weight: 700;
+  }
+
+  :global(.dark) .chat-foot a {
+    color: var(--color-brand-300);
+  }
+
+  @media (max-width: 520px) {
+    /*
+      En teléfono el panel se ancla al viewport, no al lanzador: con `left` y
+      `right` fijados y `width:auto`, el ancho lo deriva el navegador del
+      viewport real, sin aritmética sobre `100vw` que pueda descuadrarse en
+      Safari de iOS.
+    */
+    .chat-panel {
+      position: fixed;
+      left: 0.75rem;
+      right: 0.75rem;
+      bottom: 0.75rem;
+      width: auto;
+      /* dvh descuenta la barra de direcciones; vh queda de reserva para
+         navegadores que no lo soporten. */
+      height: min(72vh, 560px);
+      height: min(72dvh, 560px);
+    }
+
+    .chat-launcher-label {
+      display: none;
+    }
+
+    .chat-launcher {
+      padding: 0.9rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chat-launcher {
+      transition: none;
+    }
+
+    .chat-launcher:hover {
+      transform: none;
+    }
+
+    .chat-log :global(.chat-msg.is-thinking span) {
+      animation: none;
+      opacity: 0.6;
+    }
+  }
+</style>

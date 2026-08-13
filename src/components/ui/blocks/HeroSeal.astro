@@ -1,0 +1,175 @@
+---
+/**
+ * Detalle gráfico del hero: un precinto de guaya dibujado a línea.
+ *
+ * Es decoración, no información: va `aria-hidden` y sin texto accesible, así
+ * que quien no lo ve no se pierde nada que no diga ya el titular.
+ *
+ * Por qué un dibujo y no una foto: el hero es azul lleno, y una fotografía
+ * encima o queda tapada por el color o le abre un hueco. Una línea sobre el
+ * mismo azul se integra sin romperlo. Y por qué este dibujo y no una forma
+ * abstracta: el precinto numerado ES la promesa de la empresa —el número que
+ * se registra al despachar tiene que coincidir con el que se verifica al
+ * recibir—, de modo que el adorno dice lo mismo que el texto de al lado.
+ *
+ * El número de serie es inventado y no corresponde a ninguna referencia del
+ * catálogo: está para que se lea "va numerado", no para citar un producto.
+ */
+---
+
+<div class="seal" aria-hidden="true">
+  <svg viewBox="0 0 440 520" fill="none" role="presentation" focusable="false">
+    <defs>
+      {/* El halo que despega el dibujo del fondo plano. */}
+      <radialGradient id="seal-glow" cx="50%" cy="46%" r="50%">
+        <stop offset="0%" stop-color="var(--color-brand-400)" stop-opacity="0.5"
+        ></stop>
+        <stop offset="100%" stop-color="var(--color-brand-400)" stop-opacity="0"
+        ></stop>
+      </radialGradient>
+
+      {/* Trama de puntos: da textura sin dibujar nada que compita. */}
+      <pattern
+        id="seal-dots"
+        width="18"
+        height="18"
+        patternUnits="userSpaceOnUse"
+      >
+        <circle cx="2" cy="2" r="1.5" fill="var(--color-brand-300)"></circle>
+      </pattern>
+    </defs>
+
+    <circle cx="220" cy="240" r="215" fill="url(#seal-glow)"></circle>
+
+    {/* Anillos concéntricos, cada uno más tenue que el anterior. */}
+    <circle
+      cx="220"
+      cy="240"
+      r="200"
+      stroke="var(--color-brand-300)"
+      stroke-opacity="0.16"
+      stroke-width="1.5"></circle>
+    <circle
+      cx="220"
+      cy="240"
+      r="158"
+      stroke="var(--color-brand-300)"
+      stroke-opacity="0.22"
+      stroke-width="1.5"
+      stroke-dasharray="4 10"></circle>
+
+    {
+      /* La trama va DETRÁS del precinto y asomando por su borde inferior
+        izquierdo: así lee como profundidad. Suelta en una esquina parecía un
+        parche olvidado. */
+    }
+    <rect
+      x="58"
+      y="322"
+      width="128"
+      height="150"
+      fill="url(#seal-dots)"
+      opacity="0.45"></rect>
+
+    {/* El precinto, ligeramente girado para que no quede de catálogo. */}
+    <g transform="rotate(-7 220 250)">
+      {/* La guaya: sale del cuerpo, describe el arco y vuelve a entrar. */}
+      <path
+        d="M158 196 C 158 60, 282 60, 282 196"
+        stroke="var(--color-brand-200)"
+        stroke-width="9"
+        stroke-linecap="round"></path>
+      <path
+        d="M158 196 C 158 60, 282 60, 282 196"
+        stroke="var(--color-brand-50)"
+        stroke-width="2.5"
+        stroke-linecap="round"
+        stroke-opacity="0.55"
+        stroke-dasharray="1 9"></path>
+
+      {/* El cuerpo, con su relleno apenas más oscuro que el fondo. */}
+      <rect
+        x="132"
+        y="188"
+        width="176"
+        height="216"
+        rx="26"
+        fill="var(--color-brand-800)"
+        fill-opacity="0.55"
+        stroke="var(--color-brand-100)"
+        stroke-width="3"></rect>
+
+      {/* Los dos orificios por donde entra la guaya. */}
+      <circle
+        cx="158"
+        cy="216"
+        r="9"
+        stroke="var(--color-brand-200)"
+        stroke-width="2.5"></circle>
+      <circle
+        cx="282"
+        cy="216"
+        r="9"
+        stroke="var(--color-brand-200)"
+        stroke-width="2.5"></circle>
+
+      {/* La marca grabada. */}
+      <text
+        x="220"
+        y="268"
+        text-anchor="middle"
+        fill="var(--color-brand-50)"
+        font-size="30"
+        font-weight="700"
+        font-family="inherit">B&amp;S</text
+      >
+
+      {/* El código de barras: barras de ancho desigual, como uno de verdad. */}
+      <g fill="var(--color-brand-100)" fill-opacity="0.9">
+        <rect x="160" y="288" width="4" height="46" rx="1"></rect>
+        <rect x="168" y="288" width="2" height="46" rx="1"></rect>
+        <rect x="174" y="288" width="6" height="46" rx="1"></rect>
+        <rect x="184" y="288" width="2" height="46" rx="1"></rect>
+        <rect x="190" y="288" width="3" height="46" rx="1"></rect>
+        <rect x="197" y="288" width="6" height="46" rx="1"></rect>
+        <rect x="207" y="288" width="2" height="46" rx="1"></rect>
+        <rect x="213" y="288" width="4" height="46" rx="1"></rect>
+        <rect x="221" y="288" width="2" height="46" rx="1"></rect>
+        <rect x="227" y="288" width="6" height="46" rx="1"></rect>
+        <rect x="237" y="288" width="3" height="46" rx="1"></rect>
+        <rect x="244" y="288" width="2" height="46" rx="1"></rect>
+        <rect x="250" y="288" width="5" height="46" rx="1"></rect>
+        <rect x="259" y="288" width="2" height="46" rx="1"></rect>
+        <rect x="265" y="288" width="4" height="46" rx="1"></rect>
+        <rect x="273" y="288" width="6" height="46" rx="1"></rect>
+      </g>
+
+      {/* El consecutivo: lo que hace trazable la carga. */}
+      <text
+        x="220"
+        y="366"
+        text-anchor="middle"
+        fill="var(--color-brand-100)"
+        font-size="21"
+        font-weight="600"
+        letter-spacing="3"
+        font-family="inherit">0042 178</text
+      >
+    </g>
+  </svg>
+</div>
+
+<style>
+  .seal {
+    display: block;
+    width: 100%;
+    max-width: 30rem;
+    margin-inline: auto;
+  }
+
+  .seal svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+</style>

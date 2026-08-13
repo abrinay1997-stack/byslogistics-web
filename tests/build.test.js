@@ -277,3 +277,89 @@ describe('catálogo', () => {
     assert.match(p.html, /<iframe[^>]*title="/, 'el iframe necesita title');
   });
 });
+
+describe('hero de la home', () => {
+  test('va sobre azul de marca, no sobre una foto', () => {
+    const p = pages().find(x => x.route === '/');
+    const hero = p.html.match(/<section[^>]*bg-brand-700[^>]*>/);
+    assert.ok(hero, 'el hero perdió el fondo azul');
+    // El h1 tiene que ir en blanco: sobre el azul, el gris oscuro de los
+    // titulares del resto del sitio no se lee.
+    const h1 = p.html.match(/<h1[^>]*>/)[0];
+    assert.match(h1, /text-white/, 'el titular del hero no va en blanco');
+  });
+
+  test('el detalle gráfico es decoración, no información', () => {
+    const p = pages().find(x => x.route === '/');
+    const seal = p.html.match(/<div class="seal[^"]*"[^>]*>/)?.[0];
+    assert.ok(seal, 'el hero perdió su detalle gráfico');
+    // Lleva texto dentro (la marca y el consecutivo), así que sin aria-hidden
+    // un lector de pantalla leería "B&S 0042 178" como si fuera contenido.
+    assert.match(seal, /aria-hidden="true"/);
+  });
+
+  test('el detalle gráfico no se renderiza en pantallas estrechas', () => {
+    // Ahí el texto ocupa el ancho completo: el dibujo solo alargaría la
+    // portada antes de llegar a los botones.
+    const p = pages().find(x => x.route === '/');
+    const columna = p.html.match(/<div class="([^"]*lg:col-span-5[^"]*)"/)?.[1];
+    assert.ok(columna, 'no se encontró la columna del detalle gráfico');
+    assert.match(columna, /\bhidden\b/);
+    assert.match(columna, /lg:block/);
+  });
+});
+
+describe('asistente del sitio', () => {
+  test('la base de conocimiento se publica con el build', () => {
+    const kb = JSON.parse(readFileSync(join(DIST, 'kb.json'), 'utf8'));
+    assert.ok(kb.facts.length > 20, 'la base de conocimiento quedó corta');
+    assert.equal(kb.site.name, 'B&S Logistics');
+    // Sin precios publicados: la lista blanca vacía es lo que hace que
+    // cualquier importe del modelo se bloquee.
+    assert.deepEqual(kb.prices, []);
+  });
+
+  test('la burbuja está en todas las páginas', () => {
+    for (const p of pages()) {
+      assert.match(
+        p.html,
+        /data-chat-toggle/,
+        `${p.route} no lleva la burbuja`
+      );
+    }
+  });
+
+  test('la burbuja no se solapa con los botones flotantes de la derecha', () => {
+    // WhatsApp y el cotizador viven abajo a la derecha (QuoteCart.astro).
+    const css = readdirSync(join(DIST, '_astro'))
+      .filter(f => f.endsWith('.css'))
+      .map(f => readFileSync(join(DIST, '_astro', f), 'utf8'))
+      .join('');
+    // Astro le añade su atributo de alcance a cada selector, de ahí el
+    // `\[[^\]]*\]` en medio.
+    const reglas = css.match(/\.chat(?:\[[^\]]*\])?\{[^}]*\}/g) ?? [];
+    assert.ok(
+      reglas.length > 0,
+      'no se encontró la regla de posición del chat'
+    );
+    for (const regla of reglas) {
+      assert.match(
+        regla,
+        /left:/,
+        'la burbuja del chat debe anclarse a la izquierda'
+      );
+      assert.doesNotMatch(regla, /right:/);
+    }
+  });
+
+  test('ninguna página filtra una clave del proveedor', () => {
+    for (const p of pages()) {
+      assert.doesNotMatch(
+        p.html,
+        /gsk_[A-Za-z0-9]/,
+        `${p.route} filtra una clave`
+      );
+      assert.doesNotMatch(p.html, /sk-ant-/, `${p.route} filtra una clave`);
+    }
+  });
+});

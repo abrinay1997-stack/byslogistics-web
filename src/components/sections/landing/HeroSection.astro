@@ -2,7 +2,7 @@
 // Import the necessary dependencies
 import PrimaryCTA from '@components/ui/buttons/PrimaryCTA.astro';
 import SecondaryCTA from '@components/ui/buttons/SecondaryCTA.astro';
-import SectionBackdrop from '@components/ui/blocks/SectionBackdrop.astro';
+import HeroSeal from '@components/ui/blocks/HeroSeal.astro';
 
 // Define props from Astro
 const {
@@ -12,7 +12,6 @@ const {
   primaryBtnURL,
   secondaryBtn,
   secondaryBtnURL,
-  src,
 } = Astro.props;
 
 // Define TypeScript interface for props
@@ -23,28 +22,37 @@ interface Props {
   primaryBtnURL?: string;
   secondaryBtn?: string;
   secondaryBtnURL?: string;
-  /** Imagen de fondo del hero. */
-  src?: ImageMetadata;
 }
 ---
 
 {
-  /* Sección a sangre: la imagen del fondo llega hasta el borde de la pantalla */
-}
-<section class="relative overflow-hidden">
-  {src && <SectionBackdrop src={src} side="right" width="58%" />}
+  /*
+    Hero de la home: un bloque de azul de marca, a sangre, con el texto en
+    blanco.
 
+    El azul es el mismo en tema claro y en oscuro. No es un descuido: es el
+    color del logo y la primera cosa que se ve del sitio, así que cambiarlo
+    según el tema del visitante haría que la marca se presentara de dos formas
+    distintas. El resto de la página sí respeta el tema.
+
+    Antes había una foto de fondo con máscara lateral. Se quitó a propósito:
+    con el azul lleno detrás, cualquier imagen o bien queda tapada por el color
+    o bien le abre un agujero por un lado, y en los dos casos el bloque deja de
+    leerse como una sola pieza.
+  */
+}
+<section class="bg-brand-700 relative overflow-hidden">
   <div
     class="relative mx-auto max-w-[85rem] px-10 py-20 sm:px-14 lg:px-20 lg:py-32"
   >
     <div class="lg:grid lg:grid-cols-12 lg:items-center lg:gap-12">
       {/* Title and description */}
-      <div class="lg:col-span-6 xl:col-span-5">
+      <div class="lg:col-span-7 xl:col-span-6">
         {
           /* Each h1 and p tag renders a portion of the title and subTitle defined above */
         }
         <h1
-          class="block text-4xl font-bold tracking-tight text-balance text-neutral-800 sm:text-5xl lg:text-6xl xl:text-7xl dark:text-neutral-100"
+          class="block text-4xl font-bold tracking-tight text-balance text-white sm:text-5xl lg:text-6xl xl:text-7xl"
         >
           {
             /* About Fragment: https://docs.astro.build/en/basics/astro-syntax/#fragments */
@@ -53,7 +61,7 @@ interface Props {
         </h1>
         {
           subTitle && (
-            <p class="mt-6 max-w-prose text-lg leading-relaxed text-pretty text-neutral-700 lg:text-xl dark:text-neutral-300">
+            <p class="text-brand-50 mt-6 max-w-prose text-lg leading-relaxed text-pretty lg:text-xl">
               {subTitle}
             </p>
           )
@@ -64,7 +72,12 @@ interface Props {
         <div class="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
           {
             primaryBtn && (
-              <PrimaryCTA title={primaryBtn} url={primaryBtnURL} size="lg" />
+              <PrimaryCTA
+                title={primaryBtn}
+                url={primaryBtnURL}
+                size="lg"
+                tone="onBrand"
+              />
             )
           }
           {
@@ -73,10 +86,22 @@ interface Props {
                 title={secondaryBtn}
                 url={secondaryBtnURL}
                 size="lg"
+                tone="onBrand"
               />
             )
           }
         </div>
+      </div>
+
+      {
+        /*
+          El detalle gráfico del lado derecho. Por debajo de `lg` no se
+          renderiza: ahí el texto ocupa el ancho completo y el dibujo solo
+          alargaría la portada antes de llegar a los botones.
+        */
+      }
+      <div class="hidden lg:col-span-5 lg:block xl:col-span-6">
+        <HeroSeal />
       </div>
     </div>
   </div>
