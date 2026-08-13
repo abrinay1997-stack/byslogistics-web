@@ -31,7 +31,23 @@ interface Props {
 }
 ---
 
-<html lang={lang} class="scrollbar-hide lenis lenis-smooth scroll-pt-16">
+{
+  /*
+    `scroll-pt-24` es el colchón que deja un salto a un ancla para no aterrizar
+    debajo de la barra de navegación, que va flotando y tapa lo que quede
+    detrás.
+
+    Eran 16 (64 px) y no daba: la píldora mide unos 59 px de alto y baja 16
+    desde el borde, así que su canto inferior queda sobre los 75 y el destino
+    del salto caía justo debajo. 96 px lo despeja con margen.
+
+    Hoy no se nota, y conviene decirlo: el único ancla del sitio es el enlace
+    de "Ir al contenido", que apunta al principio del documento, donde no hay
+    hacia dónde desplazarse y ningún colchón puede aplicarse. Esto está por lo
+    que venga —una sección con `#id`, un índice de preguntas frecuentes— para
+    que el valor correcto ya esté puesto cuando haga falta.
+  */
+}<html lang={lang} class="scrollbar-hide lenis lenis-smooth scroll-pt-24">
   <head>
     {/* Adding metadata to the HTML document */}
     <Meta

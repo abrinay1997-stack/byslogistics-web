@@ -161,6 +161,24 @@ Deja todo en `tmp/xlsx-images/`. De ahí se copian a `src/images/productos/`
 tablas y fotos repetidas. El script no toca `src/`, así que se puede volver a
 correr con un listado nuevo sin pisar nada.
 
+#### Recortar el margen sobrante
+
+Después de copiar fotos nuevas:
+
+```bash
+node scripts/trim-product-images.mjs        # recorta e informa
+node scripts/trim-product-images.mjs --dry  # solo informa
+```
+
+Cada foto del listado trae el producto centrado en un lienzo distinto, y las
+tarjetas usan `object-contain`: lo que se escala para llenar el marco es el
+lienzo, no el producto. Una foto con la mitad del archivo en blanco se veía a
+la mitad de tamaño que sus vecinas y la rejilla quedaba desigual sin que
+hubiera nada mal en la maquetación. Con el margen recortado, el relleno lo pone
+la tarjeta y es el mismo para todas.
+
+Es idempotente y solo quita borde uniforme: una foto con fondo real no se toca.
+
 ### Poner una imagen de fondo en una sección
 
 `SectionBackdrop.astro` pone la imagen a un lado de la sección y la desvanece
