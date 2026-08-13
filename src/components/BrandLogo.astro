@@ -2,25 +2,42 @@
 /**
  * Logo oficial de B&S Logistics.
  *
- * El PNG original (1600x839, fondo transparente) vive en
- * `src/images/brand/logo.png`, así que Astro lo optimiza y genera las
- * versiones responsivas. Navbar y FooterSection controlan el tamaño con la
- * clase que le pasan (`w-24`, `w-32`).
+ * Hay DOS archivos, y no es un descuido:
  *
- * El logo solo existe en versión para fondo claro: sus letras son negras y
- * grises. En modo oscuro se dibuja sobre una base blanca para que siga siendo
- * legible. Si llega una versión para fondo oscuro, se puede importar aquí y
- * mostrarla con `hidden dark:block` en lugar de la base blanca.
+ * - `logo.png` es el de siempre, y es el que va en todas partes.
+ * - `logo-navbar.png` es una versión que solo se usa en la barra de
+ *   navegación, porque así se pidió: «solo y exclusivamente navbar». Se elige
+ *   con `variante="navbar"`, que es lo único que la trae; ningún otro sitio
+ *   debe pasarla.
+ *
+ * Los dos son PNG de 1600x839 con fondo transparente, así que Astro los
+ * optimiza y genera sus versiones responsivas, y cambiar de uno a otro no
+ * mueve nada de sitio. Quien lo usa controla el tamaño con la clase que le
+ * pasa (`w-24`, `w-32`).
+ *
+ * Los dos existen solo en versión para fondo claro: sus letras son negras y
+ * grises. En modo oscuro se dibujan sobre una base blanca para que sigan
+ * siendo legibles. Si llega una versión para fondo oscuro, se puede importar
+ * aquí y mostrarla con `hidden dark:block` en lugar de la base blanca.
  */
 import { Image } from 'astro:assets';
 import logo from '@images/brand/logo.png';
+import logoNavbar from '@images/brand/logo-navbar.png';
 
-const { class: className, ...rest } = Astro.props;
+const {
+  class: className,
+  variante = 'principal',
+  ...rest
+} = Astro.props;
 
 interface Props {
   class?: string;
+  /** `navbar` solo desde Navbar.astro. Ver la nota de arriba. */
+  variante?: 'principal' | 'navbar';
   [key: string]: unknown;
 }
+
+const fuente = variante === 'navbar' ? logoNavbar : logo;
 ---
 
 <span
@@ -30,7 +47,7 @@ interface Props {
   ]}
 >
   <Image
-    src={logo}
+    src={fuente}
     alt="B&S Logistics"
     widths={[160, 320, 480]}
     sizes="(min-width: 768px) 160px, 128px"
