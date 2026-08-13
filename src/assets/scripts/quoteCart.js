@@ -85,34 +85,48 @@ function render() {
 
   for (const line of lines) {
     const item = document.createElement('li');
+    // Cada referencia es una tarjeta, no un renglón separado por una línea:
+    // el panel flota sobre la página y una lista de renglones sueltos se leía
+    // como una tabla pegada ahí dentro.
     item.className =
-      'flex items-center gap-3 border-b border-neutral-200 py-3 dark:border-neutral-700';
+      'rounded-2xl border border-neutral-900/10 bg-white/70 p-3.5 dark:border-white/10 dark:bg-neutral-800/60';
     item.innerHTML = `
-      <div class="min-w-0 grow">
-        <p class="truncate font-medium text-neutral-800 dark:text-neutral-200"></p>
-        <p class="truncate text-xs text-neutral-600 dark:text-neutral-400"></p>
+      <div class="flex items-start gap-3">
+        <div class="min-w-0 grow">
+          <p class="text-sm font-bold leading-snug text-neutral-800 dark:text-neutral-100" data-linea-nombre></p>
+          <p class="mt-0.5 truncate text-xs text-neutral-600 dark:text-neutral-400" data-linea-grupo></p>
+        </div>
+        <button
+          type="button"
+          data-quote-remove="${line.id}"
+          aria-label="Quitar de la cotización"
+          class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-neutral-500 outline-hidden transition hover:bg-red-50 hover:text-red-600 focus-visible:ring-3 dark:text-neutral-400 dark:hover:bg-red-950/40 dark:hover:text-red-400"
+        >
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
       </div>
-      <label class="sr-only" for="qty-${line.id}">Cantidad</label>
-      <input
-        id="qty-${line.id}"
-        type="number"
-        min="1"
-        step="1"
-        inputmode="numeric"
-        value="${line.qty}"
-        data-quote-qty="${line.id}"
-        class="w-24 shrink-0 rounded-lg border border-neutral-300 bg-neutral-50 px-2 py-2 text-sm text-neutral-800 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-200"
-      />
-      <button
-        type="button"
-        data-quote-remove="${line.id}"
-        aria-label="Quitar de la cotización"
-        class="shrink-0 rounded-lg px-2 py-2 text-lg leading-none text-neutral-600 dark:text-neutral-400 transition hover:text-red-600 dark:hover:text-red-400"
-      >&times;</button>
+      <div class="mt-3 flex items-center justify-between gap-3">
+        <label class="text-xs font-medium text-neutral-600 dark:text-neutral-400" for="qty-${line.id}">Cantidad</label>
+        <div class="flex items-center gap-x-2">
+          <input
+            id="qty-${line.id}"
+            type="number"
+            min="1"
+            step="1"
+            inputmode="numeric"
+            value="${line.qty}"
+            data-quote-qty="${line.id}"
+            class="w-24 rounded-xl border border-neutral-300 bg-white px-3 py-2 text-right text-sm tabular-nums text-neutral-800 outline-hidden focus:border-brand-500 focus:ring-3 focus:ring-brand-200 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100"
+          />
+          <span class="text-xs text-neutral-600 dark:text-neutral-400">und.</span>
+        </div>
+      </div>
     `;
-    // El nombre se asigna como texto, nunca como HTML.
-    item.querySelector('.grow > p:first-child').textContent = line.name;
-    item.querySelector('.grow > p:last-child').textContent = line.group;
+    // El nombre y el grupo se asignan como texto, nunca como HTML.
+    item.querySelector('[data-linea-nombre]').textContent = line.name;
+    item.querySelector('[data-linea-grupo]').textContent = line.group;
     list.append(item);
   }
 }

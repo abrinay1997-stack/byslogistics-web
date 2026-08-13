@@ -54,6 +54,15 @@ const RUTAS_ESPERADAS = [
   '/productos/embalaje-protector/',
   '/productos/rastreo-satelital/',
   '/usos/',
+  '/usos/precintos-para-contenedores/',
+  '/usos/precintos-para-carrotanques/',
+  '/usos/tulas-para-transporte-de-valores/',
+  '/usos/etiquetas-void-sellos-de-garantia/',
+  '/usos/como-elegir-un-precinto-de-seguridad/',
+  '/usos/numeracion-y-trazabilidad/',
+  '/usos/precintos-para-canastillas-y-estibas/',
+  '/usos/precintos-para-medidores-y-activos/',
+  '/usos/embalaje-y-proteccion-de-carga/',
   '/faq/',
   '/nosotros/',
   '/contacto/',
@@ -279,33 +288,60 @@ describe('catálogo', () => {
 });
 
 describe('hero de la home', () => {
-  test('va sobre azul de marca, no sobre una foto', () => {
+  test('la fotografía ocupa el bloque entero', () => {
     const p = pages().find(x => x.route === '/');
-    const hero = p.html.match(/<section[^>]*bg-brand-700[^>]*>/);
-    assert.ok(hero, 'el hero perdió el fondo azul');
-    // El h1 tiene que ir en blanco: sobre el azul, el gris oscuro de los
-    // titulares del resto del sitio no se lee.
+    const hero = p.html.match(/<section[^>]*min-h-svh[^>]*>/);
+    assert.ok(hero, 'el hero dejó de ocupar el alto de la pantalla');
+    // `svh` y no `vh`: en el móvil, `vh` cuenta la barra de direcciones del
+    // navegador aunque esté a la vista y el bloque se pasa de largo.
+    assert.doesNotMatch(hero[0], /min-h-screen/);
+
+    const foto = p.html.match(/<img[^>]*precinto-tecnologia[^>]*>/)?.[0];
+    assert.ok(foto, 'el hero perdió su fotografía');
+    // Es la imagen más grande de la primera pantalla: si carga en diferido,
+    // el visitante ve el hueco.
+    assert.match(foto, /loading="eager"/);
+    assert.match(foto, /fetchpriority="high"/);
+    // Decorativa: lo que dice ya está en el titular de al lado. El
+    // minificador deja `alt` a secas, que es lo mismo que `alt=""`.
+    assert.match(foto, /\salt(=""|[\s>])/);
+  });
+
+  test('el titular va en blanco sobre la foto', () => {
+    const p = pages().find(x => x.route === '/');
     const h1 = p.html.match(/<h1[^>]*>/)[0];
     assert.match(h1, /text-white/, 'el titular del hero no va en blanco');
+    // El velo es lo que garantiza el contraste pase lo que pase detrás de
+    // cada línea, y eso cambia con el ancho de la pantalla.
+    assert.match(p.html, /from-brand-950\/90/, 'el hero perdió su velo');
   });
 
-  test('el detalle gráfico es decoración, no información', () => {
+  test('empieza en el borde superior, sin franja por encima', () => {
     const p = pages().find(x => x.route === '/');
-    const seal = p.html.match(/<div class="seal[^"]*"[^>]*>/)?.[0];
-    assert.ok(seal, 'el hero perdió su detalle gráfico');
-    // Lleva texto dentro (la marca y el consecutivo), así que sin aria-hidden
-    // un lector de pantalla leería "B&S 0042 178" como si fuera contenido.
-    assert.match(seal, /aria-hidden="true"/);
+    // La barra va fija y no ocupa sitio; el <main> de la portada no lleva el
+    // relleno que sí llevan las demás páginas.
+    const main = p.html.match(/<main[^>]*id="main-content"[^>]*>/)[0];
+    assert.doesNotMatch(main, /pt-\[4\.75rem\]/);
+
+    const otra = pages().find(x => x.route === '/nosotros/');
+    assert.match(
+      otra.html.match(/<main[^>]*id="main-content"[^>]*>/)[0],
+      /pt-\[4\.75rem\]/,
+      'las páginas sin hero a sangre deben separar el contenido de la barra'
+    );
   });
 
-  test('el detalle gráfico no se renderiza en pantallas estrechas', () => {
-    // Ahí el texto ocupa el ancho completo: el dibujo solo alargaría la
-    // portada antes de llegar a los botones.
+  test('la señal de "sigue hacia abajo" lleva a una sección que existe', () => {
     const p = pages().find(x => x.route === '/');
-    const columna = p.html.match(/<div class="([^"]*lg:col-span-5[^"]*)"/)?.[1];
-    assert.ok(columna, 'no se encontró la columna del detalle gráfico');
-    assert.match(columna, /\bhidden\b/);
-    assert.match(columna, /lg:block/);
+    const destino = p.html.match(
+      /href="#([a-z-]+)"[^>]*>\s*<span[^>]*>Nuestras/
+    )?.[1];
+    assert.ok(destino, 'el hero perdió la señal de continuar');
+    assert.match(
+      p.html,
+      new RegExp(`id="${destino}"`),
+      `no existe #${destino}`
+    );
   });
 });
 
@@ -329,8 +365,7 @@ describe('asistente del sitio', () => {
     }
   });
 
-  test('la burbuja no se solapa con los botones flotantes de la derecha', () => {
-    // WhatsApp y el cotizador viven abajo a la derecha (QuoteCart.astro).
+  test('la burbuja vive abajo a la derecha, donde estaba WhatsApp', () => {
     const css = readdirSync(join(DIST, '_astro'))
       .filter(f => f.endsWith('.css'))
       .map(f => readFileSync(join(DIST, '_astro', f), 'utf8'))
@@ -343,13 +378,30 @@ describe('asistente del sitio', () => {
       'no se encontró la regla de posición del chat'
     );
     for (const regla of reglas) {
-      assert.match(
-        regla,
-        /left:/,
-        'la burbuja del chat debe anclarse a la izquierda'
-      );
-      assert.doesNotMatch(regla, /right:/);
+      assert.match(regla, /right:/, 'la burbuja debe anclarse a la derecha');
+      assert.doesNotMatch(regla, /left:/);
     }
+  });
+
+  test('el rincón de la burbuja quedó libre: no hay otro botón flotante', () => {
+    // El de WhatsApp se retiró y el del cotizador subió a la barra. Si vuelve
+    // a aparecer un `fixed` en esa esquina, se tapan entre ellos.
+    for (const p of pages()) {
+      assert.doesNotMatch(
+        p.html,
+        /<aside[^>]*aria-label="Acciones rápidas de contacto"/,
+        `${p.route} conserva los botones flotantes de la derecha`
+      );
+    }
+  });
+
+  test('se puede llegar a WhatsApp desde el primer mensaje', () => {
+    // Al quitar el botón flotante, la vía directa con una persona pasa a
+    // depender de la burbuja: tiene que estar a la vista al abrirla, no
+    // después de preguntar algo.
+    const p = pages().find(x => x.route === '/');
+    const saludo = p.html.slice(p.html.indexOf('chat-msg is-bot'));
+    assert.match(saludo.slice(0, 900), /wa\.me\/573209514930/);
   });
 
   test('ninguna página filtra una clave del proveedor', () => {
@@ -360,6 +412,81 @@ describe('asistente del sitio', () => {
         `${p.route} filtra una clave`
       );
       assert.doesNotMatch(p.html, /sk-ant-/, `${p.route} filtra una clave`);
+    }
+  });
+});
+
+describe('guías de uso', () => {
+  const guias = () => pages().filter(p => /^\/usos\/.+/.test(p.route));
+
+  test('cada guía publica sus datos estructurados', () => {
+    for (const p of guias()) {
+      const bloques = [
+        ...p.html.matchAll(/type="application\/ld\+json">(.*?)<\/script>/gs),
+      ];
+      const grafos = bloques
+        .map(m => JSON.parse(m[1]))
+        .filter(d => Array.isArray(d['@graph']));
+      assert.equal(grafos.length, 1, `${p.route} no publica su grafo`);
+
+      const tipos = grafos[0]['@graph'].map(x => x['@type']);
+      assert.ok(tipos.includes('Article'), `${p.route} sin Article`);
+      assert.ok(tipos.includes('BreadcrumbList'), `${p.route} sin migas`);
+      // El FAQPage es lo que permite que la respuesta salga en el buscador
+      // sin que nadie entre a la página.
+      assert.ok(tipos.includes('FAQPage'), `${p.route} sin FAQPage`);
+    }
+  });
+
+  test('cada guía lleva a productos del catálogo', () => {
+    const rutas = new Set(pages().map(p => p.route));
+    for (const p of guias()) {
+      const enlaces = [
+        ...p.html.matchAll(
+          /href="(\/(?:precintos|productos|catalogo)[^"#?]*)"/g
+        ),
+      ].map(m => (m[1].endsWith('/') ? m[1] : m[1] + '/'));
+      assert.ok(
+        enlaces.length > 0,
+        `${p.route} no enlaza ninguna referencia: la guía no sirve de puerta de entrada`
+      );
+      for (const enlace of enlaces) {
+        assert.ok(
+          rutas.has(enlace),
+          `${p.route} enlaza a ${enlace}, que no existe`
+        );
+      }
+    }
+  });
+
+  test('ninguna guía publica precios', () => {
+    for (const p of guias()) {
+      assert.doesNotMatch(
+        p.html,
+        /\$\s?\d{3}|\d[\d.,]*\s*pesos/i,
+        `${p.route} publica un importe`
+      );
+    }
+  });
+
+  test('el índice de usos enlaza todas las guías', () => {
+    const indice = pages().find(p => p.route === '/usos/');
+    for (const guia of guias()) {
+      assert.match(
+        indice.html,
+        new RegExp(`href="${guia.route.replace(/\/$/, '')}"`),
+        `el índice no enlaza ${guia.route}`
+      );
+    }
+  });
+
+  test('cada guía entra en el sitemap', () => {
+    const sitemap = readFileSync(join(DIST, 'sitemap-0.xml'), 'utf8');
+    for (const guia of guias()) {
+      assert.ok(
+        sitemap.includes(`byslogistics.com.co${guia.route}`),
+        `${guia.route} no está en el sitemap`
+      );
     }
   });
 });

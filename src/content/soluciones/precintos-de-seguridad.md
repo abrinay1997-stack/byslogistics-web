@@ -5,8 +5,8 @@ order: 1
 icon: verified
 catalogUrl: /precintos
 catalogLabel: 'Ver las 11 categorías de precintos'
-cardImage: ../../images/productos/precinto-dentado-doble-cierre.png
-cardImageAlt: 'Precinto plástico dentado dorado con logotipo'
+cardImage: ../../images/productos/precinto-guaya-ref-01.jpg
+cardImageAlt: 'Precinto de guaya con cuerpo metálico azul y numeración'
 highlights:
   - 'Evidencian cualquier intento de manipulación durante su uso'
   - 'No pueden retirarse sin dejar evidencia'

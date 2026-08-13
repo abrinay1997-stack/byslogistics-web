@@ -93,11 +93,20 @@ describe('recuperación', () => {
     ['¿Cuál es el precio del millar?', 'precios'],
     ['¿Qué precintos manejan?', 'categorias-precintos'],
     ['¿Tienen precintos de guaya?', 'precinto-precintos-de-guaya'],
-    ['¿Se les puede poner el logo de mi empresa?', 'personalizacion'],
     ['¿Atienden en Panamá?', 'cobertura'],
     ['¿Cuál es el teléfono?', 'contacto'],
     ['¿Sirve para carrotanques?', 'sector-combustibles-e-hidrocarburos'],
-    ['Necesito asegurar la puerta de un contenedor', 'sector-transporte'],
+    // Desde que existen las guías de uso, una pregunta planteada como el
+    // problema —y no como el producto— recupera la guía antes que la ficha
+    // del sector, que es exactamente para lo que se escribieron.
+    [
+      'Necesito asegurar la puerta de un contenedor',
+      'guia-precintos-para-contenedores',
+    ],
+    [
+      '¿Se moja la carga dentro del contenedor?',
+      'guia-embalaje-y-proteccion-de-carga-faq-3',
+    ],
     ['¿Desde cuándo existe la empresa?', 'quienes-somos'],
   ];
 
@@ -128,6 +137,9 @@ describe('recuperación', () => {
     ],
     ['Quiero cotizar 5.000 unidades', 'como-cotizar'],
     ['¿Cómo hago un pedido?', 'como-cotizar'],
+    // La respuesta a la personalización está dos veces y bien: en el hecho
+    // general y en la pregunta frecuente de la guía de contenedores.
+    ['¿Se les puede poner el logo de mi empresa?', 'personalizacion'],
   ];
 
   for (const [pregunta, esperado] of casosAmbiguos) {
