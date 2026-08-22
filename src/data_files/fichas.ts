@@ -29,34 +29,37 @@ export interface Paso {
 }
 
 /**
- * Los cinco beneficios que pidió la clienta para la franja bajo el
- * encabezado. Los iconos son los que ya existen en el sitio: ninguno se
- * dibujó para esto.
+ * Los cinco beneficios de la franja bajo el encabezado, con los títulos y las
+ * líneas de apoyo tal como los dictó la clienta en su mockup. Son etiquetas
+ * cortas a propósito: cinco columnas con una frase larga cada una dejan de
+ * leerse de un vistazo, que es lo único que esa franja tiene que lograr.
+ *
+ * Los iconos son los que ya existen en el sitio: ninguno se dibujó para esto.
  */
 const BENEFICIOS_PRECINTOS: Beneficio[] = [
   {
     titulo: 'Alta seguridad',
-    texto: 'Cierre de un solo uso: no se puede abrir y volver a cerrar.',
+    texto: 'Evidencia de manipulación',
     icon: 'verified',
   },
   {
     titulo: 'Personalizable',
-    texto: 'Con logo, numeración consecutiva y código de barras.',
+    texto: 'Logo, numeración y código de barras',
     icon: 'puzzle',
   },
   {
     titulo: 'Fácil de usar',
-    texto: 'Se instala a mano, sin herramientas ni capacitación previa.',
+    texto: 'Instalación rápida y segura',
     icon: 'checkCircle',
   },
   {
     titulo: 'Resistente',
-    texto: 'Materiales pensados para el trayecto y la intemperie.',
+    texto: 'Material de alta calidad',
     icon: 'frame',
   },
   {
     titulo: 'Trazabilidad',
-    texto: 'El número registrado al despachar se verifica al recibir.',
+    texto: 'Numeración consecutiva',
     icon: 'books',
   },
 ];

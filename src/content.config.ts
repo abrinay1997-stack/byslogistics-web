@@ -67,6 +67,7 @@ const fichaDeProducto = (image: ImageFn) => ({
     .array(z.object({ titulo: z.string(), texto: z.string() }))
     .default([]),
   presentacion: z.array(z.string()).default([]),
+  notaPresentacion: z.string().optional(),
   /**
    * Ruta del PDF dentro de /public. Sin archivo, el bloque de descarga no se
    * pinta: vale más que no esté a que esté y no abra.
@@ -81,13 +82,17 @@ const fichaDeProducto = (image: ImageFn) => ({
 /**
  * Lo que una categoría presta a TODAS sus referencias.
  *
- * Los cinco beneficios de un precinto, cómo se instala y las dudas de siempre
- * son casi los mismos en las seis referencias de correa dentada. Escribirlos
- * una vez por categoría y dejar que cada ficha los sobreescriba si hace falta
- * evita copiar el mismo párrafo 129 veces —y tener que corregirlo 129 veces
- * cuando cambie.
+ * Casi todo lo que enseña una ficha es igual en las seis referencias de correa
+ * dentada: los colores, la personalización, la cantidad mínima, los usos, los
+ * sectores, la presentación y cómo se instala. Lo propio de cada referencia
+ * son dos o tres números. Escribir lo común una vez por categoría es lo que
+ * permite que las 115 fichas se vean completas sin escribir 115 veces lo
+ * mismo —ni tener que corregirlo 115 veces cuando cambie.
+ *
+ * Cada campo se puede sobreescribir en la referencia. Ver `resolverFicha` en
+ * `src/utils/catalog.ts` para cómo se mezclan.
  */
-const defectosDeCategoria = {
+const defectosDeCategoria = (image: ImageFn) => ({
   beneficios: z
     .array(
       z.object({
@@ -104,7 +109,43 @@ const defectosDeCategoria = {
   faq: z
     .array(z.object({ question: z.string(), answer: z.string() }))
     .default([]),
-};
+  /**
+   * La PLANTILLA de especificaciones de la categoría: qué atributos enseña y
+   * en qué orden.
+   *
+   * `valor` es opcional aquí y solo aquí. Un atributo que vale lo mismo en
+   * toda la categoría —el material, el tipo de cierre, la temperatura de
+   * trabajo— se escribe una vez con su valor. Uno que cambia en cada
+   * referencia —la longitud, la resistencia— se declara sin valor: la fila
+   * aparece igual, y cada referencia pone el suyo. Mientras no lo ponga, la
+   * ficha invita a consultarlo en vez de inventarlo.
+   */
+  specs: z
+    .array(z.object({ etiqueta: z.string(), valor: z.string().optional() }))
+    .default([]),
+  medidas: z
+    .object({
+      imagen: image().optional(),
+      imagenAlt: z.string().optional(),
+      valores: z
+        .array(z.object({ etiqueta: z.string(), valor: z.string().optional() }))
+        .default([]),
+    })
+    .optional(),
+  colores: z
+    .array(z.object({ nombre: z.string(), hex: z.string().optional() }))
+    .default([]),
+  notaColores: z.string().optional(),
+  personalizacion: z.array(z.string()).default([]),
+  notaPersonalizacion: z.string().optional(),
+  moq: z
+    .object({ unidades: z.number(), nota: z.string().optional() })
+    .optional(),
+  usos: z.array(z.string()).default([]),
+  sectores: z.array(z.string()).default([]),
+  presentacion: z.array(z.string()).default([]),
+  notaPresentacion: z.string().optional(),
+});
 
 /**
  * Familias de producto ("Nuestras Soluciones"): precintos de seguridad,
@@ -148,7 +189,7 @@ const solucionesCollection = defineCollection({
             name: z.string(),
             image: image().optional(),
             imageAlt: z.string().optional(),
-            ...defectosDeCategoria,
+            ...defectosDeCategoria(image),
             products: z.array(
               z.object({
                 name: z.string(),
@@ -183,7 +224,7 @@ const precintosCollection = defineCollection({
       order: z.number(),
       cardImage: image().optional(),
       cardImageAlt: z.string().optional(),
-      ...defectosDeCategoria,
+      ...defectosDeCategoria(image),
       // Referencias del catálogo. `code` es la referencia comercial.
       products: z
         .array(

@@ -171,8 +171,9 @@ describe('ficha de producto', () => {
    * es peor que no tener la sección.
    */
   test('los bloques sin datos no se pintan', () => {
+    // Los precintos de botella todavía no tienen plantilla de categoría.
     const html = unaFicha(
-      '/precintos/precintos-de-correa-dentada/precinto-doble-dentado-38-cms/'
+      '/precintos/precintos-de-botella/precinto-botella-one-seal/'
     );
     for (const bloque of [
       'Colores disponibles',
@@ -187,16 +188,43 @@ describe('ficha de producto', () => {
     }
   });
 
-  test('los bloques heredados de la familia sí se pintan', () => {
+  /*
+   * Lo que hace que 115 fichas se vean completas sin escribir 115 veces lo
+   * mismo: la categoría declara una vez lo que comparten sus referencias.
+   */
+  test('la plantilla de la categoría llega a todas sus referencias', () => {
     const html = unaFicha(
       '/precintos/precintos-de-correa-dentada/precinto-doble-dentado-38-cms/'
     );
     for (const bloque of [
-      'Trazabilidad',
-      '¿Cómo se utiliza?',
-      'Preguntas frecuentes',
+      'Colores disponibles',
+      'Personalización',
+      'Cantidad mínima de pedido',
+      'Principales usos',
+      'Sectores que lo utilizan',
+      'Presentación',
+      'Medidas',
     ]) {
-      assert.ok(html.includes(bloque), `falta el bloque "${bloque}"`);
+      assert.ok(html.includes(bloque), `la referencia no heredó "${bloque}"`);
+    }
+    // Su longitud sí la sabe —la dice su nombre—, la resistencia todavía no.
+    assert.ok(html.includes('380 mm'), 'perdió su propia longitud');
+    assert.ok(
+      html.includes('Consúltenos'),
+      'un atributo sin valor debe invitar a consultarlo, no desaparecer'
+    );
+  });
+
+  test('la referencia de ejemplo no deja ningún atributo pendiente', () => {
+    const html = unaFicha(
+      '/precintos/precintos-de-correa-dentada/precinto-dentado-doble-cierre-35-cms/'
+    );
+    assert.ok(
+      !html.includes('Consúltenos'),
+      'la ficha de ejemplo tiene que estar completa'
+    );
+    for (const dato of ['7,6 mm', '35 x 20 mm', '18 kgf', 'Más vendido']) {
+      assert.ok(html.includes(dato), `falta ${dato}`);
     }
   });
 

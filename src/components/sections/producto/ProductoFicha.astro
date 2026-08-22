@@ -59,6 +59,19 @@ const TARJETA =
 const TITULO_SECCION =
   'text-2xl font-bold text-neutral-800 sm:text-3xl dark:text-neutral-100';
 
+/*
+ * Qué se enseña cuando la categoría declara un atributo y la referencia
+ * todavía no tiene su número.
+ *
+ * La alternativa era esconder la fila, y eso deja las fichas de una misma
+ * categoría con formas distintas según cuánta información se haya levantado.
+ * La otra alternativa —rellenar con una cifra plausible— es la única
+ * inaceptable: un dato técnico inventado en la página de un proveedor es un
+ * pedido mal hecho. "Consúltenos" es verdad y además es lo que haría el
+ * equipo comercial.
+ */
+const PENDIENTE = 'Consúltenos';
+
 /* Qué bloques hay que pintar. */
 const hayMedidas = Boolean(
   ficha.medidas && (ficha.medidas.imagen || ficha.medidas.valores.length)
@@ -179,8 +192,15 @@ const hayUsos = ficha.usos.length > 0 || ficha.sectores.length > 0;
                 <dt class="text-xs font-bold tracking-wider text-neutral-600 uppercase dark:text-neutral-400">
                   {spec.etiqueta}
                 </dt>
-                <dd class="mt-1 font-medium text-neutral-800 dark:text-neutral-200">
-                  {spec.valor}
+                <dd
+                  class:list={[
+                    'mt-1 font-medium',
+                    spec.valor
+                      ? 'text-neutral-800 dark:text-neutral-200'
+                      : 'text-neutral-500 italic dark:text-neutral-500',
+                  ]}
+                >
+                  {spec.valor ?? PENDIENTE}
                 </dd>
               </div>
             ))}
@@ -296,8 +316,14 @@ const hayUsos = ficha.usos.length > 0 || ficha.sectores.length > 0;
                     <dt class="text-sm text-neutral-600 dark:text-neutral-400">
                       {valor.etiqueta}
                     </dt>
-                    <dd class="font-bold text-neutral-800 dark:text-neutral-200">
-                      {valor.valor}
+                    <dd
+                      class:list={[
+                        valor.valor
+                          ? 'font-bold text-neutral-800 dark:text-neutral-200'
+                          : 'text-neutral-500 italic dark:text-neutral-500',
+                      ]}
+                    >
+                      {valor.valor ?? PENDIENTE}
                     </dd>
                   </div>
                 ))}
