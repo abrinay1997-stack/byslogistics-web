@@ -10,16 +10,32 @@
           "answer": "Es un elemento diseñado para custodiar bienes y activos: evidencia cualquier intento de manipulación durante su uso y no puede retirarse sin dejar rastro. Se emplea para garantizar la trazabilidad y la cadena de custodia en operaciones de transporte y almacenamiento."
         },
         {
+          "question": "¿Precinto, sello o marchamo son lo mismo?",
+          "answer": "Sí. No existe una diferencia técnica entre ellos: son términos que cambian según la industria y la región. En transporte terrestre se habla de precinto, en comercio exterior de sello de seguridad para contenedores y en la industria es común oír marchamo. Todos cumplen la misma función: evidenciar una apertura no autorizada y permitir la trazabilidad. Lo que sí cambia de verdad es la solución que corresponde a cada aplicación."
+        },
+        {
           "question": "¿Qué tipos de productos manejan?",
           "answer": "Distribuimos y comercializamos seis líneas: precintos de seguridad, etiquetas y cintas de seguridad, tulas y bolsas de seguridad, cajas de seguridad, embalaje protector (bolsas inflables, absorbentes de humedad e infladoras) y rastreo satelital. En el catálogo puede filtrarlas y buscar cualquier referencia por nombre."
         },
         {
           "question": "¿Qué diferencia hay entre un precinto plástico y uno metálico?",
-          "answer": "El plástico es más económico y se instala más rápido, así que es el habitual para volumen: canastillas, estibas, bolsas y despachos frecuentes. El metálico resiste mucho más el corte y la intemperie, y es el que corresponde en válvulas, tapas de tanque, puertas de contenedor y cualquier punto donde el riesgo justifique el costo."
+          "answer": "El plástico es más económico y se instala más rápido, así que es el habitual para volumen: canastillas, estibas, tulas de recaudo, trolleys de aerolínea, gavetas y despachos frecuentes. El metálico resiste mucho más el corte y la intemperie, y es el que corresponde en válvulas, medidores, surtidores, tapas de tanque y equipos industriales. Para la puerta de un contenedor marítimo el estándar es otro: el precinto botella o bolt seal certificado ISO/PAS 17712."
+        },
+        {
+          "question": "¿Qué es un precinto botella o bolt seal?",
+          "answer": "Es un sello de alta seguridad con cuerpo de acero y cierre tipo perno y cápsula, diseñado para contenedores marítimos y operaciones de comercio exterior. Es el precinto que más se usa en exportación e importación porque resiste los intentos de apertura y es reconocido internacionalmente. Lo suministramos certificado bajo la norma ISO/PAS 17712, con logo, numeración consecutiva y código de barras."
+        },
+        {
+          "question": "¿Qué es la norma ISO/PAS 17712 y por qué importa?",
+          "answer": "Es el estándar internacional que evalúa y clasifica los precintos de alta seguridad para contenedores marítimos. Certifica que el precinto cumple requisitos de resistencia física, identificación y desempeño, y es lo que navieras, autoridades aduaneras y operadores de comercio exterior suelen exigir en exportaciones e importaciones. Nuestros precintos botella certificados ISO/PAS 17712 se personalizan con logo, numeración y código de barras."
         },
         {
           "question": "¿Para qué sirven las etiquetas y cintas de seguridad?",
           "answer": "Para asegurar superficies que no tienen un cierre mecánico donde poner un precinto: cajas, empaques, equipos o puertas de armario. Dejan evidencia visible ante cualquier intento de remoción —la leyenda VOID u OPENED queda impresa— y funcionan como sello de garantía o control de inventarios."
+        },
+        {
+          "question": "¿Qué tipos de etiquetas de seguridad existen?",
+          "answer": "Cinco, y se eligen por el tipo de evidencia que necesita. Las VOID dejan la palabra VOID o un patrón de seguridad al retirarlas; las OPENED muestran el mensaje de apertura; las No Transfer dejan la evidencia solo en la etiqueta y la superficie queda limpia, ideal para vehículos nuevos y puertas; las de cáscara de huevo se fragmentan y no pueden reutilizarse; y las holográficas ayudan a acreditar la autenticidad de un producto y son difíciles de reproducir."
         },
         {
           "question": "¿Qué son las tulas y bolsas de seguridad?",
@@ -28,6 +44,10 @@
         {
           "question": "¿Ofrecen rastreo satelital?",
           "answer": "Sí. Manejamos equipos de rastreo satelital con servicio de plataforma, disponibles en venta o en alquiler, con planes de 6 o 12 meses, para hacerle seguimiento a la carga mientras está en ruta."
+        },
+        {
+          "question": "¿Qué es un precinto electrónico y qué puede detectar?",
+          "answer": "Es un dispositivo que combina el sellado de la carga con monitoreo y localización durante el trayecto, en lugar de verificar el sello solo al llegar. Según el modelo y la plataforma, permite conocer la ubicación en tiempo real, seguir la ruta, detectar aperturas o manipulaciones del precinto, identificar desviaciones y paradas no programadas y consultar el historial del recorrido. Se usa sobre todo en contenedores de importación y exportación y en mercancía de alto valor."
         }
       ]
     },
@@ -37,11 +57,19 @@
       "faqs": [
         {
           "question": "¿Cuál es el precinto más seguro?",
-          "answer": "No hay uno que sea el mejor para todo: hay uno que corresponde a cada punto. Los de cuerpo metálico —botella, rotor, guaya— resisten más que los plásticos y son los indicados donde el riesgo es alto; los plásticos de correa dentada resuelven mejor el control por volumen, porque se instalan más rápido y cuestan menos por unidad. La seguridad real la da la combinación de precinto adecuado, numeración registrada y verificación al recibir."
+          "answer": "No hay uno que sea el mejor para todo: hay uno que corresponde a cada punto. Cuando se habla de resistencia física y estándares internacionales, el precinto botella o bolt seal certificado ISO/PAS 17712 es la solución de mayor seguridad, y es la que se usa en contenedores marítimos. Eso no lo hace el adecuado para todo: una tula de recaudo se resuelve con un plástico numerado y una válvula con un sello tipo rotor. La seguridad real la da la combinación de precinto adecuado, numeración registrada y verificación al recibir."
         },
         {
           "question": "¿Cómo sé cuál necesito para mi operación?",
-          "answer": "Empiece por el punto que va a asegurar, no por el catálogo: manijas de una puerta contigua piden correa dentada, tubular o candado; dos puntos separados entre sí, guaya en la longitud que cubra la distancia; una válvula o boca de descarga, precinto de botella; una tapa de tanque o una forma irregular, rotor con guaya; una caja de cartón, precinto de ancla. En la guía «Cómo elegir un precinto de seguridad» está la tabla completa, y si nos describe su operación le asesoramos."
+          "answer": "Empiece por el punto que va a asegurar, no por el catálogo: manijas de una puerta contigua piden correa dentada, tubular o candado; dos puntos separados entre sí, guaya en la longitud que cubra la distancia; una válvula, un medidor o un surtidor, sello tipo rotor o precinto de guaya; una tapa de tanque o una forma irregular, rotor con guaya; la puerta de un contenedor marítimo, precinto botella certificado ISO/PAS 17712; una caja de cartón, precinto de ancla. En la guía «Cómo elegir un precinto de seguridad» está la tabla completa, y si nos describe su operación le asesoramos."
+        },
+        {
+          "question": "¿Qué nivel de seguridad necesito?",
+          "answer": "Hay cuatro escalones. Básico: control de inventarios, tulas de recaudo y centros de distribución, con precintos plásticos numerados. Intermedio: transporte de carga, equipos industriales, válvulas y medidores, con precintos metálicos o de guaya. Alto: contenedores marítimos, exportación y mercancía de alto valor, con precinto botella certificado ISO/PAS 17712. Avanzado: operaciones críticas que exigen monitoreo en tiempo real, con precintos electrónicos. Usar un nivel superior al necesario solo encarece la operación."
+        },
+        {
+          "question": "¿Cuándo conviene una guaya en lugar de un precinto plástico?",
+          "answer": "Cuando el punto de cierre tiene un orificio pequeño que el plástico no pasa, cuando hace falta más resistencia a la rotura, cuando el precinto queda expuesto a condiciones exigentes o cuando hay que identificar individualmente un equipo. Por eso la guaya es la habitual en carrotanques, válvulas, surtidores, medidores, balanzas, maquinaria y en el control de equipos sometidos a calibración o para trabajo en alturas, como arneses y eslingas."
         },
         {
           "question": "¿Un precinto impide que roben la carga?",
@@ -72,6 +100,10 @@
         {
           "question": "¿Pueden imprimir código de barras?",
           "answer": "Sí, y en operaciones con volumen lo recomendamos: anotar a mano un consecutivo de seis dígitos, en un patio y con prisa, falla más de lo que parece, y un dígito mal copiado invalida la verificación. Con código de barras el número se lee con escáner y entra directo al registro."
+        },
+        {
+          "question": "¿Qué información puede llevar un precinto personalizado?",
+          "answer": "Nombre de la empresa, logotipo, numeración consecutiva, código de barras, código QR, textos de seguridad e información específica de control interno, como la identificación de una sede o un proyecto. Qué combinación cabe depende de la referencia y de la superficie disponible, así que se define al cotizar."
         },
         {
           "question": "¿Puedo elegir el color?",
@@ -115,7 +147,7 @@
       "faqs": [
         {
           "question": "¿A qué ciudades despachan?",
-          "answer": "Operamos desde Bogotá y atendemos todo el país. Cuéntenos a dónde necesita el despacho y lo coordinamos al cotizar."
+          "answer": "Atendemos empresas en Bogotá, Medellín, Cali y Bucaramanga, y despachamos a todas las ciudades de Colombia. Cuéntenos a dónde necesita el despacho y lo coordinamos al cotizar."
         },
         {
           "question": "¿Atienden operaciones fuera de Colombia?",
@@ -124,6 +156,10 @@
         {
           "question": "¿A qué sectores atienden?",
           "answer": "Suministramos a líderes de industria en sectores como financiero, transportes, combustibles e hidrocarburos, minería y carbón, alimentos, cárnicos, apuestas y farmacéuticos, entre otros."
+        },
+        {
+          "question": "¿Solo sirven para transporte de carga?",
+          "answer": "No. Además de camiones, contenedores y carrotanques, nuestras soluciones se usan en mixers de cemento, tulas de recaudo, válvulas y medidores de servicios públicos, surtidores de combustible, balanzas, carros de paro hospitalarios, trolleys de aerolíneas, gavetas y canastillas, marcación de cables y tuberías, extintores, equipos sometidos a calibración, herramientas para trabajo en alturas e identificación de prendas en lavanderías, textil y calzado."
         },
         {
           "question": "¿Manejan suministros recurrentes?",

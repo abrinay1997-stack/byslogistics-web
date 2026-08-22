@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 
 import { SITE, CONTACT } from '@data/constants';
 import { FUNDACION, RESENA, SECTORES } from '@data/empresa';
+import { CONOCIMIENTO } from '@data/conocimiento';
 import faqsData from '@data/faqs.json';
 
 /**
@@ -459,6 +460,22 @@ export const GET: APIRoute = async () => {
       });
     });
   }
+
+  /* ---------------- Conocimiento de producto ---------------- */
+
+  /*
+   * El saber del oficio que dictaron las dueñas y que no tiene página propia:
+   * la norma que exige la naviera, en qué se diferencia una etiqueta No
+   * Transfer de una VOID, cuándo una guaya reemplaza a un plástico. Vive en
+   * `conocimiento.ts` con sus `q` ya escritas, así que aquí solo se vuelca.
+   *
+   * Entra al final a propósito. Ante un empate de puntuación gana el hecho más
+   * corto, no el primero de la lista, así que el orden no decide nada; lo que
+   * sí importa es que estos hechos NO llevan realce: una pregunta general como
+   * "¿qué precintos manejan?" debe seguir cayendo en el resumen de categorías,
+   * no en el detalle de la ISO/PAS 17712.
+   */
+  for (const hecho of CONOCIMIENTO) add(hecho);
 
   /* ---------------- Cómo usar el sitio ---------------- */
 

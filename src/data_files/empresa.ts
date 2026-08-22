@@ -41,7 +41,7 @@ export const SECTORES: Array<{ name: string; description: string }> = [
   {
     name: 'Combustibles e hidrocarburos',
     description:
-      'Precintos de botella y de guaya en válvulas, tapas y puntos de descarga de carrotanques.',
+      'Sellos tipo rotor y precintos de guaya en válvulas, surtidores, medidores y tapas de carrotanques.',
   },
   {
     name: 'Minería y carbón',

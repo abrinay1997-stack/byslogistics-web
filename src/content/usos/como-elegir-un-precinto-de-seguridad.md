@@ -1,6 +1,6 @@
 ---
 title: 'Cómo elegir un precinto de seguridad: guía práctica'
-description: 'Criterios para escoger entre precintos de guaya, botella, correa dentada, tubular o rotor según el punto a asegurar, el riesgo y el volumen.'
+description: 'Criterios para escoger entre precintos de guaya, botella, correa dentada, tubular o rotor según el punto a asegurar, el riesgo y el nivel de seguridad.'
 order: 5
 sector: 'Guía general'
 summary: 'Once categorías y una sola pregunta que las ordena: qué está asegurando y contra qué.'
@@ -19,11 +19,11 @@ productos:
     imageAlt: 'Precinto de correa dentada con doble cierre'
 faq:
   - question: '¿Cuál es el precinto más seguro?'
-    answer: 'No hay uno que sea el mejor para todo: hay uno que corresponde a cada punto. Los de cuerpo metálico —botella, rotor, guaya— resisten más que los plásticos y son los indicados donde el riesgo es alto; los plásticos de correa dentada resuelven mejor el control por volumen, porque se instalan más rápido y cuestan menos por unidad. La seguridad real la da la combinación de precinto adecuado, numeración registrada y verificación al recibir.'
+    answer: 'En resistencia física y estándares internacionales, el precinto botella o bolt seal certificado ISO/PAS 17712, que es el que se usa en contenedores marítimos. Pero el más seguro no es siempre el adecuado: una tula de recaudo se resuelve con un plástico numerado y una válvula con un sello tipo rotor. Los de cuerpo metálico —botella, rotor, guaya— resisten más que los plásticos; los plásticos de correa dentada resuelven mejor el control por volumen. La seguridad real la da la combinación de precinto adecuado, numeración registrada y verificación al recibir.'
   - question: '¿Un precinto impide que roben la carga?'
     answer: 'No, y conviene tenerlo claro. Un precinto no es un candado: no resiste una herramienta decidida. Lo que hace es garantizar que esa apertura sea imposible de ocultar, y por eso su valor depende de que alguien verifique el número al recibir. Un precinto que nadie revisa no protege nada.'
   - question: '¿Qué diferencia hay entre un precinto plástico y uno metálico?'
-    answer: 'El plástico es más económico y se instala más rápido, así que es el habitual para volumen: canastillas, estibas, bolsas, despachos frecuentes. El metálico resiste mucho más el corte y la intemperie, y es el que corresponde en válvulas, tapas de tanque, puertas de contenedor y cualquier punto donde el riesgo justifique el costo.'
+    answer: 'El plástico es más económico y se instala más rápido, así que es el habitual para volumen: canastillas, estibas, bolsas, tulas de recaudo, despachos frecuentes. El metálico resiste mucho más el corte y la intemperie, y es el que corresponde en válvulas, medidores, surtidores, tapas de tanque y equipos industriales. La puerta de un contenedor marítimo es un caso aparte: ahí el estándar es el precinto botella certificado ISO/PAS 17712.'
   - question: '¿Cómo sé cuántos necesito?'
     answer: 'Cuente los puntos que hay que asegurar por despacho y multiplique por los despachos del período, añadiendo un margen por instalaciones fallidas y verificaciones. Si nos cuenta su operación le ayudamos a estimarlo antes de cotizar.'
 relacionados:
@@ -44,8 +44,9 @@ Empiece por la geometría, no por el catálogo.
 | --------------------------------------- | -------------------------------------------- |
 | Manijas de una puerta contigua          | Correa dentada, tubular o candado            |
 | Dos puntos separados entre sí           | Guaya, en la longitud que cubra la distancia |
-| Válvula o boca de descarga              | Botella                                      |
+| Válvula, medidor o surtidor             | Rotor, mariposa o guaya                      |
 | Tapa de tanque, equipo, forma irregular | Rotor con guaya                              |
+| Puerta de contenedor marítimo           | Botella certificado ISO/PAS 17712            |
 | Caja o empaque de cartón                | Ancla                                        |
 | Canastilla, estiba, bolsa               | Correa dentada o espiral                     |
 | Carga paletizada, despacho a granel     | Dado y zuncho                                |
@@ -59,12 +60,29 @@ El cuerpo define cuánto aguanta y cuánto cuesta.
   precintar mucho. Es el material del control por volumen: canastillas,
   estibas, despachos diarios, bolsas.
 - **Metálico.** Resiste el corte, la intemperie y el manejo repetido. Es lo que
-  va donde una apertura no detectada cuesta mucho: válvulas, contenedores,
-  tapas de tanque.
+  va donde una apertura no detectada cuesta mucho: válvulas, medidores,
+  surtidores, tapas de tanque, maquinaria.
+- **Botella o bolt seal.** El escalón de alta seguridad, con cuerpo de acero y
+  cierre de perno y cápsula. Es la referencia de los contenedores marítimos y
+  del comercio exterior, donde suele exigirse la certificación
+  **ISO/PAS 17712**.
 
-Hay un punto intermedio que se pasa por alto: los precintos **tubulares** y de
-**doble cierre**, plásticos pero con un cuerpo reforzado, que aguantan bastante
-más que una correa plana sin subir al costo de un metálico.
+Entre el plástico y el metálico hay un escalón que se pasa por alto: los
+precintos **tubulares** y de **doble cierre**, plásticos pero con un cuerpo
+reforzado, que aguantan bastante más que una correa plana sin subir al costo de
+un metálico.
+
+Puesto en escalones, el nivel de seguridad se elige así:
+
+| Nivel      | Para qué operación                                              | Lo que se usa                     |
+| ---------- | --------------------------------------------------------------- | --------------------------------- |
+| Básico     | Inventarios, tulas de recaudo, centros de distribución          | Plástico numerado                 |
+| Intermedio | Transporte de carga, equipos industriales, válvulas y medidores | Metálico o guaya                  |
+| Alto       | Contenedores marítimos, exportación, mercancía de alto valor    | Botella certificado ISO/PAS 17712 |
+| Avanzado   | Operaciones críticas que exigen monitoreo en tiempo real        | Precinto electrónico con GPS      |
+
+Quedarse corto deja una vulnerabilidad; pasarse encarece la operación sin
+aportar nada. Las dos equivocaciones cuestan.
 
 ## Paso 3: la longitud
 
