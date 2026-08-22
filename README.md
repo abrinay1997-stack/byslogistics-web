@@ -49,7 +49,8 @@ src/
 ├── data_files/
 │   ├── constants.ts          Datos de la empresa: contacto, SEO, formularios
 │   ├── empresa.ts            Reseña de /nosotros y sectores de /usos
-│   └── faqs.json             Preguntas frecuentes
+│   ├── faqs.json             Preguntas frecuentes
+│   └── conocimiento.ts       Saber de producto del asistente, sin página propia
 ├── images/
 │   ├── brand/                Logo y colores (ver su README)
 │   ├── backgrounds/          Fondos laterales de sección
@@ -328,9 +329,15 @@ grande, porque lo único que aporta es el lenguaje.
 **Las piezas**
 
 - `src/pages/kb.json.ts` genera `/kb.json` en cada build a partir de las
-  colecciones de contenido, `constants.ts`, `empresa.ts` y `faqs.json`. Si
-  cambia un teléfono o se agrega una categoría, el asistente lo sabe en el
-  siguiente despliegue: no hay nada que actualizar a mano.
+  colecciones de contenido, `constants.ts`, `empresa.ts`, `faqs.json` y
+  `conocimiento.ts`. Si cambia un teléfono o se agrega una categoría, el
+  asistente lo sabe en el siguiente despliegue: no hay nada que actualizar a
+  mano.
+- `src/data_files/conocimiento.ts` es la excepción a esa regla, y solo para lo
+  que no cabe en ninguna página: la norma ISO/PAS 17712, las diferencias entre
+  tecnologías de etiqueta, cuándo una guaya reemplaza a un plástico. Es
+  material dictado por las dueñas y tiene prioridad sobre cualquier redacción
+  anterior del sitio.
 - `netlify/functions/chat.mts` recibe la pregunta, recupera los seis hechos más
   cercanos, arma el prompt y llama al proveedor.
 - `netlify/functions/_retrieval.mts` es la parte determinista, y por eso vive

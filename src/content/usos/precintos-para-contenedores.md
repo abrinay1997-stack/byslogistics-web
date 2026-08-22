@@ -1,15 +1,20 @@
 ---
 title: 'Precintos de seguridad para contenedores marítimos y furgones'
-description: 'Qué precinto usar en puertas de contenedor y furgón, cómo instalarlo y cómo verificarlo al recibir la carga. Guía práctica de B&S Logistics.'
+description: 'Qué precinto usar en la puerta de un contenedor marítimo y de un furgón, cómo instalarlo y cómo verificarlo al recibir la carga.'
 order: 1
 sector: 'Transporte'
 summary: 'La puerta de un contenedor es el punto más expuesto de toda la ruta. Qué precinto va ahí y cómo verificarlo.'
 heroImage: ../../images/productos/precinto-guaya-ref-01.jpg
 heroImageAlt: 'Precinto de guaya con cuerpo metálico azul y numeración grabada'
 productos:
+  - name: 'Precintos de botella'
+    url: /precintos/precintos-de-botella
+    note: 'Bolt seal de cuerpo de acero. Es el estándar de la puerta de un contenedor marítimo, disponible con certificación ISO/PAS 17712.'
+    image: ../../images/productos/precinto-botella-0s-01.jpg
+    imageAlt: 'Precinto de botella One Seal'
   - name: 'Precintos de guaya'
     url: /precintos/precintos-de-guaya
-    note: 'Cable de acero de 40, 60 y 120 cms. Es la referencia habitual para puertas de contenedor: el cable pasa por las manijas y solo sale cortándolo.'
+    note: 'Cable de acero de 40, 60 y 120 cms. Es la referencia habitual en furgones, y en contenedor refuerza barras y puntos adicionales.'
     image: ../../images/productos/precinto-guaya-ref-01.jpg
     imageAlt: 'Precinto de guaya Ref. 01'
   - name: 'Precintos tipo candado'
@@ -24,7 +29,9 @@ productos:
     imageAlt: 'Precinto tubular de cuerpo reforzado'
 faq:
   - question: '¿Qué precinto se usa en la puerta de un contenedor?'
-    answer: 'Lo habitual es un precinto de guaya: el cable de acero pasa por las manijas de la puerta y el cuerpo se cierra una sola vez, de modo que retirarlo obliga a cortar el cable y deja evidencia. Para operaciones con varias paradas también se usan precintos tipo candado y tubulares, que resisten mejor la manipulación repetida.'
+    answer: 'Depende de si es marítimo o terrestre. En un contenedor marítimo, de exportación o importación, el estándar es el precinto botella o bolt seal certificado ISO/PAS 17712: es el que suelen exigir navieras, autoridades aduaneras y operadores de comercio exterior. En furgones y contenedores de reparto terrestre lo habitual es el precinto de guaya, y para operaciones con varias paradas los tipo candado y tubulares, que resisten mejor la manipulación repetida.'
+  - question: '¿Por qué me piden un precinto certificado ISO/PAS 17712?'
+    answer: 'Porque es el estándar internacional que clasifica los precintos de alta seguridad para contenedores marítimos: certifica resistencia física, identificación y desempeño. Navieras, aduanas y operadores de comercio exterior lo piden para dar por buena la integridad de la carga y agilizar inspecciones. Suministramos precintos botella certificados ISO/PAS 17712 con logo, numeración consecutiva y código de barras.'
   - question: '¿Qué longitud de guaya necesito?'
     answer: 'Depende de la distancia entre los puntos que va a unir. Las longitudes más pedidas son 40, 60 y 120 cms: 40 para manijas contiguas, 60 cuando hay que rodear una barra y 120 para asegurar dos puntos separados o varios elementos a la vez.'
   - question: '¿Qué hago si el número del precinto no coincide al recibir?'
@@ -58,11 +65,30 @@ Tres cosas, en este orden:
    estructura. Un cuerpo que se vuelve quebradizo a mitad de ruta genera una
    alarma falsa, y una alarma falsa cuesta tiempo de operación.
 
-## El precinto de guaya, referencia habitual
+## Contenedor marítimo: el precinto botella
 
-En puertas de contenedor y furgón lo más usado es el **precinto de guaya**: un
-cable de acero que pasa por las manijas y entra en un cuerpo metálico que se
-cierra una sola vez. Para abrirlo hay que cortar el cable, y eso no se disimula.
+En un contenedor marítimo —exportación, importación, transporte multimodal— la
+referencia es el **precinto botella**, conocido internacionalmente como _bolt
+seal_: cuerpo de acero, cierre de perno y cápsula, y una sola instalación
+posible. Es el que suelen exigir navieras, autoridades aduaneras, agentes de
+carga y operadores de comercio exterior, y lo normal es que lo pidan
+**certificado bajo la norma ISO/PAS 17712**, el estándar internacional que
+clasifica los precintos de alta seguridad por su resistencia, identificación y
+desempeño.
+
+Esa certificación es lo que permite que el precinto se acepte sin discusión en
+una inspección portuaria o aduanera. Con numeración consecutiva única, logo
+corporativo y código de barras, además, el número entra al registro sin
+transcribirlo a mano.
+
+## Furgón y reparto terrestre: el precinto de guaya
+
+En puertas de furgón y en contenedores que no salen del país, lo más usado es el
+**precinto de guaya**: un cable de acero que pasa por las manijas y entra en un
+cuerpo metálico que se cierra una sola vez. Para abrirlo hay que cortar el
+cable, y eso no se disimula. En un contenedor marítimo la guaya también tiene
+sitio, pero como refuerzo del botella: barras de cierre, compartimientos y
+puntos adicionales de control.
 
 Las longitudes más pedidas son de 40, 60 y 120 centímetros. La regla práctica
 es sencilla: mida la distancia entre los puntos que va a unir y añada holgura
@@ -99,6 +125,13 @@ mismo que no haber precintado.
   además los puntos internos, con
   [precintos de dado y zuncho](/precintos/precintos-de-dado-y-zuncho), para que
   la responsabilidad quede acotada por tramo.
+- **Superficies sin cierre mecánico:** las
+  [etiquetas de seguridad](/productos/etiquetas-y-cintas-de-seguridad) tipo
+  _tamper evident_ cubren puntos donde no cabe un precinto y complementan al
+  botella en la misma puerta.
+- **Mercancía de alto valor o rutas de riesgo:** el precinto electrónico añade
+  al sellado la ubicación en tiempo real, el seguimiento de la ruta y el aviso
+  de apertura mientras la carga está en tránsito.
 
 Si no sabe cuál corresponde a su operación, descríbanos qué punto necesita
 asegurar y le indicamos la referencia adecuada.

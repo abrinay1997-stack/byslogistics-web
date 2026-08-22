@@ -24,11 +24,7 @@ import { Image } from 'astro:assets';
 import logo from '@images/brand/logo.png';
 import logoNavbar from '@images/brand/logo-navbar.png';
 
-const {
-  class: className,
-  variante = 'principal',
-  ...rest
-} = Astro.props;
+const { class: className, variante = 'principal', ...rest } = Astro.props;
 
 interface Props {
   class?: string;
