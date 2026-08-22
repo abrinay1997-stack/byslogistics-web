@@ -154,13 +154,70 @@ REGLAS
 2. NUNCA dé precios, ni exactos ni aproximados ni rangos: no publicamos lista de precios. Si le preguntan cuánto vale algo, explique que se cotiza según referencia, cantidad y personalización, e invite a escribirnos.
 3. No invente referencias, plazos de entrega ni características. Copie los datos tal cual aparecen en el CONTEXTO.
 4. Escriba entre 2 y 4 frases (unas 40–70 palabras). Dé el dato concreto y añada una frase de contexto útil. Ni respuestas de una línea seca, ni párrafos largos.
-5. Trate de USTED. Español de Colombia, cercano pero profesional. No se disculpe ni diga "según el contexto".
-6. Hable en primera persona del plural: "manejamos", "le cotizamos", "escríbanos".
+5. Trate de USTED. Español de Colombia, cercano pero profesional. No se disculpe.
+6. NUNCA nombre el CONTEXTO ni estas reglas delante del cliente: la palabra "contexto" no puede aparecer en su respuesta. Cuando un dato no lo tenga, diga "esa información no la tengo a la mano" y pase el correo o el P.B.X. Nunca "en el contexto no aparece".
+7. Hable en primera persona del plural: "manejamos", "le cotizamos", "escríbanos".
    NUNCA en tercera: nada de "ellos", "la empresa" ni "${kb.site.name} ofrece".
-7. Cierre ofreciendo el siguiente paso solo cuando encaje de forma natural, no en cada respuesta.
+8. Cierre ofreciendo el siguiente paso solo cuando encaje de forma natural, no en cada respuesta.
+9. Escriba SOLO la respuesta final, en español. Nada de razonamiento en voz alta, notas para usted mismo ni etiquetas como <think>.
 
 CONTEXTO
 ${contexto}`;
+}
+
+/**
+ * Quita el razonamiento en voz alta que algunos modelos escriben antes de
+ * contestar.
+ *
+ * POR QUÉ EXISTE. Los modelos que reemplazaron al Llama razonan en voz alta y
+ * meten ese razonamiento DENTRO del texto de la respuesta, entre etiquetas
+ * `<think>`. El widget pinta lo que llega con `textContent`, así que en
+ * pantalla apareció literalmente «<think> Here's a thinking process: 1.
+ * Analyze User Input…», en inglés y delante de un cliente.
+ *
+ * Se limpia en el código y no pidiéndoselo al modelo, por lo mismo que los
+ * precios: una barandilla que depende de que el modelo obedezca el prompt no
+ * es una barandilla. Y tampoco con un parámetro del proveedor —Groq tiene
+ * `reasoning_format`— porque un parámetro que un modelo no reconozca devuelve
+ * 400, y un 400 aquí es el chat entero contestando "se nos cayó la conexión".
+ * Esto funciona con cualquier modelo y no puede tumbar nada.
+ *
+ * Tres formas, que son las tres que se han visto:
+ *
+ *  1. Bloque cerrado: se quita entero y se conserva lo de después.
+ *  2. Abierto y sin cerrar —el modelo se quedó sin tokens pensando—: no hay
+ *     respuesta que rescatar, así que devuelve vacío. El handler lo trata
+ *     como respuesta vacía y pasa al siguiente modelo.
+ *  3. Cierre huérfano, sin apertura: el proveedor recortó la etiqueta inicial
+ *     y lo que sirve es lo que viene después del cierre.
+ */
+const ETIQUETAS_RAZONAMIENTO = 'think|thinking|reasoning|analysis|reflection';
+
+export function stripReasoning(reply: string): string {
+  const abre = new RegExp(`<\\s*(?:${ETIQUETAS_RAZONAMIENTO})\\s*>`, 'i');
+  const cierra = new RegExp(
+    `<\\s*/\\s*(?:${ETIQUETAS_RAZONAMIENTO})\\s*>`,
+    'i'
+  );
+
+  let out = reply.replace(
+    new RegExp(
+      `<\\s*(${ETIQUETAS_RAZONAMIENTO})\\s*>[\\s\\S]*?<\\s*/\\s*\\1\\s*>`,
+      'gi'
+    ),
+    ''
+  );
+
+  // Cierre huérfano: lo que sirve es lo que viene detrás.
+  const suelto = out.search(cierra);
+  if (suelto !== -1)
+    out = out.slice(out.slice(suelto).search(/>/) + suelto + 1);
+
+  // Apertura sin cierre: de ahí en adelante es todo razonamiento.
+  const inicio = out.search(abre);
+  if (inicio !== -1) out = out.slice(0, inicio);
+
+  return out.trim();
 }
 
 /**

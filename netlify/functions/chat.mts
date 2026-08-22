@@ -2,6 +2,7 @@ import {
   retrieve,
   invalidPrices,
   buildSystem,
+  stripReasoning,
   trimReply,
   type Kb,
 } from './_retrieval.mts';
@@ -95,6 +96,18 @@ const MODELOS_GROQ = ['openai/gpt-oss-120b', 'qwen/qwen3.6-27b'];
 
 const MODELOS_ANTHROPIC = ['claude-haiku-4-5-20251001'];
 
+/**
+ * Tope de tokens por respuesta.
+ *
+ * Holgado para lo que se pide —el recorte deja 600 caracteres, unos 150
+ * tokens— porque los modelos que razonan gastan el presupuesto PENSANDO antes
+ * de escribir. Con el tope justo se quedaban sin espacio a mitad del
+ * razonamiento y llegaba una respuesta que empezaba a pensar y no contestaba
+ * nada. Lo que se paga de más son tokens de razonamiento que nadie ve; lo que
+ * se ahorraba con el tope corto era la respuesta entera.
+ */
+const MAX_TOKENS = 900;
+
 /** Quita vacíos y repetidos conservando el orden. */
 const lista = (...xs: (string | undefined)[]): string[] => [
   ...new Set(xs.filter((x): x is string => Boolean(x))),
@@ -148,7 +161,7 @@ function pickProviders(): Provider[] {
       models: lista(process.env.GROQ_MODEL, generico, ...MODELOS_GROQ),
       body: (model, system, msgs) => ({
         model,
-        max_tokens: 260,
+        max_tokens: MAX_TOKENS,
         temperature: 0.3,
         messages: [{ role: 'system', content: system }, ...msgs],
       }),
@@ -172,7 +185,7 @@ function pickProviders(): Provider[] {
       ),
       body: (model, system, msgs) => ({
         model,
-        max_tokens: 260,
+        max_tokens: MAX_TOKENS,
         temperature: 0.3,
         system,
         messages: msgs,
@@ -386,7 +399,7 @@ export default async (req: Request, context: NetlifyContext) => {
           break;
         }
 
-        reply = trimReply(provider.extract(await res.json()).trim());
+        reply = trimReply(stripReasoning(provider.extract(await res.json())));
         if (reply) break;
 
         console.error(`[chat] ${provider.name} (${model}) respondió vacío`);
