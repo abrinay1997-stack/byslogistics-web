@@ -10,8 +10,16 @@
           "answer": "Es un elemento diseñado para custodiar bienes y activos: evidencia cualquier intento de manipulación durante su uso y no puede retirarse sin dejar rastro. Se emplea para garantizar la trazabilidad y la cadena de custodia en operaciones de transporte y almacenamiento."
         },
         {
+          "question": "¿Qué aporta un precinto a la cadena de suministro?",
+          "answer": "La carga pasa por fabricantes, transportadores, operadores logísticos, centros de distribución, puertos, aduanas y cliente final, y en cada entrega hay un riesgo de manipulación, sustitución o pérdida. El precinto reduce ese riesgo, mejora la trazabilidad, facilita auditorías e inspecciones, ayuda a establecer responsabilidades cuando algo pasa y genera confianza entre proveedores, transportadores y clientes."
+        },
+        {
           "question": "¿Precinto, sello o marchamo son lo mismo?",
           "answer": "Sí. No existe una diferencia técnica entre ellos: son términos que cambian según la industria y la región. En transporte terrestre se habla de precinto, en comercio exterior de sello de seguridad para contenedores y en la industria es común oír marchamo. Todos cumplen la misma función: evidenciar una apertura no autorizada y permitir la trazabilidad. Lo que sí cambia de verdad es la solución que corresponde a cada aplicación."
+        },
+        {
+          "question": "¿Qué tipos de precintos existen?",
+          "answer": "Por material son cinco. El plástico es el más usado en control logístico, inventarios, transporte y tulas de recaudo. El metálico resiste más y va donde el riesgo o las condiciones de operación son mayores. El de cable o guaya se adapta a distintos diámetros de cierre y suma resistencia. El de perno o botella es el de alta seguridad, certificado ISO/PAS 17712, para contenedores marítimos. Y el electrónico agrega monitoreo y rastreo satelital. En el catálogo esas familias se abren en once categorías, según la forma del cierre."
         },
         {
           "question": "¿Qué tipos de productos manejan?",
@@ -62,6 +70,10 @@
         {
           "question": "¿Cómo sé cuál necesito para mi operación?",
           "answer": "Empiece por el punto que va a asegurar, no por el catálogo: manijas de una puerta contigua piden correa dentada, tubular o candado; dos puntos separados entre sí, guaya en la longitud que cubra la distancia; una válvula, un medidor o un surtidor, sello tipo rotor o precinto de guaya; una tapa de tanque o una forma irregular, rotor con guaya; la puerta de un contenedor marítimo, precinto botella certificado ISO/PAS 17712; una caja de cartón, precinto de ancla. En la guía «Cómo elegir un precinto de seguridad» está la tabla completa, y si nos describe su operación le asesoramos."
+        },
+        {
+          "question": "¿Qué precintos usan las empresas de transporte de carga?",
+          "answer": "Rara vez uno solo: se combinan según el vehículo y el riesgo. Plásticos numerados en camiones y furgones de distribución, metálicos donde hace falta más resistencia, de cable o guaya en puntos de cierre con distintos diámetros, botella certificados ISO/PAS 17712 en contenedores marítimos y electrónicos con GPS cuando se necesita monitoreo en tiempo real. Lo mismo aplica a carrotanques, transporte multimodal y operaciones de cross docking."
         },
         {
           "question": "¿Qué nivel de seguridad necesito?",
@@ -132,6 +144,10 @@
           "answer": "Depende de la referencia, sobre todo cuando lleva personalización, porque la marcación se hace por lote. Escríbanos con lo que necesita y le confirmamos el mínimo de esa referencia junto con el precio."
         },
         {
+          "question": "¿Venden al por mayor?",
+          "answer": "Sí. Atendemos tanto pedidos pequeños como abastecimiento por volumen para operaciones permanentes de transporte, distribución, recaudo, comercio exterior y control de activos. Comprar por volumen permite estandarizar el precintado, mantener la numeración consecutiva bajo control y que todos los puntos de la operación usen la misma referencia. Cuéntenos su consumo estimado por período y lo coordinamos al cotizar."
+        },
+        {
           "question": "¿En cuánto tiempo responden?",
           "answer": "Los mensajes que llegan por el formulario de contacto se responden en un plazo de 1 a 2 días hábiles. Si el asunto es urgente, la vía más rápida es el WhatsApp o el teléfono."
         },
@@ -178,6 +194,10 @@
         {
           "question": "¿Fabrican o distribuyen?",
           "answer": "Nos dedicamos a la distribución y comercialización, con una gama completa de referencias a precios competitivos enfocada a soluciones logísticas en transporte y control de activos. Eso nos permite recomendarle el producto que corresponde a su operación y no el único que tendríamos para vender."
+        },
+        {
+          "question": "¿Cómo elijo un proveedor de precintos?",
+          "answer": "Comparar solo el precio suele salir caro: un producto barato sin personalización, sin asesoría ni capacidad de suministro termina costando más en la operación. Vale la pena mirar la experiencia en seguridad y trazabilidad, que haya distintos tipos de precinto y niveles de seguridad, las opciones de logo, numeración y código de barras, la capacidad de atender tanto un pedido pequeño como un proyecto grande, y que le pregunten por su operación antes de recomendarle un producto."
         },
         {
           "question": "¿Asesoran en la elección del producto?",

@@ -143,6 +143,7 @@ export const CONOCIMIENTO: HechoConocimiento[] = [
       'como implemento un control de precintos',
       'que hago con el numero del precinto',
       'como verifico un precinto al recibir',
+      'como funcionan los precintos en logistica y transporte',
     ],
     text:
       'El sistema tiene cuatro pasos y ninguno sobra: se instala el precinto en el punto de acceso que se ' +
@@ -168,6 +169,109 @@ export const CONOCIMIENTO: HechoConocimiento[] = [
       'autorizadas, inventarios y activos, y procesos de auditoría y cumplimiento. Con eso se puede ' +
       'identificar dónde ocurrió una novedad, quién tenía la custodia y en qué momento pudo presentarse la ' +
       'manipulación.',
+  },
+
+  /*
+   * Los cinco hechos que siguen contestan la pregunta que llega antes que
+   * cualquier referencia: "¿y esto para qué me sirve a mí?". Quien la hace no
+   * está eligiendo producto todavía —está justificando el gasto ante alguien—,
+   * así que la respuesta útil habla de riesgos y de controles, no de catálogo.
+   */
+  {
+    id: 'cadena-de-suministro-por-que-importan',
+    topic: 'precintos',
+    q: [
+      'por que son importantes los precintos',
+      'que beneficios tiene precintar',
+      'para que me sirve precintar la carga',
+      'cadena de suministro',
+      'vale la pena precintar',
+      'que gano usando precintos',
+    ],
+    text:
+      'En una cadena de suministro la carga pasa por fabricantes, transportadores, operadores logísticos, ' +
+      'centros de distribución, puertos, aduanas y cliente final, y en cada entrega hay un riesgo de ' +
+      'manipulación, sustitución o pérdida. El precinto reduce ese riesgo, mejora la trazabilidad, ' +
+      'facilita auditorías e inspecciones, ayuda a establecer responsabilidades cuando algo pasa y genera ' +
+      'confianza entre proveedores, transportadores y clientes.',
+  },
+
+  {
+    id: 'precintos-numerados-beneficios',
+    topic: 'precintos',
+    q: [
+      'para que sirve la numeracion consecutiva',
+      'que aporta un precinto numerado',
+      'beneficios de los precintos de seguridad numerados',
+      'ventajas de la numeracion',
+      'precintos numerados',
+      'diferencia entre precinto numerado y sin numerar',
+      'pueden cambiar un precinto por otro igual',
+    ],
+    text:
+      'Un precinto sin número no prueba nada: cualquier otro igual puede ocupar su lugar sin que se note. ' +
+      'La numeración consecutiva identifica de forma única cada despacho o activo, así que permite ' +
+      'verificar si el precinto es el que se instaló, detectar sustituciones o reutilizaciones, ubicar ' +
+      'irregularidades, establecer responsabilidades y sostener auditorías. Es lo que convierte una pieza ' +
+      'intercambiable en evidencia de una operación concreta.',
+  },
+
+  {
+    id: 'industrias-que-usan-precintos',
+    topic: 'precintos',
+    q: [
+      'que industrias usan precintos',
+      'que sectores usan sellos de seguridad',
+      'quienes compran precintos',
+      'se usa en mi industria',
+      'esto solo sirve para transporte',
+    ],
+    text:
+      'Los usan transporte y logística, comercio exterior, industria manufacturera, hidrocarburos y ' +
+      'combustibles, empresas de servicios públicos, salud y farmacéutico, recaudo y transporte de ' +
+      'valores, aerolíneas y servicios aeroportuarios, centros de distribución y almacenamiento, y ' +
+      'retail. Se asocian al transporte de carga, pero el uso va mucho más allá: válvulas, medidores, ' +
+      'surtidores, carros de paro hospitalarios, trolleys de aerolíneas, tulas de recaudo y control de ' +
+      'activos fijos.',
+  },
+
+  {
+    id: 'tipos-de-precinto-por-material',
+    topic: 'precintos',
+    q: [
+      'que tipos de precintos existen',
+      'cuales son los tipos de sellos de seguridad',
+      'diferencia entre precinto plastico metalico y de cable',
+      'precinto metalico',
+      'que precinto ofrece mayor nivel de seguridad',
+      'cual es el precinto mas seguro',
+      'precinto de alta seguridad',
+    ],
+    text:
+      'Por material son cinco. El plástico es el más usado en control logístico, inventarios, transporte y ' +
+      'tulas de recaudo. El metálico resiste más y va donde el riesgo o las condiciones son mayores. El de ' +
+      'cable o guaya se adapta a distintos diámetros de cierre y suma resistencia. El de perno o botella ' +
+      'es el de alta seguridad, certificado ISO/PAS 17712, para contenedores marítimos. El electrónico ' +
+      'agrega monitoreo y rastreo satelital. El más seguro no es el adecuado para todo: depende del punto.',
+  },
+
+  {
+    id: 'precintos-en-transporte-de-carga',
+    topic: 'precintos',
+    q: [
+      'que precintos usan las empresas de transporte',
+      'que precinto pongo en un camion',
+      'precinto para furgon',
+      'precinto para transporte de carga',
+      'que usan los transportadores',
+      'cross docking',
+    ],
+    text:
+      'En transporte de carga se combinan varios: plásticos numerados en camiones y furgones de ' +
+      'distribución, metálicos donde hace falta más resistencia, de cable o guaya en puntos de cierre con ' +
+      'distintos diámetros, botella certificados ISO/PAS 17712 en contenedores marítimos, y electrónicos ' +
+      'con GPS cuando se necesita monitoreo en tiempo real. Cubre camiones, carrotanques, contenedores, ' +
+      'transporte multimodal, centros de distribución y cross docking.',
   },
 
   /* ---------------- Elegir: proveedor, criterio, precio ---------------- */
@@ -214,6 +318,50 @@ export const CONOCIMIENTO: HechoConocimiento[] = [
       'vulnerabilidad, y uno superior encarece sin aportar nada.',
   },
 
+  /*
+   * Ojo con la pareja: `que-evaluar-antes-de-comprar` mira el PRODUCTO —qué
+   * activo, qué riesgo, qué trazabilidad— y este mira al PROVEEDOR. Son dos
+   * preguntas distintas que suenan igual ("¿cómo elijo?"), y separarlas evita
+   * que quien pregunta por el segundo reciba la lista del primero.
+   */
+  {
+    id: 'elegir-proveedor',
+    topic: 'empresa',
+    q: [
+      'como elijo un proveedor confiable',
+      'que debe ofrecer un proveedor de precintos',
+      'cual es el mejor proveedor de precintos',
+      'que busco en un proveedor',
+      'como se cual proveedor es bueno',
+    ],
+    text:
+      'Comparar solo el precio sale caro: un producto barato sin personalización, sin asesoría ni ' +
+      'capacidad de suministro termina costando más en la operación. Vale la pena mirar la experiencia en ' +
+      'seguridad y trazabilidad, que haya distintos tipos de precinto y niveles de seguridad, la ' +
+      'personalización con logo, numeración y código de barras, la capacidad de atender tanto un pedido ' +
+      'pequeño como un proyecto grande, y que entienda la operación antes de recomendar un producto.',
+  },
+
+  {
+    id: 'suministro-por-volumen',
+    topic: 'cotizacion',
+    q: [
+      'venden al por mayor',
+      'que empresa vende precintos de seguridad al por mayor en colombia',
+      'compras por volumen',
+      'necesito grandes cantidades',
+      'somos mayoristas',
+      'abastecimiento permanente',
+      'consumo mensual de precintos',
+    ],
+    text:
+      'Sí, atendemos tanto pedidos pequeños como abastecimiento por volumen para operaciones permanentes ' +
+      'de transporte, distribución, recaudo, comercio exterior y control de activos. Comprar por volumen ' +
+      'permite estandarizar el precintado, mantener la numeración consecutiva bajo control y que todos los ' +
+      'puntos usen la misma referencia. Cuéntenos su consumo estimado por período y coordinamos entregas ' +
+      'programadas al cotizar.',
+  },
+
   {
     id: 'enfoque-asesoria',
     topic: 'empresa',
@@ -250,6 +398,7 @@ export const CONOCIMIENTO: HechoConocimiento[] = [
       'precinto para contenedor maritimo',
       'que precinto uso para exportar',
       'precinto para exportacion',
+      'precinto de mayor seguridad para contenedores',
     ],
     text:
       'El precinto botella o bolt seal es un sello de alta seguridad con cuerpo de acero y cierre tipo ' +

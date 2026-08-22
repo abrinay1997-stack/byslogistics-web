@@ -13,8 +13,9 @@
 # Variables de entorno a configurar en el panel de Netlify — NUNCA en el repo:
 #   GROQ_API_KEY       clave de Groq. Es la que usa el sitio.
 #   ANTHROPIC_API_KEY  opcional, repuesto si Groq falla.
-#   GROQ_MODEL         opcional, para fijar el modelo (por defecto
-#                      llama-3.3-70b-versatile).
+#   GROQ_MODEL         opcional, para forzar un modelo concreto. Por defecto se
+#                      usa la lista MODELOS_GROQ de chat.mts, que lleva relevo:
+#                      si Groq retira el primero, se prueba el siguiente.
 #   CHAT_MAX_PER_DAY   opcional, techo diario de mensajes (300 por defecto).
 #
 # Sin ninguna clave el endpoint sigue respondiendo: deriva al correo y al
