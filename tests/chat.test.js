@@ -19,6 +19,7 @@ import {
   retrieve,
   invalidPrices,
   buildSystem,
+  stripReasoning,
   trimReply,
   normalize,
   tokens,
@@ -277,6 +278,56 @@ describe('prompt de sistema', () => {
   });
 });
 
+describe('razonamiento en voz alta', () => {
+  test('quita el bloque cerrado y deja la respuesta', () => {
+    assert.equal(
+      stripReasoning(
+        '<think>The user asked about seals. I should answer in Spanish.</think>\n' +
+          'Manejamos once categorías de precintos.'
+      ),
+      'Manejamos once categorías de precintos.'
+    );
+  });
+
+  // El caso literal que salió en pantalla: razonamiento en inglés, en medio de
+  // una conversación en español, delante de un cliente.
+  test('el caso que se vio en producción', () => {
+    const salida = stripReasoning(
+      "<think> Here's a thinking process: 1. **Analyze User Input:** - User " +
+        'said: "hola" - This is a simple greeting. 2. **Check Constraints:** ' +
+        '- Rule 1: Respond ONLY with context.</think> Buenos días, ¿en qué le ' +
+        'podemos ayudar?'
+    );
+    assert.equal(salida, 'Buenos días, ¿en qué le podemos ayudar?');
+    assert.ok(!/think/i.test(salida));
+  });
+
+  test('reconoce las demás etiquetas y varios bloques', () => {
+    assert.equal(
+      stripReasoning('<reasoning>a</reasoning>Hola.<thinking>b</thinking>'),
+      'Hola.'
+    );
+  });
+
+  test('sin cerrar no deja media idea: devuelve vacío', () => {
+    // Se quedó sin tokens pensando. No hay respuesta que rescatar, y el
+    // handler lo trata como vacío y pasa al siguiente modelo.
+    assert.equal(stripReasoning('<think>Estoy pensando y me quedé sin'), '');
+  });
+
+  test('un cierre huérfano deja lo que viene detrás', () => {
+    assert.equal(
+      stripReasoning('pensaba en voz alta</think>Manejamos precintos.'),
+      'Manejamos precintos.'
+    );
+  });
+
+  test('una respuesta normal pasa intacta', () => {
+    const normal = 'Manejamos once categorías de precintos de seguridad.';
+    assert.equal(stripReasoning(normal), normal);
+  });
+});
+
 describe('recorte de la respuesta', () => {
   test('deja pasar lo que ya es corto', () => {
     assert.equal(trimReply('Dos frases. Y ya.'), 'Dos frases. Y ya.');
@@ -349,6 +400,22 @@ describe('endpoint /api/chat', () => {
     const data = await (await pedir('¿qué precintos manejan?')).json();
     assert.equal(data.reply, 'Manejamos once categorías de precintos.');
     assert.ok(data.sources.includes('categorias-precintos'));
+  });
+
+  test('el razonamiento del modelo no llega a pantalla', async () => {
+    respuestaDelModelo =
+      '<think>The user greeted me. I should reply in Spanish.</think>' +
+      'Manejamos once categorías de precintos.';
+    const data = await (await pedir('hola')).json();
+    assert.equal(data.reply, 'Manejamos once categorías de precintos.');
+    assert.ok(!data.reply.includes('<think>'));
+  });
+
+  test('si el modelo solo piensa, se deriva a una persona', async () => {
+    respuestaDelModelo = '<think>Me quedé sin tokens a mitad de';
+    const data = await (await pedir('hola')).json();
+    assert.equal(data.degraded, true);
+    assert.ok(data.reply.includes(kb.site.email));
   });
 
   test('un precio inventado no llega a pantalla', async () => {
