@@ -342,24 +342,30 @@ const hayUsos = ficha.usos.length > 0 || ficha.sectores.length > 0;
         {ficha.colores.length > 0 && (
           <div class={TARJETA}>
             <h2 class={TITULO_SECCION}>Colores disponibles</h2>
-            <ul class="mt-6 flex flex-wrap gap-x-6 gap-y-4">
-              {ficha.colores.map(color => (
-                <li class="flex items-center gap-x-2 text-sm text-neutral-700 dark:text-neutral-300">
-                  {color.hex ? (
-                    <span
-                      class="h-7 w-7 rounded-full border border-neutral-400 dark:border-neutral-600"
-                      style={`background-color:${color.hex}`}
-                      aria-hidden="true"
-                    />
-                  ) : (
-                    <span
-                      class="h-7 w-2 rounded-full bg-neutral-300 dark:bg-neutral-700"
-                      aria-hidden="true"
-                    />
-                  )}
-                  {color.nombre}
-                </li>
-              ))}
+            {/* Solo el círculo: escribir "Rojo" al lado de un círculo rojo
+                repite lo que la muestra ya dice. El nombre no se pierde —vive
+                en el `title`, para quien pase el cursor, y en un texto oculto
+                que sí leen los lectores de pantalla—, porque un color que solo
+                existe como pixel no existe para quien no lo ve.
+
+                Sin `hex` no hay muestra que enseñar, así que ahí el nombre se
+                pinta como etiqueta: es lo único que queda. */}
+            <ul class="mt-6 flex flex-wrap items-center gap-3">
+              {ficha.colores.map(color =>
+                color.hex ? (
+                  <li
+                    title={color.nombre}
+                    class="h-9 w-9 rounded-full border border-neutral-400 shadow-inner dark:border-neutral-600"
+                    style={`background-color:${color.hex}`}
+                  >
+                    <span class="sr-only">{color.nombre}</span>
+                  </li>
+                ) : (
+                  <li class="rounded-full border border-neutral-300 px-4 py-1.5 text-sm text-neutral-700 dark:border-neutral-700 dark:text-neutral-300">
+                    {color.nombre}
+                  </li>
+                )
+              )}
             </ul>
             {ficha.notaColores && (
               <p class="mt-5 text-xs text-neutral-600 dark:text-neutral-400">
