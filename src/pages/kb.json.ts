@@ -498,8 +498,9 @@ export const GET: APIRoute = async () => {
     ],
     text:
       `En la página de catálogo están las ${totalReferencias} referencias de precintos con buscador y filtros por ` +
-      'familia y por categoría, y cada familia de producto tiene su propia página con la descripción y las fotos. ' +
-      'Si busca algo que no aparece, escríbanos: manejamos referencias que no están publicadas.',
+      'familia y por categoría, y cada referencia tiene además su propia ficha con las fotos, las ' +
+      'especificaciones que apliquen y el botón para cotizarla. Si busca algo que no aparece, escríbanos: ' +
+      'manejamos referencias que no están publicadas.',
   });
 
   add({

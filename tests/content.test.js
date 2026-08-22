@@ -225,3 +225,38 @@ describe('configuración de despliegue', () => {
     assert.ok(!existsSync(P('vercel.json')));
   });
 });
+
+describe('preguntas heredadas por las fichas de producto', () => {
+  /*
+   * Las fichas no copian las respuestas de la página de preguntas frecuentes:
+   * las referencian por su pregunta, para que se editen en un solo sitio. El
+   * precio de eso es que renombrar una pregunta en faqs.json las deja fuera de
+   * la ficha sin que nadie se entere. Este test es ese aviso.
+   */
+  test('cada pregunta base sigue existiendo en faqs.json', () => {
+    // Se lee el fuente en vez de importarlo: fichas.ts usa los alias de Astro
+    // (@data/…), que node por su cuenta no resuelve.
+    const fichas = readFileSync(join(ROOT, 'src/data_files/fichas.ts'), 'utf8');
+    const declaradas = [...fichas.matchAll(/^\s*'(¿[^']+\?)',$/gm)].map(
+      m => m[1]
+    );
+    assert.ok(
+      declaradas.length > 0,
+      'no se encontró ninguna pregunta base declarada en fichas.ts'
+    );
+
+    const faqs = JSON.parse(
+      readFileSync(join(ROOT, 'src/data_files/faqs.json'), 'utf8')
+    );
+    const existentes = new Set(
+      faqs.categories.flatMap(c => c.faqs).map(f => f.question)
+    );
+
+    for (const pregunta of declaradas) {
+      assert.ok(
+        existentes.has(pregunta),
+        `la ficha espera "${pregunta}", que ya no está en faqs.json`
+      );
+    }
+  });
+});
