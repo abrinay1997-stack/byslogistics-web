@@ -56,8 +56,15 @@ before(async () => {
       res.writeHead(200).end('ok');
       return;
     }
+    /*
+     * Las rutas se resuelven como las resuelve Netlify: /x, /x/ y /x/index.html
+     * son la misma página. El sitio enlaza sin barra final —así están escritos
+     * todos sus enlaces internos—, y sin esto un clic sobre un enlace del
+     * propio sitio caía en un 404 que en producción no ocurre.
+     */
     let path = decodeURIComponent(new URL(req.url, 'http://x').pathname);
     if (path.endsWith('/')) path += 'index.html';
+    else if (!extname(path)) path += '/index.html';
     const file = join(DIST, normalize(path).replace(/^(\.\.[/\\])+/, ''));
     try {
       const body = await readFile(file);
@@ -94,6 +101,61 @@ const skip = () => (chromium ? false : 'playwright no está instalado');
  */
 const abrirCotizacion = page =>
   page.locator('[data-quote-toggle]:visible').first().click();
+
+describe('ficha de producto', { skip: skip() }, () => {
+  /*
+   * El recorrido que antes no existía: hasta ahora las tarjetas de una
+   * categoría no llevaban a ninguna parte y no había dónde enseñar la
+   * información del producto.
+   */
+  test('desde la categoría se entra a la referencia y se cotiza', async () => {
+    const page = await browser.newPage();
+    await page.goto(base + '/precintos/precintos-de-correa-dentada/', {
+      waitUntil: 'networkidle',
+    });
+
+    await page
+      .locator('a', { hasText: 'Precinto Doble Dentado 38 cms' })
+      .first()
+      .click();
+    await page.waitForLoadState('networkidle');
+
+    assert.match(page.url(), /\/precinto-doble-dentado-38-cms\/?$/);
+    assert.equal(
+      await page.locator('h1').textContent(),
+      'Precinto Doble Dentado 38 cms'
+    );
+
+    // El cotizador es el mismo del sitio, con la referencia ya adentro.
+    await page.locator('[data-quote-add]').first().click();
+    await abrirCotizacion(page);
+    await page.waitForTimeout(300);
+    const panel = page.locator('[data-quote-panel]');
+    assert.equal(await panel.getAttribute('data-open'), 'true');
+    assert.match(
+      await panel.textContent(),
+      /Precinto Doble Dentado 38 cms/,
+      'la referencia no llegó al cotizador'
+    );
+    await page.close();
+  });
+
+  test('el acordeón de preguntas abre una a la vez', async () => {
+    const page = await browser.newPage();
+    await page.goto(
+      base +
+        '/precintos/precintos-de-correa-dentada/precinto-doble-dentado-38-cms/',
+      { waitUntil: 'networkidle' }
+    );
+
+    const botones = page.locator('.hs-accordion-toggle');
+    assert.ok((await botones.count()) > 1, 'la ficha no heredó las preguntas');
+    await botones.nth(1).click();
+    await page.waitForTimeout(400);
+    assert.equal(await botones.nth(1).getAttribute('aria-expanded'), 'true');
+    await page.close();
+  });
+});
 
 describe('catálogo con filtros', { skip: skip() }, () => {
   test('filtra por línea de producto y acota las categorías', async () => {

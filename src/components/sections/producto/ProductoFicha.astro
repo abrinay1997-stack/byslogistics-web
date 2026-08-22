@@ -1,0 +1,600 @@
+---
+import { Image } from 'astro:assets';
+import Icon from '@components/ui/icons/Icon.astro';
+import Breadcrumb from '@components/ui/blocks/Breadcrumb.astro';
+import ImagePlaceholder from '@components/ui/blocks/ImagePlaceholder.astro';
+import AccordionItem from '@components/ui/blocks/AccordionItem.astro';
+import AddToQuoteBtn from '@components/ui/buttons/AddToQuoteBtn.astro';
+import { CONTACT } from '@data/constants';
+import type { Referencia } from '@utils/catalog';
+
+/**
+ * Ficha de una referencia del catálogo.
+ *
+ * Es la MISMA plantilla para un precinto de correa dentada y para una tula de
+ * seguridad: las dos rutas que la usan (/precintos/… y /productos/…) solo le
+ * pasan la referencia. Por eso no hay ni un atributo de precinto escrito aquí
+ * dentro —material, longitud, tipo de cierre viven en el contenido, no en el
+ * código—, y agregar una familia nueva no obliga a tocar este archivo.
+ *
+ * CADA BLOQUE SE PINTA SOLO SI TIENE DATOS. Son 129 referencias y la
+ * información técnica se levanta a mano; una ficha a medio llenar tiene que
+ * verse corta y correcta, no completa y vacía. Un encabezado "Colores
+ * disponibles" sin colores debajo es peor que no tener la sección.
+ *
+ * EL ESTILO ES EL DEL SITIO, a propósito: mismas tarjetas de borde redondeado,
+ * mismo botón de marca, mismo acordeón de las preguntas frecuentes. Lo que se
+ * pidió mejorar es la información y su distribución, no la estética.
+ */
+
+interface Props {
+  referencia: Referencia;
+  /** Otras referencias de la misma categoría. */
+  relacionados: Referencia[];
+}
+
+const { referencia, relacionados } = Astro.props;
+const { ficha } = referencia;
+
+/* Galería: la foto principal primero, después las de la galería. */
+const fotos = [
+  ...(referencia.image
+    ? [{ src: referencia.image, alt: referencia.imageAlt ?? referencia.name }]
+    : []),
+  ...ficha.galeria.map(f => ({ src: f.src, alt: f.alt ?? referencia.name })),
+];
+
+/*
+ * El mensaje de WhatsApp va con el nombre de la referencia dentro: quien
+ * escribe desde una ficha ya dijo qué le interesa, y volver a preguntárselo en
+ * el chat es empezar la conversación pidiendo lo que ya estaba en pantalla.
+ */
+const whatsappHref = `${CONTACT.whatsapp}?text=${encodeURIComponent(
+  `Hola, quiero cotizar el ${referencia.name}.`
+)}`;
+
+const SECCION = 'mx-auto max-w-[85rem] px-10 sm:px-14 lg:px-20';
+const TARJETA =
+  'rounded-2xl border border-neutral-300 bg-neutral-100 p-6 sm:p-8 dark:border-neutral-700 dark:bg-neutral-900';
+const TITULO_SECCION =
+  'text-2xl font-bold text-neutral-800 sm:text-3xl dark:text-neutral-100';
+
+/* Qué bloques hay que pintar. */
+const hayMedidas = Boolean(
+  ficha.medidas && (ficha.medidas.imagen || ficha.medidas.valores.length)
+);
+const hayUsos = ficha.usos.length > 0 || ficha.sectores.length > 0;
+---
+
+<section class={`${SECCION} pt-10`}>
+  <Breadcrumb
+    items={[
+      { name: 'Inicio', url: '/' },
+      { name: referencia.family, url: `/productos/${referencia.familyId}` },
+      { name: referencia.group, url: referencia.groupUrl },
+      { name: referencia.name },
+    ]}
+  />
+</section>
+
+{/* ---------- 01 · Encabezado, galería, specs y CTAs ---------- */}
+<section class={`${SECCION} py-10 lg:py-14`}>
+  <div class="grid gap-10 lg:grid-cols-12 lg:items-start lg:gap-14">
+    <div class="lg:col-span-6">
+      <div
+        class="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl border border-neutral-300 bg-white dark:border-neutral-700"
+      >
+        {
+          fotos.length > 0 ? (
+            <Image
+              data-galeria-principal
+              class="h-full w-full object-contain p-8"
+              src={fotos[0].src}
+              alt={fotos[0].alt}
+              widths={[480, 720, 960]}
+              sizes="(min-width: 1024px) 36rem, 90vw"
+              loading="eager"
+            />
+          ) : (
+            <ImagePlaceholder />
+          )
+        }
+      </div>
+
+      {
+        /* Las miniaturas solo aparecen si hay más de una foto: una sola
+          miniatura debajo de su propia imagen no lleva a ningún lado. */
+      }
+      {
+        fotos.length > 1 && (
+          <ul
+            class="mt-4 flex gap-3 overflow-x-auto pb-2"
+            aria-label="Más fotos de la referencia"
+          >
+            {fotos.map((foto, i) => (
+              <li class="shrink-0">
+                <button
+                  type="button"
+                  data-galeria-miniatura={i}
+                  data-activa={i === 0 ? 'true' : 'false'}
+                  aria-label={`Ver foto ${i + 1} de ${fotos.length}`}
+                  class="focus-visible:ring-brand-600 data-[activa=true]:border-brand-600 flex h-20 w-20 items-center justify-center overflow-hidden rounded-xl border-2 border-neutral-300 bg-white outline-hidden focus-visible:ring-3 dark:border-neutral-700"
+                >
+                  <Image
+                    class="h-full w-full object-contain p-2"
+                    src={foto.src}
+                    alt=""
+                    widths={[160]}
+                    sizes="5rem"
+                    loading="lazy"
+                  />
+                </button>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+
+    <div class="lg:col-span-6">
+      {
+        ficha.badges.length > 0 && (
+          <ul class="flex flex-wrap gap-2">
+            {ficha.badges.map(badge => (
+              <li class="bg-brand-600/10 text-brand-700 dark:text-brand-300 rounded-full px-3 py-1 text-xs font-bold dark:bg-white/10">
+                {badge}
+              </li>
+            ))}
+          </ul>
+        )
+      }
+
+      {
+        referencia.code && (
+          <p class="mt-4 text-sm text-neutral-600 dark:text-neutral-400">
+            Ref. {referencia.code}
+          </p>
+        )
+      }
+
+      <h1
+        class="mt-3 text-3xl font-extrabold tracking-tight text-balance text-neutral-800 sm:text-4xl dark:text-neutral-100"
+      >
+        {referencia.name}
+      </h1>
+
+      {
+        referencia.description && (
+          <p class="mt-4 max-w-prose text-lg text-pretty text-neutral-600 dark:text-neutral-400">
+            {referencia.description}
+          </p>
+        )
+      }
+
+      {
+        ficha.specs.length > 0 && (
+          <dl class="mt-8 grid gap-x-8 gap-y-4 sm:grid-cols-2">
+            {ficha.specs.map(spec => (
+              <div class="border-t border-neutral-300 pt-3 dark:border-neutral-700">
+                <dt class="text-xs font-bold tracking-wider text-neutral-600 uppercase dark:text-neutral-400">
+                  {spec.etiqueta}
+                </dt>
+                <dd class="mt-1 font-medium text-neutral-800 dark:text-neutral-200">
+                  {spec.valor}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        )
+      }
+
+      {/* ---------- 02 · Los dos llamados a la acción ---------- */}
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+        <a
+          href={whatsappHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="bg-brand-600 hover:bg-brand-700 inline-flex items-center justify-center gap-x-2 rounded-full border border-transparent px-6 py-3 text-sm font-bold text-neutral-50 ring-zinc-500 outline-hidden transition duration-300 focus-visible:ring-3 dark:ring-zinc-200"
+        >
+          <svg
+            class="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884a9.82 9.82 0 0 1 6.988 2.896 9.83 9.83 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.82 11.82 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.9 11.9 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.82 11.82 0 0 0 20.465 3.49"
+            ></path>
+          </svg>
+          Cotizar por WhatsApp
+        </a>
+
+        {
+          /* No se inventa un formulario nuevo: es el mismo cotizador que abre
+            el botón de la barra de navegación, con la referencia ya adentro. */
+        }
+        <div
+          class="[&>button]:mt-0 [&>button]:w-auto [&>button]:px-6 [&>button]:py-3"
+        >
+          <AddToQuoteBtn
+            id={referencia.id}
+            name={referencia.name}
+            group={referencia.group}
+          />
+        </div>
+      </div>
+
+      <p
+        class="mt-5 flex items-center gap-x-2 text-sm text-neutral-600 dark:text-neutral-400"
+      >
+        <span class="text-brand-600 dark:text-brand-400" aria-hidden="true">
+          <Icon name="checkCircle" />
+        </span>
+        Despachamos a todas las ciudades de Colombia.
+      </p>
+    </div>
+  </div>
+</section>
+
+{/* ---------- 03 · Franja de beneficios ---------- */}
+{
+  ficha.beneficios.length > 0 && (
+    <section class={`${SECCION} pb-14`}>
+      <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+        {ficha.beneficios.map(beneficio => (
+          <li class="rounded-2xl border border-neutral-300 bg-neutral-100 p-5 dark:border-neutral-700 dark:bg-neutral-900">
+            {beneficio.icon && (
+              <span
+                class="text-brand-600 dark:text-brand-400 inline-flex"
+                aria-hidden="true"
+              >
+                <Icon name={beneficio.icon} />
+              </span>
+            )}
+            <p class="mt-3 font-bold text-neutral-800 dark:text-neutral-100">
+              {beneficio.titulo}
+            </p>
+            {beneficio.texto && (
+              <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+                {beneficio.texto}
+              </p>
+            )}
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
+
+{/* ---------- 04–07 · Medidas, colores, personalización y mínimo ---------- */}
+{
+  (hayMedidas ||
+    ficha.colores.length > 0 ||
+    ficha.personalizacion.length > 0 ||
+    ficha.moq) && (
+    <section class={`${SECCION} pb-14`}>
+      <div class="grid gap-6 lg:grid-cols-2">
+        {hayMedidas && (
+          <div class={TARJETA}>
+            <h2 class={TITULO_SECCION}>Medidas</h2>
+            {ficha.medidas?.imagen && (
+              <Image
+                class="mt-6 w-full rounded-xl bg-white object-contain p-4"
+                src={ficha.medidas.imagen}
+                alt={
+                  ficha.medidas.imagenAlt ?? `Medidas del ${referencia.name}`
+                }
+                widths={[480, 720]}
+                sizes="(min-width: 1024px) 32rem, 90vw"
+                loading="lazy"
+              />
+            )}
+            {ficha.medidas && ficha.medidas.valores.length > 0 && (
+              <dl class="mt-6 grid gap-x-8 gap-y-3 sm:grid-cols-2">
+                {ficha.medidas.valores.map(valor => (
+                  <div class="flex items-baseline justify-between gap-4 border-b border-neutral-300 pb-2 dark:border-neutral-700">
+                    <dt class="text-sm text-neutral-600 dark:text-neutral-400">
+                      {valor.etiqueta}
+                    </dt>
+                    <dd class="font-bold text-neutral-800 dark:text-neutral-200">
+                      {valor.valor}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+          </div>
+        )}
+
+        {ficha.colores.length > 0 && (
+          <div class={TARJETA}>
+            <h2 class={TITULO_SECCION}>Colores disponibles</h2>
+            <ul class="mt-6 flex flex-wrap gap-x-6 gap-y-4">
+              {ficha.colores.map(color => (
+                <li class="flex items-center gap-x-2 text-sm text-neutral-700 dark:text-neutral-300">
+                  {color.hex ? (
+                    <span
+                      class="h-7 w-7 rounded-full border border-neutral-400 dark:border-neutral-600"
+                      style={`background-color:${color.hex}`}
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <span
+                      class="h-7 w-2 rounded-full bg-neutral-300 dark:bg-neutral-700"
+                      aria-hidden="true"
+                    />
+                  )}
+                  {color.nombre}
+                </li>
+              ))}
+            </ul>
+            {ficha.notaColores && (
+              <p class="mt-5 text-xs text-neutral-600 dark:text-neutral-400">
+                {ficha.notaColores}
+              </p>
+            )}
+          </div>
+        )}
+
+        {ficha.personalizacion.length > 0 && (
+          <div class={TARJETA}>
+            <h2 class={TITULO_SECCION}>Personalización</h2>
+            <ul class="mt-6 grid gap-3">
+              {ficha.personalizacion.map(opcion => (
+                <li class="flex items-start gap-x-3 text-neutral-700 dark:text-neutral-300">
+                  <span
+                    class="text-brand-600 dark:text-brand-400 mt-0.5 shrink-0"
+                    aria-hidden="true"
+                  >
+                    <Icon name="checkCircle" />
+                  </span>
+                  {opcion}
+                </li>
+              ))}
+            </ul>
+            {ficha.notaPersonalizacion && (
+              <p class="mt-5 text-xs text-neutral-600 dark:text-neutral-400">
+                {ficha.notaPersonalizacion}
+              </p>
+            )}
+          </div>
+        )}
+
+        {ficha.moq && (
+          <div class={TARJETA}>
+            <h2 class={TITULO_SECCION}>Cantidad mínima de pedido</h2>
+            <p class="text-brand-700 dark:text-brand-300 mt-6 text-4xl font-extrabold">
+              {ficha.moq.unidades.toLocaleString('es-CO')}
+              <span class="ml-2 text-base font-bold">unidades</span>
+            </p>
+            {ficha.moq.nota && (
+              <p class="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
+                {ficha.moq.nota}
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+    </section>
+  )
+}
+
+{/* ---------- 08 · Usos y sectores ---------- */}
+{
+  hayUsos && (
+    <section class={`${SECCION} pb-14`}>
+      <div class="grid gap-6 lg:grid-cols-2">
+        {ficha.usos.length > 0 && (
+          <div class={TARJETA}>
+            <h2 class={TITULO_SECCION}>Principales usos</h2>
+            <ul class="mt-6 grid gap-3">
+              {ficha.usos.map(uso => (
+                <li class="flex items-start gap-x-3 text-neutral-700 dark:text-neutral-300">
+                  <span
+                    class="text-brand-600 dark:text-brand-400 mt-0.5 shrink-0"
+                    aria-hidden="true"
+                  >
+                    <Icon name="checkCircle" />
+                  </span>
+                  {uso}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {ficha.sectores.length > 0 && (
+          <div class={TARJETA}>
+            <h2 class={TITULO_SECCION}>Sectores que lo utilizan</h2>
+            <ul class="mt-6 flex flex-wrap gap-2">
+              {ficha.sectores.map(sector => (
+                <li class="rounded-full border border-neutral-300 px-4 py-1.5 text-sm text-neutral-700 dark:border-neutral-700 dark:text-neutral-300">
+                  {sector}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </section>
+  )
+}
+
+{/* ---------- 09 · Cómo se utiliza ---------- */}
+{
+  ficha.comoSeUsa.length > 0 && (
+    <section class={`${SECCION} pb-14`}>
+      <h2 class={TITULO_SECCION}>¿Cómo se utiliza?</h2>
+      <ol class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {ficha.comoSeUsa.map((paso, i) => (
+          <li class="rounded-2xl border border-neutral-300 bg-neutral-100 p-6 dark:border-neutral-700 dark:bg-neutral-900">
+            <span class="bg-brand-600 inline-flex h-9 w-9 items-center justify-center rounded-full font-bold text-neutral-50">
+              {i + 1}
+            </span>
+            <p class="mt-4 font-bold text-neutral-800 dark:text-neutral-100">
+              {paso.titulo}
+            </p>
+            <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+              {paso.texto}
+            </p>
+          </li>
+        ))}
+      </ol>
+    </section>
+  )
+}
+
+{/* ---------- 10–11 · Presentación y ficha técnica ---------- */}
+{
+  (ficha.presentacion.length > 0 || ficha.fichaTecnica) && (
+    <section class={`${SECCION} pb-14`}>
+      <div class="grid gap-6 lg:grid-cols-2">
+        {ficha.presentacion.length > 0 && (
+          <div class={TARJETA}>
+            <h2 class={TITULO_SECCION}>Presentación</h2>
+            <ul class="mt-6 grid gap-3">
+              {ficha.presentacion.map(formato => (
+                <li class="flex items-start gap-x-3 text-neutral-700 dark:text-neutral-300">
+                  <span
+                    class="text-brand-600 dark:text-brand-400 mt-0.5 shrink-0"
+                    aria-hidden="true"
+                  >
+                    <Icon name="checkCircle" />
+                  </span>
+                  {formato}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Sin PDF asignado el bloque no existe: un botón de descarga que no
+            descarga nada gasta la confianza que venía a construir. */}
+        {ficha.fichaTecnica && (
+          <div class={TARJETA}>
+            <h2 class={TITULO_SECCION}>Ficha técnica</h2>
+            <p class="mt-4 text-neutral-600 dark:text-neutral-400">
+              Descargue las especificaciones completas de esta referencia para
+              compartirlas con su equipo o adjuntarlas a su proceso de compra.
+            </p>
+            <a
+              href={ficha.fichaTecnica}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="border-brand-600 text-brand-700 hover:bg-brand-600 dark:border-brand-400 dark:text-brand-300 dark:hover:bg-brand-600 mt-6 inline-flex items-center gap-x-2 rounded-full border-2 px-6 py-3 text-sm font-bold ring-zinc-500 outline-hidden transition duration-300 hover:text-neutral-50 focus-visible:ring-3 dark:ring-zinc-200 dark:hover:text-neutral-50"
+            >
+              Descargar ficha técnica (PDF)
+            </a>
+          </div>
+        )}
+      </div>
+    </section>
+  )
+}
+
+{/* ---------- 12 · Preguntas frecuentes ---------- */}
+{
+  ficha.faq.length > 0 && (
+    <section class={`${SECCION} pb-14`}>
+      <h2 class={TITULO_SECCION}>Preguntas frecuentes</h2>
+      <div class="hs-accordion-group mt-8 max-w-3xl divide-y divide-neutral-200 dark:divide-neutral-700">
+        {ficha.faq.map((pregunta, i) => (
+          <AccordionItem
+            {...pregunta}
+            id={`ficha-faq-${i + 1}`}
+            collapseId={`ficha-faq-${i + 1}-contenido`}
+            first={i === 0}
+          />
+        ))}
+      </div>
+    </section>
+  )
+}
+
+{/* ---------- 13 · Otras referencias de la categoría ---------- */}
+{
+  relacionados.length > 0 && (
+    <section class={`${SECCION} pb-16 lg:pb-24`}>
+      <div class="flex flex-wrap items-baseline justify-between gap-4">
+        <h2 class={TITULO_SECCION}>Otras referencias de {referencia.group}</h2>
+        <a
+          href={referencia.groupUrl}
+          class="text-brand-600 dark:text-brand-400 inline-flex items-center gap-x-2 text-sm font-bold"
+        >
+          Ver la categoría completa
+          <Icon name="arrowRight" />
+        </a>
+      </div>
+
+      <div class="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        {relacionados.map(otra => (
+          <a
+            href={otra.url}
+            class="group hover:border-brand-400 dark:hover:border-brand-400 flex flex-col overflow-hidden rounded-2xl border border-neutral-300 bg-neutral-100 ring-zinc-500 outline-hidden transition duration-300 hover:-translate-y-1 hover:shadow-xl focus-visible:ring-3 dark:border-neutral-700 dark:bg-neutral-900 dark:ring-zinc-200"
+          >
+            <div class="flex aspect-[5/3] items-center justify-center bg-white">
+              {otra.image ? (
+                <Image
+                  class="h-full w-full object-contain p-6 transition-transform duration-500 group-hover:scale-105"
+                  src={otra.image}
+                  alt={otra.imageAlt ?? otra.name}
+                  widths={[320, 480]}
+                  sizes="(min-width: 1024px) 18rem, (min-width: 640px) 45vw, 90vw"
+                  loading="lazy"
+                />
+              ) : (
+                <ImagePlaceholder />
+              )}
+            </div>
+            <div class="flex grow flex-col p-5">
+              <h3 class="font-bold text-neutral-800 dark:text-neutral-100">
+                {otra.name}
+              </h3>
+              <span class="text-brand-600 dark:text-brand-400 mt-4 inline-flex items-center gap-x-2 text-sm font-bold">
+                Ver producto
+                <span class="transition-transform duration-300 group-hover:translate-x-1">
+                  <Icon name="arrowRight" />
+                </span>
+              </span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+<script>
+  /**
+   * Galería: al pulsar una miniatura, la foto principal pasa a ser esa.
+   *
+   * Cambia `src`, `srcset` y `alt` copiándolos de la miniatura, que Astro ya
+   * generó en sus tamaños. Sin JavaScript la página sigue sirviendo: se ve la
+   * foto principal y las miniaturas, que es lo que había antes de esto.
+   */
+  function montarGaleria() {
+    const principal = document.querySelector<HTMLImageElement>(
+      '[data-galeria-principal]'
+    );
+    const miniaturas = document.querySelectorAll<HTMLButtonElement>(
+      '[data-galeria-miniatura]'
+    );
+    if (!principal || miniaturas.length === 0) return;
+
+    for (const boton of miniaturas) {
+      boton.addEventListener('click', () => {
+        const foto = boton.querySelector('img');
+        if (!foto) return;
+        principal.src = foto.src;
+        principal.srcset = foto.srcset;
+        principal.alt = boton.getAttribute('aria-label') ?? '';
+        for (const otra of miniaturas)
+          otra.dataset.activa = String(otra === boton);
+      });
+    }
+  }
+
+  montarGaleria();
+  // Las transiciones de vista reemplazan el documento sin recargar.
+  document.addEventListener('astro:after-swap', montarGaleria);
+</script>

@@ -8,6 +8,7 @@ import Breadcrumb from '@components/ui/blocks/Breadcrumb.astro';
 import HeroSectionAlt from '@components/sections/landing/HeroSectionAlt.astro';
 import Icon from '@components/ui/icons/Icon.astro';
 import { CONTACT, SITE } from '@data/constants';
+import { getReferencias } from '@utils/catalog';
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const soluciones = await getCollection('soluciones');
@@ -28,6 +29,20 @@ const pageTitle = `${solucion.data.title} | ${SITE.title}`;
 const quoteHref = `mailto:${CONTACT.email}?subject=${encodeURIComponent(
   `Cotización: ${solucion.data.title}`
 )}`;
+/*
+ * Las referencias se leen del catálogo porque de ahí sale la URL de la ficha
+ * de cada una. El frontmatter sabe cómo se llaman; el catálogo sabe a dónde
+ * llevan.
+ */
+const referencias = await getReferencias();
+const referenciasPorGrupo = new Map<string, typeof referencias>();
+for (const referencia of referencias) {
+  if (referencia.familyId !== solucion.id) continue;
+  const enGrupo = referenciasPorGrupo.get(referencia.group) ?? [];
+  enGrupo.push(referencia);
+  referenciasPorGrupo.set(referencia.group, enGrupo);
+}
+
 const referenceCount = solucion.data.groups.reduce(
   (total, group) => total + group.products.length,
   0
@@ -177,16 +192,21 @@ const referenceCount = solucion.data.groups.reduce(
                 </h3>
               </div>
               <ul class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {group.products.map(product => (
-                  <li class="flex flex-col rounded-lg border border-neutral-300 bg-neutral-100 px-4 py-3 dark:border-neutral-700 dark:bg-neutral-900">
-                    <span class="font-medium text-neutral-800 dark:text-neutral-200">
-                      {product.name}
-                    </span>
-                    {product.description && (
-                      <span class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-                        {product.description}
+                {(referenciasPorGrupo.get(group.name) ?? []).map(referencia => (
+                  <li>
+                    <a
+                      href={referencia.url}
+                      class="hover:border-brand-400 dark:hover:border-brand-400 flex h-full flex-col rounded-lg border border-neutral-300 bg-neutral-100 px-4 py-3 ring-zinc-500 outline-hidden transition duration-300 hover:shadow-md focus-visible:ring-3 dark:border-neutral-700 dark:bg-neutral-900 dark:ring-zinc-200"
+                    >
+                      <span class="font-medium text-neutral-800 dark:text-neutral-200">
+                        {referencia.name}
                       </span>
-                    )}
+                      {referencia.description && (
+                        <span class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+                          {referencia.description}
+                        </span>
+                      )}
+                    </a>
                   </li>
                 ))}
               </ul>

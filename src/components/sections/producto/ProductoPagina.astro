@@ -1,0 +1,111 @@
+---
+import MainLayout from '@/layouts/MainLayout.astro';
+import HeroSectionAlt from '@components/sections/landing/HeroSectionAlt.astro';
+import ProductoFicha from '@components/sections/producto/ProductoFicha.astro';
+import { SITE } from '@data/constants';
+import type { Referencia } from '@utils/catalog';
+
+/**
+ * La página completa de una referencia: metadatos, datos estructurados y la
+ * ficha.
+ *
+ * Existe para que las dos rutas que la usan —/precintos/… y /productos/…— no
+ * sean dos copias del mismo archivo con una línea distinta. Cada ruta se queda
+ * solo con lo suyo: qué referencias le tocan.
+ */
+
+interface Props {
+  referencia: Referencia;
+  relacionados: Referencia[];
+}
+
+const { referencia, relacionados } = Astro.props;
+
+const url = `${SITE.url}${referencia.url}`;
+const pageTitle = `${referencia.name} | ${SITE.title}`;
+
+/*
+ * La metadescripción sale de la descripción de la referencia SOLO cuando es
+ * una frase. En el catálogo, varias referencias usan ese campo como nota de
+ * una palabra —"Azul.", "Rojo.", "Para bolsa Re-Use."—, que distingue una
+ * medida de otra en un listado pero no le dice nada a quien la encuentra en un
+ * buscador. Por debajo de cuarenta caracteres se arma una frase con el nombre
+ * y la categoría, que siempre dice algo.
+ */
+const metaDescription =
+  referencia.description && referencia.description.length >= 40
+    ? referencia.description
+    : `${referencia.name}: referencia de ${referencia.group.toLowerCase()} de ${SITE.legalName}. Consulte especificaciones y usos, y cotice en línea o por WhatsApp.`;
+
+/*
+ * Product SIN `offers`. Este sitio no publica precios —se cotizan según
+ * referencia, cantidad y personalización—, y declarar una oferta sin importe
+ * es prometerle al buscador un dato que la página no tiene.
+ */
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Product',
+      '@id': url,
+      name: referencia.name,
+      description: metaDescription,
+      category: referencia.group,
+      ...(referencia.code ? { sku: referencia.code } : {}),
+      brand: { '@type': 'Brand', name: SITE.legalName },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Inicio', item: SITE.url },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: referencia.family,
+          item: `${SITE.url}/productos/${referencia.familyId}`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 3,
+          name: referencia.group,
+          item: `${SITE.url}${referencia.groupUrl}`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 4,
+          name: referencia.name,
+          item: url,
+        },
+      ],
+    },
+    ...(referencia.ficha.faq.length > 0
+      ? [
+          {
+            '@type': 'FAQPage',
+            mainEntity: referencia.ficha.faq.map(item => ({
+              '@type': 'Question',
+              name: item.question,
+              acceptedAnswer: { '@type': 'Answer', text: item.answer },
+            })),
+          },
+        ]
+      : []),
+  ],
+};
+---
+
+<MainLayout
+  title={pageTitle}
+  customDescription={metaDescription}
+  customOgTitle={pageTitle}
+  structuredData={structuredData}
+>
+  <ProductoFicha referencia={referencia} relacionados={relacionados} />
+
+  <HeroSectionAlt
+    title="¿No está seguro de cuál es la referencia que necesita?"
+    subTitle="Descríbanos qué punto necesita asegurar y le indicamos qué referencia corresponde, en qué cantidad y con qué numeración."
+    url="/contacto"
+    btnTitle="Contáctenos"
+  />
+</MainLayout>

@@ -48,6 +48,10 @@ const RUTAS_ESPERADAS = [
   '/precintos/',
   '/precintos/precintos-de-botella/',
   '/precintos/precintos-de-guaya/',
+  // Fichas de referencia: una de precintos y una de otra familia, que es lo
+  // que exige que la plantilla no quedara atada a los atributos de un precinto.
+  '/precintos/precintos-de-correa-dentada/precinto-doble-dentado-38-cms/',
+  '/productos/tulas-y-bolsas-de-seguridad/tula-de-seguridad-30-x-40-cms/',
   '/productos/',
   '/productos/precintos-de-seguridad/',
   '/productos/etiquetas-y-cintas-de-seguridad/',
@@ -106,6 +110,115 @@ describe('rutas generadas', () => {
 
   test('el favicon no está vacío', () => {
     assert.ok(statSync(join(DIST, 'favicon.ico')).size > 500);
+  });
+});
+
+describe('ficha de producto', () => {
+  const fichas = () =>
+    pages().filter(p =>
+      /^\/(precintos|productos)\/[^/]+\/[^/]+\/$/.test(p.route)
+    );
+
+  const unaFicha = ruta => {
+    const p = pages().find(x => x.route === ruta);
+    assert.ok(p, `no se generó ${ruta}`);
+    return p.html;
+  };
+
+  test('cada referencia del catálogo tiene su propia página', () => {
+    // 49 referencias de precintos y 66 del resto de familias.
+    assert.ok(
+      fichas().length > 100,
+      `solo se generaron ${fichas().length} fichas`
+    );
+  });
+
+  test('la tarjeta de la categoría lleva a la ficha', () => {
+    const categoria = unaFicha('/precintos/precintos-de-correa-dentada/');
+    assert.match(
+      categoria,
+      /href="\/precintos\/precintos-de-correa-dentada\/precinto-doble-dentado-38-cms"/,
+      'la tarjeta de la categoría sigue sin enlazar a la referencia'
+    );
+  });
+
+  test('el listado de una familia lleva a la ficha', () => {
+    const familia = unaFicha('/productos/tulas-y-bolsas-de-seguridad/');
+    assert.match(
+      familia,
+      /href="\/productos\/tulas-y-bolsas-de-seguridad\/[a-z0-9-]+"/,
+      'el listado de la familia sigue sin enlazar a sus referencias'
+    );
+  });
+
+  test('el botón de WhatsApp lleva el nombre de la referencia', () => {
+    const html = unaFicha(
+      '/precintos/precintos-de-correa-dentada/precinto-doble-dentado-38-cms/'
+    );
+    assert.match(html, /wa\.me\/\d+\?text=[^"]*Precinto%20Doble%20Dentado/);
+  });
+
+  test('la ficha ofrece el cotizador del sitio, no un formulario nuevo', () => {
+    const html = unaFicha(
+      '/precintos/precintos-de-correa-dentada/precinto-doble-dentado-38-cms/'
+    );
+    assert.match(html, /data-quote-add="/);
+  });
+
+  /*
+   * La regla que sostiene un catálogo que se llena de a poco: un bloque sin
+   * datos no se pinta. Un encabezado "Colores disponibles" sin colores debajo
+   * es peor que no tener la sección.
+   */
+  test('los bloques sin datos no se pintan', () => {
+    const html = unaFicha(
+      '/precintos/precintos-de-correa-dentada/precinto-doble-dentado-38-cms/'
+    );
+    for (const bloque of [
+      'Colores disponibles',
+      'Cantidad mínima de pedido',
+      'Ficha técnica',
+      'Principales usos',
+    ]) {
+      assert.ok(
+        !html.includes(bloque),
+        `se pintó "${bloque}" sin tener ese dato`
+      );
+    }
+  });
+
+  test('los bloques heredados de la familia sí se pintan', () => {
+    const html = unaFicha(
+      '/precintos/precintos-de-correa-dentada/precinto-doble-dentado-38-cms/'
+    );
+    for (const bloque of [
+      'Trazabilidad',
+      '¿Cómo se utiliza?',
+      'Preguntas frecuentes',
+    ]) {
+      assert.ok(html.includes(bloque), `falta el bloque "${bloque}"`);
+    }
+  });
+
+  test('ninguna ficha promete una descarga que no existe', () => {
+    for (const p of fichas()) {
+      const pdf = p.html.match(/href="([^"]+\.pdf)"/)?.[1];
+      if (!pdf) continue;
+      assert.ok(
+        existsSync(join(DIST, pdf.replace(/^\//, ''))),
+        `${p.route} enlaza ${pdf}, que no está en dist/`
+      );
+    }
+  });
+
+  test('la ficha se declara como Product, y sin precio', () => {
+    const html = unaFicha(
+      '/precintos/precintos-de-correa-dentada/precinto-doble-dentado-38-cms/'
+    );
+    assert.match(html, /"@type":"Product"/);
+    // El sitio no publica precios: declarar una oferta sin importe sería
+    // prometerle al buscador un dato que la página no tiene.
+    assert.ok(!html.includes('"offers"'));
   });
 });
 

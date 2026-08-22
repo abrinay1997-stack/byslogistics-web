@@ -1,0 +1,25 @@
+---
+import type { GetStaticPaths } from 'astro';
+import ProductoPagina from '@components/sections/producto/ProductoPagina.astro';
+import { getRutasDeProducto } from '@utils/catalog';
+import type { Referencia } from '@utils/catalog';
+
+/**
+ * Ficha de una referencia de precintos: /precintos/<categoria>/<referencia>.
+ *
+ * La URL cuelga de su categoría en vez de vivir en una carpeta plana porque
+ * así la dirección ya cuenta dónde está parado quien llega —y porque subir un
+ * nivel desde la ficha lleva a la categoría, que es lo que espera cualquiera.
+ */
+export const getStaticPaths: GetStaticPaths = () =>
+  getRutasDeProducto('/precintos');
+
+interface Props {
+  referencia: Referencia;
+  relacionados: Referencia[];
+}
+
+const { referencia, relacionados } = Astro.props;
+---
+
+<ProductoPagina referencia={referencia} relacionados={relacionados} />
