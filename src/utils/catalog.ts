@@ -14,7 +14,12 @@ import { FICHA_POR_FAMILIA } from '@data/fichas';
 
 export interface FichaSpec {
   etiqueta: string;
-  valor: string;
+  /**
+   * Ausente cuando la categoría declara el atributo pero la referencia
+   * todavía no tiene su número. La plantilla lo pinta como "Consúltenos": la
+   * fila se ve, y nadie confunde un hueco con un dato.
+   */
+  valor?: string;
 }
 
 export interface FichaPaso {
@@ -61,6 +66,7 @@ export interface Ficha {
   /** Propios si los tiene; si no, los de la categoría. */
   comoSeUsa: FichaPaso[];
   presentacion: string[];
+  notaPresentacion?: string;
   fichaTecnica?: string;
   /** Las de la categoría primero, después las propias. */
   faq: FichaFaq[];
@@ -114,55 +120,136 @@ export interface CatalogFacet {
   familyId?: string;
 }
 
-/** Lo que una categoría le presta a sus referencias. */
+/** Lo que una categoría (o una familia) le presta a sus referencias. */
 interface Defectos {
   beneficios?: FichaBeneficio[];
   comoSeUsa?: FichaPaso[];
   faq?: FichaFaq[];
+  specs?: FichaSpec[];
+  medidas?: {
+    imagen?: ImageMetadata;
+    imagenAlt?: string;
+    valores: FichaSpec[];
+  };
+  colores?: Array<{ nombre: string; hex?: string }>;
+  notaColores?: string;
+  personalizacion?: string[];
+  notaPersonalizacion?: string;
+  moq?: { unidades: number; nota?: string };
+  usos?: string[];
+  sectores?: string[];
+  presentacion?: string[];
+  notaPresentacion?: string;
 }
 
 /**
- * Junta lo de la referencia con lo de su categoría y lo de su familia.
+ * Mezcla la plantilla de atributos de la categoría con los valores de la
+ * referencia, EMPAREJANDO POR ETIQUETA.
  *
- * Los pasos de instalación se REEMPLAZAN —si una referencia se instala
- * distinto, sus pasos son otros, no unos cuantos más— y las preguntas se
- * SUMAN, porque las de la familia siguen valiendo y la referencia solo agrega
- * las suyas. De más específico a más general: referencia, categoría, familia.
+ * La categoría manda el orden y qué filas se ven; la referencia solo pone los
+ * valores que son suyos. Así "Longitud total" ocupa el mismo lugar en las seis
+ * fichas de una categoría, tenga o no su número todavía, y una referencia
+ * puede añadir un atributo que las demás no tienen sin descolocar nada.
+ */
+function mezclarSpecs(
+  plantilla: FichaSpec[] = [],
+  propios: FichaSpec[] = []
+): FichaSpec[] {
+  const porEtiqueta = new Map(propios.map(spec => [spec.etiqueta, spec]));
+  const salida = plantilla.map(fila => porEtiqueta.get(fila.etiqueta) ?? fila);
+  const yaPuestas = new Set(plantilla.map(fila => fila.etiqueta));
+  return [...salida, ...propios.filter(spec => !yaPuestas.has(spec.etiqueta))];
+}
+
+/** El primero que traiga algo. Sirve para listas y para textos sueltos. */
+const primero = <T>(...candidatos: Array<T | undefined>): T | undefined =>
+  candidatos.find(
+    valor => valor !== undefined && (!Array.isArray(valor) || valor.length > 0)
+  );
+
+/**
+ * Junta lo de la referencia con lo de su categoría y lo de su familia.
  */
 function resolverFicha(
   producto: any,
-  defectos: Defectos,
+  categoria: Defectos,
   familiaId: string
 ): Ficha {
-  const familia = FICHA_POR_FAMILIA[familiaId] ?? {};
-  const comoSeUsa = producto.comoSeUsa?.length
-    ? producto.comoSeUsa
-    : defectos.comoSeUsa?.length
-      ? defectos.comoSeUsa
-      : (familia.comoSeUsa ?? []);
+  const familia: Defectos = FICHA_POR_FAMILIA[familiaId] ?? {};
+
+  /*
+   * Orden de precedencia, de más específico a más general:
+   *
+   *   la referencia  →  su categoría  →  su familia
+   *
+   * Se reemplaza, no se acumula: si una referencia declara sus colores, son
+   * ESOS y no los suyos más los de la categoría. La única excepción son las
+   * preguntas frecuentes, que sí se suman —las de la familia siguen valiendo
+   * y la referencia solo agrega las que le son propias.
+   */
+  const medidasPlantilla = primero(categoria.medidas, familia.medidas);
+
   return {
     badges: producto.badges ?? [],
     galeria: producto.galeria ?? [],
-    specs: producto.specs ?? [],
-    medidas: producto.medidas,
-    colores: producto.colores ?? [],
-    notaColores: producto.notaColores,
-    personalizacion: producto.personalizacion ?? [],
-    notaPersonalizacion: producto.notaPersonalizacion,
-    moq: producto.moq,
-    usos: producto.usos ?? [],
-    sectores: producto.sectores ?? [],
-    comoSeUsa,
-    presentacion: producto.presentacion ?? [],
+    specs: mezclarSpecs(
+      primero(categoria.specs, familia.specs),
+      producto.specs
+    ),
+    medidas:
+      producto.medidas || medidasPlantilla
+        ? {
+            imagen: producto.medidas?.imagen ?? medidasPlantilla?.imagen,
+            imagenAlt:
+              producto.medidas?.imagenAlt ?? medidasPlantilla?.imagenAlt,
+            valores: mezclarSpecs(
+              medidasPlantilla?.valores,
+              producto.medidas?.valores
+            ),
+          }
+        : undefined,
+    colores:
+      primero(producto.colores, categoria.colores, familia.colores) ?? [],
+    notaColores: primero(
+      producto.notaColores,
+      categoria.notaColores,
+      familia.notaColores
+    ),
+    personalizacion:
+      primero(
+        producto.personalizacion,
+        categoria.personalizacion,
+        familia.personalizacion
+      ) ?? [],
+    notaPersonalizacion: primero(
+      producto.notaPersonalizacion,
+      categoria.notaPersonalizacion,
+      familia.notaPersonalizacion
+    ),
+    moq: primero(producto.moq, categoria.moq, familia.moq),
+    usos: primero(producto.usos, categoria.usos, familia.usos) ?? [],
+    sectores:
+      primero(producto.sectores, categoria.sectores, familia.sectores) ?? [],
+    comoSeUsa:
+      primero(producto.comoSeUsa, categoria.comoSeUsa, familia.comoSeUsa) ?? [],
+    presentacion:
+      primero(
+        producto.presentacion,
+        categoria.presentacion,
+        familia.presentacion
+      ) ?? [],
+    notaPresentacion: primero(
+      producto.notaPresentacion,
+      categoria.notaPresentacion,
+      familia.notaPresentacion
+    ),
     fichaTecnica: producto.fichaTecnica,
     faq: [
       ...(familia.faq ?? []),
-      ...(defectos.faq ?? []),
+      ...(categoria.faq ?? []),
       ...(producto.faq ?? []),
     ],
-    beneficios: defectos.beneficios?.length
-      ? defectos.beneficios
-      : (familia.beneficios ?? []),
+    beneficios: primero(categoria.beneficios, familia.beneficios) ?? [],
   };
 }
 
@@ -220,11 +307,7 @@ export async function getReferencias(): Promise<Referencia[]> {
   // "Precintos de Seguridad" delega su catálogo en /precintos.
   const familiaPrecintos = soluciones.find(s => s.data.catalogUrl);
   for (const categoria of precintos) {
-    const defectos: Defectos = {
-      beneficios: categoria.data.beneficios,
-      comoSeUsa: categoria.data.comoSeUsa,
-      faq: categoria.data.faq,
-    };
+    const defectos = categoria.data as Defectos;
     for (const product of categoria.data.products) {
       push(
         {
@@ -250,11 +333,7 @@ export async function getReferencias(): Promise<Referencia[]> {
 
   for (const familia of soluciones) {
     for (const group of familia.data.groups) {
-      const defectos: Defectos = {
-        beneficios: group.beneficios,
-        comoSeUsa: group.comoSeUsa,
-        faq: group.faq,
-      };
+      const defectos = group as Defectos;
       for (const product of group.products) {
         push(
           {

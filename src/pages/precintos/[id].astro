@@ -122,11 +122,11 @@ const referencias = (await getReferencias()).filter(
                 href={referencia.url}
                 tabindex="-1"
                 aria-hidden="true"
-                class="flex aspect-[5/3] items-center justify-center bg-white"
+                class="relative aspect-[5/3] overflow-hidden bg-white"
               >
                 {referencia.image ? (
                   <Image
-                    class="h-full w-full object-contain p-6 transition-transform duration-500 group-hover:scale-105"
+                    class="absolute inset-0 h-full w-full object-contain p-6 transition-transform duration-500 group-hover:scale-105"
                     src={referencia.image}
                     alt={referencia.imageAlt ?? referencia.name}
                     widths={[320, 480]}
@@ -134,7 +134,9 @@ const referencias = (await getReferencias()).filter(
                     loading="lazy"
                   />
                 ) : (
-                  <ImagePlaceholder />
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <ImagePlaceholder />
+                  </div>
                 )}
               </a>
               <div class="flex grow flex-col p-6 sm:p-7">

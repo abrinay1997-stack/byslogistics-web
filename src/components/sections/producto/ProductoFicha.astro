@@ -59,6 +59,19 @@ const TARJETA =
 const TITULO_SECCION =
   'text-2xl font-bold text-neutral-800 sm:text-3xl dark:text-neutral-100';
 
+/*
+ * Qué se enseña cuando la categoría declara un atributo y la referencia
+ * todavía no tiene su número.
+ *
+ * La alternativa era esconder la fila, y eso deja las fichas de una misma
+ * categoría con formas distintas según cuánta información se haya levantado.
+ * La otra alternativa —rellenar con una cifra plausible— es la única
+ * inaceptable: un dato técnico inventado en la página de un proveedor es un
+ * pedido mal hecho. "Consúltenos" es verdad y además es lo que haría el
+ * equipo comercial.
+ */
+const PENDIENTE = 'Consúltenos';
+
 /* Qué bloques hay que pintar. */
 const hayMedidas = Boolean(
   ficha.medidas && (ficha.medidas.imagen || ficha.medidas.valores.length)
@@ -81,14 +94,19 @@ const hayUsos = ficha.usos.length > 0 || ficha.sectores.length > 0;
 <section class={`${SECCION} py-10 lg:py-14`}>
   <div class="grid gap-10 lg:grid-cols-12 lg:items-start lg:gap-14">
     <div class="lg:col-span-6">
+      {
+        /* `relative` + `absolute` y no `h-full` a secas: la altura de esta caja
+          sale de `aspect-ratio`, y contra eso un `height: 100%` no resuelve.
+          Una foto más alta que ancha estiraba su caja y descuadraba la fila. */
+      }
       <div
-        class="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl border border-neutral-300 bg-white dark:border-neutral-700"
+        class="relative aspect-[4/3] overflow-hidden rounded-2xl border border-neutral-300 bg-white dark:border-neutral-700"
       >
         {
           fotos.length > 0 ? (
             <Image
               data-galeria-principal
-              class="h-full w-full object-contain p-8"
+              class="absolute inset-0 h-full w-full object-contain p-8"
               src={fotos[0].src}
               alt={fotos[0].alt}
               widths={[480, 720, 960]}
@@ -96,7 +114,9 @@ const hayUsos = ficha.usos.length > 0 || ficha.sectores.length > 0;
               loading="eager"
             />
           ) : (
-            <ImagePlaceholder />
+            <div class="absolute inset-0 flex items-center justify-center">
+              <ImagePlaceholder />
+            </div>
           )
         }
       </div>
@@ -179,8 +199,15 @@ const hayUsos = ficha.usos.length > 0 || ficha.sectores.length > 0;
                 <dt class="text-xs font-bold tracking-wider text-neutral-600 uppercase dark:text-neutral-400">
                   {spec.etiqueta}
                 </dt>
-                <dd class="mt-1 font-medium text-neutral-800 dark:text-neutral-200">
-                  {spec.valor}
+                <dd
+                  class:list={[
+                    'mt-1 font-medium',
+                    spec.valor
+                      ? 'text-neutral-800 dark:text-neutral-200'
+                      : 'text-neutral-500 italic dark:text-neutral-500',
+                  ]}
+                >
+                  {spec.valor ?? PENDIENTE}
                 </dd>
               </div>
             ))}
@@ -296,8 +323,14 @@ const hayUsos = ficha.usos.length > 0 || ficha.sectores.length > 0;
                     <dt class="text-sm text-neutral-600 dark:text-neutral-400">
                       {valor.etiqueta}
                     </dt>
-                    <dd class="font-bold text-neutral-800 dark:text-neutral-200">
-                      {valor.valor}
+                    <dd
+                      class:list={[
+                        valor.valor
+                          ? 'font-bold text-neutral-800 dark:text-neutral-200'
+                          : 'text-neutral-500 italic dark:text-neutral-500',
+                      ]}
+                    >
+                      {valor.valor ?? PENDIENTE}
                     </dd>
                   </div>
                 ))}
@@ -309,24 +342,30 @@ const hayUsos = ficha.usos.length > 0 || ficha.sectores.length > 0;
         {ficha.colores.length > 0 && (
           <div class={TARJETA}>
             <h2 class={TITULO_SECCION}>Colores disponibles</h2>
-            <ul class="mt-6 flex flex-wrap gap-x-6 gap-y-4">
-              {ficha.colores.map(color => (
-                <li class="flex items-center gap-x-2 text-sm text-neutral-700 dark:text-neutral-300">
-                  {color.hex ? (
-                    <span
-                      class="h-7 w-7 rounded-full border border-neutral-400 dark:border-neutral-600"
-                      style={`background-color:${color.hex}`}
-                      aria-hidden="true"
-                    />
-                  ) : (
-                    <span
-                      class="h-7 w-2 rounded-full bg-neutral-300 dark:bg-neutral-700"
-                      aria-hidden="true"
-                    />
-                  )}
-                  {color.nombre}
-                </li>
-              ))}
+            {/* Solo el círculo: escribir "Rojo" al lado de un círculo rojo
+                repite lo que la muestra ya dice. El nombre no se pierde —vive
+                en el `title`, para quien pase el cursor, y en un texto oculto
+                que sí leen los lectores de pantalla—, porque un color que solo
+                existe como pixel no existe para quien no lo ve.
+
+                Sin `hex` no hay muestra que enseñar, así que ahí el nombre se
+                pinta como etiqueta: es lo único que queda. */}
+            <ul class="mt-6 flex flex-wrap items-center gap-3">
+              {ficha.colores.map(color =>
+                color.hex ? (
+                  <li
+                    title={color.nombre}
+                    class="h-9 w-9 rounded-full border border-neutral-400 shadow-inner dark:border-neutral-600"
+                    style={`background-color:${color.hex}`}
+                  >
+                    <span class="sr-only">{color.nombre}</span>
+                  </li>
+                ) : (
+                  <li class="rounded-full border border-neutral-300 px-4 py-1.5 text-sm text-neutral-700 dark:border-neutral-700 dark:text-neutral-300">
+                    {color.nombre}
+                  </li>
+                )
+              )}
             </ul>
             {ficha.notaColores && (
               <p class="mt-5 text-xs text-neutral-600 dark:text-neutral-400">
@@ -532,10 +571,10 @@ const hayUsos = ficha.usos.length > 0 || ficha.sectores.length > 0;
             href={otra.url}
             class="group hover:border-brand-400 dark:hover:border-brand-400 flex flex-col overflow-hidden rounded-2xl border border-neutral-300 bg-neutral-100 ring-zinc-500 outline-hidden transition duration-300 hover:-translate-y-1 hover:shadow-xl focus-visible:ring-3 dark:border-neutral-700 dark:bg-neutral-900 dark:ring-zinc-200"
           >
-            <div class="flex aspect-[5/3] items-center justify-center bg-white">
+            <div class="relative aspect-[5/3] overflow-hidden bg-white">
               {otra.image ? (
                 <Image
-                  class="h-full w-full object-contain p-6 transition-transform duration-500 group-hover:scale-105"
+                  class="absolute inset-0 h-full w-full object-contain p-6 transition-transform duration-500 group-hover:scale-105"
                   src={otra.image}
                   alt={otra.imageAlt ?? otra.name}
                   widths={[320, 480]}
@@ -543,7 +582,9 @@ const hayUsos = ficha.usos.length > 0 || ficha.sectores.length > 0;
                   loading="lazy"
                 />
               ) : (
-                <ImagePlaceholder />
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <ImagePlaceholder />
+                </div>
               )}
             </div>
             <div class="flex grow flex-col p-5">
