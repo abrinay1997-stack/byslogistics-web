@@ -123,6 +123,56 @@ describe('recuperación', () => {
   }
 
   /*
+   * El documento de preguntas frecuentes de las dueñas, leído como lo leería un
+   * cliente. Estas son las preguntas que antes caían en un hecho cualquiera
+   * porque nadie las había escrito en la base: si vuelven a fallar, el
+   * asistente contesta otra cosa sin que se note en ninguna página.
+   */
+  const casosDelDocumento = [
+    [
+      '¿Por qué son importantes los precintos en la cadena de suministro?',
+      'cadena-de-suministro-por-que-importan',
+    ],
+    [
+      '¿Qué beneficios tienen los precintos de seguridad numerados?',
+      'precintos-numerados-beneficios',
+    ],
+    ['¿Qué industrias utilizan precintos?', 'industrias-que-usan-precintos'],
+    [
+      '¿Qué tipo de precinto ofrece mayor nivel de seguridad?',
+      'tipos-de-precinto-por-material',
+    ],
+    [
+      '¿Qué precintos utilizan las empresas de transporte de carga?',
+      'precintos-en-transporte-de-carga',
+    ],
+    [
+      '¿Cuál es el mejor proveedor de precintos de seguridad en Colombia?',
+      'elegir-proveedor',
+    ],
+    [
+      '¿Qué empresa vende precintos de seguridad al por mayor en Colombia?',
+      'suministro-por-volumen',
+    ],
+    ['¿Dónde comprar precintos de seguridad en Colombia?', 'cobertura'],
+    [
+      '¿Cómo funcionan los precintos de seguridad en logística y transporte?',
+      'como-funciona-el-precintado',
+    ],
+  ];
+
+  for (const [pregunta, esperado] of casosDelDocumento) {
+    test(`"${pregunta}" recupera ${esperado}`, () => {
+      const facts = retrieve(kb, pregunta);
+      assert.equal(
+        facts[0]?.id,
+        esperado,
+        `salió ${facts.map(f => f.id).join(', ')}`
+      );
+    });
+  }
+
+  /*
    * Preguntas que legítimamente tocan dos hechos a la vez: quien pregunta
    * "¿venden bolsas para traslado de valores?" se conforma igual con la ficha
    * de las tulas o con la del sector financiero. Aquí se exige que el hecho
@@ -140,6 +190,14 @@ describe('recuperación', () => {
     // La respuesta a la personalización está dos veces y bien: en el hecho
     // general y en la pregunta frecuente de la guía de contenedores.
     ['¿Se les puede poner el logo de mi empresa?', 'personalizacion'],
+    /*
+     * "¿Qué tipos de precintos existen?" tiene dos respuestas buenas y
+     * distintas: el resumen de las once categorías del catálogo —que es el que
+     * gana, y debe ganar, por el realce— y la clasificación por material
+     * (plástico, metálico, guaya, botella, electrónico) que enseñan las dueñas.
+     * Al modelo le llegan las dos.
+     */
+    ['¿Qué tipos de precintos existen?', 'tipos-de-precinto-por-material'],
   ];
 
   for (const [pregunta, esperado] of casosAmbiguos) {
@@ -320,6 +378,86 @@ describe('endpoint /api/chat', () => {
     assert.equal(data.degraded, true);
     assert.equal(data.code, 'groq_http_429');
     assert.ok(data.reply.includes(kb.site.email));
+  });
+
+  /*
+   * La caída de agosto de 2026: Groq retiró el modelo que tenía puesto el
+   * asistente y contestó 400 a cada mensaje. Con un solo nombre de modelo eso
+   * tumbaba el chat entero; con la lista de relevo, el visitante ni se entera.
+   */
+  test('un modelo retirado no tumba el chat: pasa al siguiente', async () => {
+    const pedidos = [];
+    globalThis.fetch = async (url, init) => {
+      const href = String(url);
+      if (href.endsWith('/kb.json')) {
+        return new Response(readFileSync(KB_PATH, 'utf8'), { status: 200 });
+      }
+      const { model } = JSON.parse(init.body);
+      pedidos.push(model);
+      // El primero de la lista responde como responde un modelo dado de baja.
+      if (pedidos.length === 1) {
+        return new Response(
+          JSON.stringify({ error: { code: 'model_decommissioned' } }),
+          { status: 400 }
+        );
+      }
+      return new Response(
+        JSON.stringify({
+          choices: [{ message: { content: 'Aquí estamos.' } }],
+        }),
+        { status: 200 }
+      );
+    };
+
+    const data = await (await pedir('hola')).json();
+    assert.equal(data.reply, 'Aquí estamos.');
+    assert.ok(!data.degraded);
+    assert.equal(pedidos.length, 2, `probó ${pedidos.join(', ')}`);
+    assert.notEqual(pedidos[0], pedidos[1]);
+  });
+
+  test('una cuota agotada no gasta llamadas probando otros modelos', async () => {
+    let llamadas = 0;
+    globalThis.fetch = async url => {
+      const href = String(url);
+      if (href.endsWith('/kb.json')) {
+        return new Response(readFileSync(KB_PATH, 'utf8'), { status: 200 });
+      }
+      llamadas += 1;
+      return new Response('sin cuota', { status: 429 });
+    };
+
+    const data = await (await pedir('hola')).json();
+    assert.equal(data.code, 'groq_http_429');
+    assert.equal(llamadas, 1, 'un 429 habla de la cuota, no del modelo');
+  });
+
+  test('GROQ_MODEL se prueba primero, pero la lista sigue de relevo', async () => {
+    process.env.GROQ_MODEL = 'llama-3.3-70b-versatile';
+    const pedidos = [];
+    globalThis.fetch = async (url, init) => {
+      const href = String(url);
+      if (href.endsWith('/kb.json')) {
+        return new Response(readFileSync(KB_PATH, 'utf8'), { status: 200 });
+      }
+      pedidos.push(JSON.parse(init.body).model);
+      if (pedidos.length === 1)
+        return new Response('retirado', { status: 400 });
+      return new Response(
+        JSON.stringify({
+          choices: [{ message: { content: 'Aquí estamos.' } }],
+        }),
+        { status: 200 }
+      );
+    };
+
+    try {
+      const data = await (await pedir('hola')).json();
+      assert.equal(pedidos[0], 'llama-3.3-70b-versatile');
+      assert.equal(data.reply, 'Aquí estamos.');
+    } finally {
+      delete process.env.GROQ_MODEL;
+    }
   });
 
   test('rechaza lo que no venga del propio sitio', async () => {

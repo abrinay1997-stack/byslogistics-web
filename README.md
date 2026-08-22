@@ -354,15 +354,28 @@ obedezca el prompt.
 **Variables en Netlify** (Site configuration → Environment variables). Nunca en
 el repositorio: la clave solo existe en el servidor y el navegador jamás la ve.
 
-| Variable            | Obligatoria | Para qué                                    |
-| ------------------- | ----------- | ------------------------------------------- |
-| `GROQ_API_KEY`      | Sí          | La clave del proveedor                      |
-| `GROQ_MODEL`        | No          | Fijar el modelo (`llama-3.3-70b-versatile`) |
-| `ANTHROPIC_API_KEY` | No          | Repuesto si Groq falla                      |
-| `CHAT_MAX_PER_DAY`  | No          | Techo diario de mensajes del sitio (300)    |
+| Variable            | Obligatoria | Para qué                                 |
+| ------------------- | ----------- | ---------------------------------------- |
+| `GROQ_API_KEY`      | Sí          | La clave del proveedor                   |
+| `GROQ_MODEL`        | No          | Fijar el modelo de Groq (ver más abajo)  |
+| `ANTHROPIC_API_KEY` | No          | Repuesto si Groq falla                   |
+| `CHAT_MAX_PER_DAY`  | No          | Techo diario de mensajes del sitio (300) |
 
 Después de crear la variable hay que **volver a desplegar**: las funciones leen
 el entorno del despliegue, no el del panel en vivo.
+
+**El modelo no es un nombre, es una lista.** En agosto de 2026 Groq retiró
+`llama-3.3-70b-versatile`, que era el que tenía puesto el asistente, y desde ese
+día el chat contestó «se nos cayó la conexión» a todo el mundo con el sitio
+entero intacto. Por eso `MODELOS_GROQ`, en `netlify/functions/chat.mts`, es una
+lista con relevo: si el primero responde que no existe o que está retirado (400
+o 404), se prueba el siguiente sin que el visitante se entere. Al agregar uno
+nuevo va primero y los anteriores se quedan detrás.
+
+`GROQ_MODEL` sirve para forzar uno concreto y se prueba antes que la lista; si
+el que fija ya no existe, el relevo sigue funcionando igual. El nombre del
+modelo que falló queda en el registro de la función, que es el dato que dice si
+hay que actualizar la lista o revisar la clave.
 
 **Sin clave configurada el asistente no se rompe:** contesta que todavía no está
 conectado y deriva al correo y al P.B.X. Lo mismo si el proveedor se cae, si se

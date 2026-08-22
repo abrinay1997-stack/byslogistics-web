@@ -408,6 +408,13 @@ export const GET: APIRoute = async () => {
       'cobertura',
       'donde estan ubicados',
       'exportan',
+      // "¿Dónde comprar precintos en Colombia?" es de las preguntas más
+      // frecuentes que llegan por buscador, y sin estas formas caía en una
+      // categoría de producto cualquiera en vez de en la cobertura.
+      'donde comprar precintos',
+      'donde consigo precintos en colombia',
+      'venden precintos en colombia',
+      'despachan a mi ciudad',
     ],
     text:
       `Operamos desde ${CONTACT.city} y atendemos todo el país. Además contamos con atención en Panamá ` +
